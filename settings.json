@@ -3,7 +3,7 @@
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000"
   },
   "permissions": {
-    "defaultMode": "acceptEdits",
+    "defaultMode": "bypassPermissions",
     "allow": [
       "WebFetch(domain:c1.mouisys.com)",
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/logo.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/mobio-plus-2025-08-14t09-13-52-118z.svg-2025-08-14T09-13-52-618Z.svg\")",
