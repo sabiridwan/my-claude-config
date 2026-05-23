@@ -139,7 +139,7 @@
       "Edit(~/.claude/skills/zync-expo-standard/**)",
       "WebSearch"
     ],
-    "defaultMode": "acceptEdits",
+    "defaultMode": "bypassPermissions",
     "additionalDirectories": [
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
