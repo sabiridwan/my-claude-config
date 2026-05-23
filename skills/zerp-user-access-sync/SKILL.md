@@ -120,7 +120,7 @@ For factory, also read: `permission.factory.ts` completely — CASL ability buil
 - `seed()` — seeds Admin group with all permissions after seeding actions and modules.
 
 ### action.service.ts
-- `seed()` — massive bulk insert of 50+ modules with 300+ named actions. Copy the entire seed data array verbatim — action names are referenced by string in business logic and frontend.
+- `seed()` — bulk insert of modules with their named actions. The number of modules and actions varies by application (zerp-be has 50+ modules and hundreds of actions; smaller apps may have far fewer). Copy the seed data array from the source project verbatim — action names are referenced by string in business logic and frontend.
 
 ### module.service.ts (PermissionModule)
 - `findUserPermissions()` — returns modules + all their actions with a `hasPermission` boolean per action for the calling user.
@@ -188,7 +188,7 @@ companyId (from BaseSchema)
 |---|---|
 | `CheckActionTypes` | `CHECK_ALL`, `UNCHECK_ALL` |
 | `RoleActions` | `CREATE`, `UPDATE`, `READ`, `MANAGE`, `DELETE` |
-| `ApModules` | 75 values — Dashboard, Sales, Purchasing, Inventory, Accounting, HR, Manufacturing, Projects, Recruitment, Admin, Reports, etc. |
+| `ApModules` | Values vary by application — copy from source project verbatim. zerp-be includes Dashboard, Sales, Purchasing, Inventory, Accounting, HR, Manufacturing, Projects, Recruitment, Admin, Reports, etc. |
 
 ---
 
