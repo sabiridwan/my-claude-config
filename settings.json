@@ -2,7 +2,6 @@
   "env": {
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "100000"
   },
-  "model": "claude-sonnet-4-6-20250514",
   "permissions": {
     "defaultMode": "acceptEdits",
     "allow": [
@@ -184,6 +183,7 @@
       }
     ]
   },
+  "autoCompactEnabled": true,
   "effortLevel": "medium",
   "voice": {
     "enabled": true,
