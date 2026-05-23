@@ -1,0 +1,28 @@
+# Sensitive / ephemeral — never commit these
+history.jsonl
+session-env/
+sessions/
+shell-snapshots/
+telemetry/
+statsig/
+stats-cache.json
+mcp-needs-auth-cache.json
+debug/
+backups/
+cache/
+downloads/
+file-history/
+ide/
+todos/
+plans/
+
+# Plugin cache is downloaded from remote — only keep the manifest
+plugins/cache/
+plugins/data/
+plugins/blocklist.json
+plugins/install-counts-cache.json
+plugins/known_marketplaces.json
+plugins/marketplaces/
+
+# Project-specific Claude state
+projects/
