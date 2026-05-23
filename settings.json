@@ -134,7 +134,9 @@
       "Read(//Users/sabiridwan/SamMedia/credit-card/**)",
       "Edit(~/.claude/skills/cc_dev/**)",
       "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)",
-      "Edit(~/.claude/skills/zync_expo_standard/**)"
+      "Edit(~/.claude/skills/zync_expo_standard/**)",
+      "Bash(mv /Users/sabiridwan/.claude/skills/zync_expo_standard /Users/sabiridwan/.claude/skills/zync-expo-standard)",
+      "Edit(~/.claude/skills/zync-expo-standard/**)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
@@ -147,7 +149,8 @@
       "/Users/sabiridwan/.claude",
       "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/plans",
       "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
-      "/Users/sabiridwan/.claude/skills"
+      "/Users/sabiridwan/.claude/skills",
+      "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
   "model": "sonnet",
