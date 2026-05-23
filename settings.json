@@ -133,7 +133,8 @@
       "Bash(ls /Users/sabiridwan/SamMedia/credit-card/ 2>/dev/null || echo \"Directory not found\")",
       "Read(//Users/sabiridwan/SamMedia/credit-card/**)",
       "Edit(~/.claude/skills/cc_dev/**)",
-      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)"
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)",
+      "Edit(~/.claude/skills/zync_expo_standard/**)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
