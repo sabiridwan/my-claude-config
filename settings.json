@@ -138,7 +138,7 @@
       "Bash(mv /Users/sabiridwan/.claude/skills/zync_expo_standard /Users/sabiridwan/.claude/skills/zync-expo-standard)",
       "Edit(~/.claude/skills/zync-expo-standard/**)"
     ],
-    "defaultMode": "bypassPermissions",
+    "defaultMode": "acceptEdits",
     "additionalDirectories": [
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
