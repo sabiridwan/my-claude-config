@@ -3,7 +3,6 @@
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000"
   },
   "permissions": {
-    "defaultMode": "bypassPermissions",
     "allow": [
       "WebFetch(domain:c1.mouisys.com)",
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/logo.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/mobio-plus-2025-08-14t09-13-52-118z.svg-2025-08-14T09-13-52-618Z.svg\")",
@@ -133,8 +132,10 @@
       "Bash(git ls-remote *)",
       "Bash(ls /Users/sabiridwan/SamMedia/credit-card/ 2>/dev/null || echo \"Directory not found\")",
       "Read(//Users/sabiridwan/SamMedia/credit-card/**)",
-      "Edit(~/.claude/skills/cc_dev/**)"
+      "Edit(~/.claude/skills/cc_dev/**)",
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)"
     ],
+    "defaultMode": "bypassPermissions",
     "additionalDirectories": [
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
       "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
@@ -144,10 +145,25 @@
       "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/specs",
       "/Users/sabiridwan/.claude",
       "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/plans",
-      "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs"
+      "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
+      "/Users/sabiridwan/.claude/skills"
     ]
   },
   "model": "sonnet",
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ skills/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Syncing Claude config to GitHub..."
+          }
+        ]
+      }
+    ]
+  },
   "enabledPlugins": {
     "playwright@claude-plugins-official": true,
     "frontend-design@claude-plugins-official": true,
@@ -169,26 +185,12 @@
       }
     }
   },
-  "hooks": {
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ skills/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true",
-            "timeout": 30,
-            "statusMessage": "Syncing Claude config to GitHub..."
-          }
-        ]
-      }
-    ]
-  },
-  "autoCompactEnabled": true,
   "effortLevel": "medium",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "skipDangerousModePermissionPrompt": true,
+  "autoCompactEnabled": true,
   "voiceEnabled": true
 }
