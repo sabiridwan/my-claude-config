@@ -170,6 +170,20 @@
       }
     }
   },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ skills/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Syncing Claude config to GitHub..."
+          }
+        ]
+      }
+    ]
+  },
   "effortLevel": "medium",
   "voice": {
     "enabled": true,
