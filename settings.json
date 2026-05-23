@@ -136,7 +136,8 @@
       "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)",
       "Edit(~/.claude/skills/zync_expo_standard/**)",
       "Bash(mv /Users/sabiridwan/.claude/skills/zync_expo_standard /Users/sabiridwan/.claude/skills/zync-expo-standard)",
-      "Edit(~/.claude/skills/zync-expo-standard/**)"
+      "Edit(~/.claude/skills/zync-expo-standard/**)",
+      "WebSearch"
     ],
     "defaultMode": "acceptEdits",
     "additionalDirectories": [
