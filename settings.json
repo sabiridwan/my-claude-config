@@ -137,7 +137,9 @@
       "Edit(~/.claude/skills/zync_expo_standard/**)",
       "Bash(mv /Users/sabiridwan/.claude/skills/zync_expo_standard /Users/sabiridwan/.claude/skills/zync-expo-standard)",
       "Edit(~/.claude/skills/zync-expo-standard/**)",
-      "WebSearch"
+      "WebSearch",
+      "Bash(gh repo *)",
+      "Bash(gh auth *)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
