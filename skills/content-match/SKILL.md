@@ -1,11 +1,13 @@
 ---
 name: content-match
-description: Use when the user wants to compare two pages, files, or components to verify content matches 100% including text, spacing, indentation, structure, and order. Triggers on "compare page A and B", "make sure content matches", "content-match", "check if these are identical", "sync content between files", or any request to verify or enforce exact parity between two sources.
+description: Use when the user wants to compare two pages, files, or components to verify content matches 100% including text, paragraph breaks, spacing, indentation, structure, and order. Triggers on "compare page A and B", "make sure content matches", "content-match", "check if these are identical", "sync content between files", "paragraph seems off", or any request to verify or enforce exact parity between two sources.
 ---
 
 # Content Match
 
-Compares two pages, files, or components and ensures they are 100% identical in content, spacing, indentation, and structure. Reports every difference and fixes them.
+Compares two pages, files, or components and ensures they are 100% identical in content, paragraph structure, spacing, indentation, and order. Reports every difference — no matter how small — and fixes on request.
+
+**IMPORTANT: You MUST follow every step below in order. Do not skip, merge, or shortcut any step.**
 
 ## When to Use
 
@@ -13,81 +15,103 @@ Compares two pages, files, or components and ensures they are 100% identical in 
 - Ensuring a component was copied correctly across modules
 - Confirming a refactored file still has identical output/structure
 - Syncing content between two versions of a page
+- Checking paragraph/line breaks match between two text blocks
 
-## Workflow
+## Workflow — Follow Every Step
 
 ```
-1. Read both sources → 2. Diff → 3. Report → 4. Fix (if asked)
+Step 1: Read both sources IN FULL
+Step 2: Split into paragraph/block units
+Step 3: Diff each unit
+Step 4: Report ALL differences with exact quotes
+Step 5: Fix only if user asks
+Step 6: Re-verify after fix
 ```
 
-### 1. Read both sources completely
+### Step 1 — Read both sources completely
 
-Read page A and page B in full — never summarise or skip sections. Both must be fully loaded before comparison.
+Read A and B in full before doing anything. Never compare from memory or partial content.
 
-### 2. Run exact diff
+### Step 2 — Split into paragraph/block units
 
-Use the strictest comparison available:
+**This step is mandatory — do not skip it.**
 
+Break each source into its structural units:
+- Each paragraph (separated by a blank line) = one unit
+- Each heading = one unit
+- Each list item = one unit
+- Each code block = one unit
+
+Count the units in A and B. If the count differs — that is already a difference. Report it immediately.
+
+Example:
+```
+A has 3 paragraphs. B has 2 paragraphs. → MISMATCH: B is missing 1 paragraph break.
+```
+
+### Step 3 — Diff each unit
+
+For files on disk:
 ```bash
-# For files — character-level diff including whitespace
-diff -u <file-a> <file-b>
-
-# For directories
-diff -rq <dir-a> <dir-b>
-
-# Show whitespace differences explicitly
-diff --strip-trailing-cr -u <file-a> <file-b>
-
-# If files are identical
-diff <file-a> <file-b> && echo "IDENTICAL"
+diff -u <file-a> <file-b>                        # character-level with whitespace
+diff -y --width=200 <file-a> <file-b>            # side-by-side
+diff <file-a> <file-b> && echo "✓ IDENTICAL"
 ```
 
-For in-editor/code comparison (when files aren't on disk yet), compare line-by-line including:
-- Leading whitespace (tabs vs spaces, indent depth)
-- Trailing whitespace
-- Blank lines (count and position)
-- Line endings (CRLF vs LF)
-- Character encoding differences
+For pasted/inline text — compare unit by unit checking:
+- Every word and character
+- Leading/trailing spaces
+- Blank lines (count AND position)
+- Paragraph breaks (a missing blank line = merged paragraphs = a difference)
+- Line endings, indentation depth, tabs vs spaces
 
-### 3. Report all differences
+### Step 4 — Report ALL differences
 
-Group findings into categories:
+**Never say "mostly the same" or skip minor differences. Every difference must be listed.**
 
-| Category | What to check |
-|---|---|
-| **Missing content** | Lines/blocks in A not in B, or vice versa |
-| **Text differences** | Any word, character, or punctuation mismatch |
-| **Spacing** | Different indentation depth, tabs vs spaces |
-| **Blank lines** | Extra or missing blank lines |
-| **Order** | Same content but in different sequence |
-| **Formatting** | Casing, wrapping, alignment differences |
+Use this format:
 
-Report format:
 ```
-Line 12 — MISSING in B:  "  const foo = bar;"
-Line 15 — DIFFERS:
-  A: "  return value  "
-  B: "  return value"   (trailing space removed)
-Line 23 — ORDER: block appears at line 23 in A, line 31 in B
+PARAGRAPH BREAK — MISSING in B after:
+  "...unconditionally bound by these Terms and Conditions of Use."
+  A splits into 2 paragraphs here. B continues as 1 paragraph.
+
+TEXT DIFF — Paragraph 2, sentence 3:
+  A: "you should not use the service,"
+  B: "you should not use the service."   (comma → period)
+
+SPACING — Line 4:
+  A: "  return value  "  (2 trailing spaces)
+  B: "  return value"    (no trailing spaces)
 ```
 
-If zero differences: report `✓ IDENTICAL — content matches 100%`
+If zero differences: `✓ IDENTICAL — content matches 100%`
 
-### 4. Fix discrepancies (if asked)
+### Step 5 — Fix (only if asked)
 
-Default: **report only** — do not change anything unless the user says "fix it" or "make them match".
+Default: **report only.** Do not change anything unless the user explicitly says "fix it" or "make them match".
 
 When fixing:
-- Ask which is the **source of truth** (A or B) if not obvious
-- Apply minimal changes to bring the target in line with the source
-- Re-run diff after fixing to confirm `IDENTICAL`
+- Confirm which is the **source of truth** (A or B)
+- Apply only the minimal changes needed
+- Proceed to Step 6
 
-## Rules
+### Step 6 — Re-verify after fix
 
-- **Never round off differences** — "mostly the same" is not a pass. 100% match only.
-- **Whitespace counts** — a trailing space is a difference. An extra blank line is a difference.
-- **Report first, fix second** — always show the full diff report before making changes.
-- **Confirm after fix** — always re-diff after fixing to prove the result is identical.
+After every fix, re-run the full comparison from Step 2. Do not assume the fix worked. Prove it:
+
+```
+✓ Re-verified — content matches 100%
+```
+
+## Rules — No Exceptions
+
+- **Paragraph breaks count.** Two paragraphs merged into one is a difference.
+- **Blank lines count.** An extra or missing blank line is a difference.
+- **Trailing spaces count.** A trailing space is a difference.
+- **"Close enough" is not a pass.** 100% match only.
+- **Always report first, fix second.**
+- **Always re-verify after fixing.**
 
 ## Quick Reference
 
