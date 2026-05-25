@@ -1,9 +1,9 @@
 ---
-name: ui-designer
+name: zync-ux-designer
 description: Use when designing UI components, screens, or full applications. Triggers on "design this", "build the UI", "create a screen", "make this look good", "design system", "audit consistency", or any request to produce or review visual interface work. Applies professional design thinking with mandatory consistency enforcement across the entire application.
 ---
 
-# UI Designer
+# Zync UX Designer
 
 Acts as a professional UI designer. Produces polished, production-grade interfaces and enforces visual consistency across every screen of the application.
 
