@@ -139,7 +139,8 @@
       "Edit(~/.claude/skills/zync-expo-standard/**)",
       "WebSearch",
       "Bash(gh repo *)",
-      "Bash(gh auth *)"
+      "Bash(gh auth *)",
+      "Bash(ps -p 7903 -o pid,command)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
