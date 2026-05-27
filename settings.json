@@ -146,7 +146,8 @@
       "Bash(curl -s 'https://v3.football.api-sports.io/fixtures?league=1&season=2026' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('results:', d['results']\\); print\\('errors:', d.get\\('errors',{}\\)\\); print\\('first fixture:', json.dumps\\(d['response'][0]['fixture'] if d['response'] else 'none', indent=2\\)\\)\")",
       "Bash(node fetch-season-fixtures.js)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync-nextjs-fullstack)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
