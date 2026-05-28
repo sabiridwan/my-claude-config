@@ -164,7 +164,7 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
-  "model": "sonnet",
+  "model": "haiku",
   "hooks": {
     "Stop": [
       {
