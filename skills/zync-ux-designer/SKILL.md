@@ -1,6 +1,6 @@
 ---
 name: zync-ux-designer
-description: Use when designing UI components, screens, or full applications. Triggers on "design this", "build the UI", "create a screen", "make this look good", "design system", "audit consistency", or any request to produce or review visual interface work. Applies professional design thinking with mandatory consistency enforcement across the entire application.
+description: Use when designing UI components, screens, or full applications. Triggers on "design this", "build the UI", "create a screen", "make this look good", "design system", "audit consistency", "generate a preview", "show me what it looks like", or any request to produce, preview, or review visual interface work. Applies professional design thinking with mandatory consistency enforcement and visual image generation via Playwright.
 ---
 
 # Zync UX Designer
@@ -16,7 +16,7 @@ Think like a senior product designer, not a developer who styles things. Every d
 ## Workflow
 
 ```
-1. Audit → 2. Token → 3. Design → 4. Consistency Check → 5. Deliver
+1. Audit → 2. Token → 3. Design → 3b. Visual Preview → 4. Consistency Check → 5. Deliver
 ```
 
 ### 1. Audit existing patterns first
@@ -73,6 +73,47 @@ Apply professional UI standards:
 - Mobile-first, responsive by default
 - Micro-interactions where they add clarity (not decoration)
 
+### 3b. Visual Preview (generate image before finalizing)
+
+After designing, generate a rendered screenshot so the user can see the design before you finalize code.
+
+**How to generate the preview:**
+
+1. Build a self-contained HTML string that embeds the design — use the actual project tokens (colors, fonts, spacing) extracted in step 1.
+2. Navigate Playwright to a `data:` URL containing that HTML.
+3. Take a screenshot and show it to the user.
+4. Ask: "Does this match what you had in mind?" — iterate before writing final component code.
+
+**Template:**
+
+```js
+// Construct the preview HTML with real project tokens baked in
+const html = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  /* paste extracted tokens here */
+  :root { --color-primary: #...; --space-4: 16px; ... }
+  body { margin: 0; font-family: ...; background: var(--color-surface, #fff); }
+</style>
+</head>
+<body>
+  <!-- paste the designed component HTML here -->
+</body>
+</html>`;
+
+// Navigate to data URL and screenshot
+await mcp__playwright__browser_navigate({ url: `data:text/html,${encodeURIComponent(html)}` });
+await mcp__playwright__browser_take_screenshot({ fullPage: false });
+```
+
+**Rules:**
+- Always use real token values — no placeholder colors or lorem spacing.
+- Show all key states in one preview: default, hover (via CSS `:hover`), disabled, error.
+- For mobile-first designs, set viewport to 390×844 before screenshotting; for desktop use 1280×800.
+- If the user says "looks good" → proceed to step 4. If they give feedback → adjust and re-screenshot before writing final code.
+
 ### 4. Consistency check (mandatory before delivering)
 
 After designing, verify:
@@ -106,3 +147,6 @@ If any check fails → fix before delivering.
 | Designing in isolation | Always check adjacent screens for visual harmony |
 | Skipping disabled/error states | All states are required, not optional |
 | Adding a new font | Use the type scale already established |
+| Skipping the visual preview | Always render and screenshot before finalizing — code without a preview leaves the user guessing |
+| Using placeholder colors in the preview HTML | Extract real token values from the project and bake them into the preview |
+| Delivering final code before user approves the preview | Preview → user feedback → iterate → then write final code |
