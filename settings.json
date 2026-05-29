@@ -148,7 +148,9 @@
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('results:', d['results']\\); print\\('errors:', d.get\\('errors',{}\\)\\); print\\('first fixture:', json.dumps\\(d['response'][0]['fixture'] if d['response'] else 'none', indent=2\\)\\)\")",
       "Bash(node fetch-season-fixtures.js)",
       "Bash(git fetch *)",
-      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync-nextjs-fullstack)"
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync-nextjs-fullstack)",
+      "Bash(kill %1)",
+      "Bash(curl -s http://localhost:3000/graphql)"
     ],
     "defaultMode": "bypassPermissions",
     "additionalDirectories": [
