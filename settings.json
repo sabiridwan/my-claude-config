@@ -203,7 +203,7 @@
       }
     }
   },
-  "effortLevel": "medium",
+  "effortLevel": "high",
   "voice": {
     "enabled": true,
     "mode": "hold"
