@@ -209,6 +209,5 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": true,
-  "voiceEnabled": true,
-  "model": "sonnet"
+  "voiceEnabled": true
 }
