@@ -209,6 +209,5 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": true,
-  "voiceEnabled": true,
-  "model": "claude-fable-5[1m]"
+  "voiceEnabled": true
 }
