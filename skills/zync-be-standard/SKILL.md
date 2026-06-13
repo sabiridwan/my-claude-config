@@ -1,15 +1,17 @@
 ---
 name: zync-be-standard
-description: Use when creating, scaffolding, or extending a module in the zerp-be / zyncount-be NestJS backend, or when the user says "follow zerp be standard", "zerp-be standard", "zync be standard", "zbs", "add a module to zerp-be", or "new NestJS module" in this ecosystem. Generates a module that mirrors the canonical branch module exactly (Resolver → Service → Repository → Schema, code-first GraphQL, Mongoose, real src/* import paths).
+description: Use when creating, scaffolding, or extending a module in ANY ZyncGold zync-nestjs backend (zerp-be, zyncount-be, zyncg-server, msgld-be, and other NestJS + code-first GraphQL + Mongoose services), or when the user says "follow zerp be standard", "be standard", "zync be standard", "zbs", "add a module", or "new NestJS module" in this ecosystem. Generates a self-contained module mirroring the target project's canonical module (Resolver → Service → Repository → Schema), detecting that project's exact import paths and conventions first.
 ---
 
 # Zync BE Standard (zbs)
 
 ## Overview
 
-The per-tenant **zerp-be / zyncount-be** NestJS backend has ONE canonical module shape. When asked to "follow zerp be standard" / "zbs", generate a self-contained module that mirrors **`src/modules/branch/`** — the canonical reference — file-for-file, using the **real local import paths** below (NOT `zync-nest-data-module`, despite what older docs say).
+Every ZyncGold **zync-nestjs** backend (zerp-be, zyncount-be, zyncg-server, msgld-be, and any new API service) shares ONE canonical module shape. When asked to "follow be standard" / "zbs", generate a self-contained module that mirrors **that project's own canonical module**, file-for-file.
 
-**Layering is non-negotiable:**
+**The shape is universal; the import paths are per-project.** Some repos import base classes from the published lib `zync-nest-data-module`; others (like zerp-be) re-export them under local `src/*` aliases. **Never assume — detect (Step 0 below).**
+
+**Layering is non-negotiable (all projects):**
 
 ```
 Resolver → Service → Repository → Schema
@@ -22,15 +24,38 @@ Resolver → Service → Repository → Schema
 
 ## When to Use
 
-- "Create a `<feat>` module following zerp be standard / zbs"
-- Adding a new CRUD domain entity to zerp-be
-- Extending an existing zerp-be module (match the same patterns)
+- "Create a `<feat>` module following be standard / zbs" — in any zync-nestjs backend
+- Adding a new CRUD domain entity to a NestJS + GraphQL + Mongoose service in this ecosystem
+- Extending an existing module (match its existing patterns)
 
-When NOT to use: frontend (zerp-admin → zync-nextjs), mobile (zync-expo), or control plane (zerp-master). This is backend-only.
+When NOT to use: frontend (zync-nextjs), mobile (zync-expo), standalone Next.js (zync-nextjs-standalone), or control planes. This is backend-only.
 
-## The Real Import Paths (source of truth)
+## Step 0 — Match the target project FIRST (do this every time)
 
-The canonical branch module imports from **local `src/*` aliases**, not the published lib. Use these verbatim:
+Before writing any file, open the target repo's canonical module and read its imports. Do not paste zerp's paths into another project.
+
+1. **Find the canonical module.** Prefer `src/modules/branch/` if it exists; else any small CRUD module (`company`, `customer`, `supplier`). For brand-new projects, the canonical reference is `zyncg-server/src/modules/branch/`.
+2. **Detect the base-class import source.** Grep the canonical module's `.service.ts` / `.repository.ts`:
+   ```bash
+   grep -rhE "AbstractBaseService|AbstractBaseRepository|BaseSchema|ApBaseResolver" src/modules/<canonical>/
+   ```
+   You'll see ONE of two conventions:
+   - **Lib convention** — imports from `zync-nest-data-module` (and `zync-nest-library`). Used by zyncg-server and most services.
+   - **Local-alias convention** — imports from `src/core`, `src/services`, `src/app.base`, `src/base.dto`. Used by zerp-be (see table below).
+3. **Detect optional conventions** that vary per repo: `@ApSchema` vs plain `@Schema`; presence of `@AuditMeta` / `AuditAction`; `@ApGqlAuthorize` options; whether a `.controller.ts` exists; `index.ts` re-exports.
+4. **Mirror what you find.** The worked example below is structurally correct for every project — only swap the import lines to match the convention you detected.
+
+## Import Paths — the two conventions
+
+**Lib convention (zyncg-server, default for most services):**
+
+| Symbol | Import from |
+|--------|-------------|
+| `AbstractBaseService`, `AbstractBaseRepository`, `BaseSchema`, `TransactionManager` | `zync-nest-data-module` |
+| `ApBaseResolver`, base utilities | `zync-nest-data-module` / `zync-nest-library` |
+| pagination helpers (`handlePageFacet`, `handlePageResult`) | `zync-nest-data-module` |
+
+**Local-alias convention (zerp-be / zyncount-be):**
 
 | Symbol | Import from |
 |--------|-------------|
@@ -43,6 +68,8 @@ The canonical branch module imports from **local `src/*` aliases**, not the publ
 | `AuditMeta` | `src/decorators/audit-meta.decorator` |
 | `AuditAction` | `src/modules/audit-trail/audit-trail.interface` |
 | `SoftDelete` (mongoose-delete plugin), `SoftDeleteModel` | `mongoose-delete` |
+
+> If grep shows a third variation, follow the canonical module — it always wins over this table.
 
 ## File Layout (per module)
 
@@ -66,7 +93,7 @@ src/modules/<feat>/
 
 ## Worked Example — full `supplier` module
 
-Copy this shape, swap `Supplier`/`supplier`, adjust fields.
+Copy this shape, swap `Supplier`/`supplier`, adjust fields. **Import lines below use the local-alias (zerp-be) convention** — if Step 0 found the lib convention, swap the imports to `zync-nest-data-module` / `zync-nest-library` accordingly; everything else stays identical.
 
 ### supplier.schema.ts
 ```ts
@@ -313,7 +340,7 @@ Register the module in `src/app.module.ts`: add the import line and put `<Feat>M
 
 | Mistake | Fix |
 |---------|-----|
-| Importing from `zync-nest-data-module` | Use local `src/*` paths from the table above — that's what the real code does |
+| Pasting one project's import paths into another | Run Step 0 first — detect lib vs local-alias per repo |
 | Business logic in the resolver | Move it to the service; resolver only delegates |
 | Raw `model.find(...)` in service | All queries live in the repository's `buildQuery`/methods |
 | Repository importing a service | Forbidden — one-way dependency only |
@@ -327,5 +354,10 @@ Register the module in `src/app.module.ts`: add the import line and put `<Feat>M
 
 ## Canonical Reference
 
-When unsure, read the real module and mirror it exactly:
-`/Users/sabiridwan/Projects/zerp/zerp-be/src/modules/branch/` (branch.{module,resolver,service,repository,schema,dto,controller}.ts). For DTO variations, also see `company/`, `customer/`, `supplier/`.
+Always mirror the **target project's own** canonical module — read it before generating:
+
+- **zerp-be / zyncount-be** (local-alias convention): `src/modules/branch/`
+- **zyncg-server and new services** (lib convention): `zyncg-server/src/modules/branch/`
+- Otherwise: the smallest CRUD module in the repo (`company`, `customer`, `supplier`).
+
+The canonical module in the repo you're editing always overrides this skill's example when they differ.
