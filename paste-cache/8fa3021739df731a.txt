@@ -1,0 +1,18 @@
+
+2026-05-23 16:26:01.969 [info] From claude: 2026-05-23T08:26:01.969Z [DEBUG] Fast mode unavailable: Fast mode requires usage credits · /usage-credits to turn them on
+2026-05-23T08:26:01.969Z [DEBUG] [API:request] Creating client, ANTHROPIC_CUSTOM_HEADERS present: false, has Authorization header: false
+2026-05-23T08:26:01.969Z [DEBUG] [API:auth] OAuth token check starting
+
+2026-05-23 16:26:01.969 [info] From claude: 2026-05-23T08:26:01.969Z [DEBUG] [API:auth] OAuth token check complete
+
+2026-05-23 16:26:01.969 [info] From claude: 2026-05-23T08:26:01.969Z [DEBUG] CLAUDE_CODE_MAX_OUTPUT_TOKENS Capped from 100000 to 64000
+2026-05-23T08:26:01.969Z [DEBUG] Fast mode unavailable: Fast mode requires usage credits · /usage-credits to turn them on
+
+2026-05-23 16:26:01.969 [info] From claude: 2026-05-23T08:26:01.969Z [DEBUG] [API REQUEST] /v1/messages x-client-request-id=a2d8855d-3742-4199-8ba1-abe49e5d0df2 source=agent:builtin:Explore
+
+2026-05-23 16:26:02.251 [info] Closing Claude on channel: 1gkccorsmetj
+2026-05-23 16:26:02.251 [error] Error from Claude (on channel 1gkccorsmetj): Error: Claude Code process exited with code 143
+2026-05-23 16:26:02.251 [info] OAuth tokens found in secure storage
+2026-05-23 16:26:02.252 [info] Received message from webview: {"type":"request","channelId":"1gkccorsmetj","requestId":"8w60704mcv7","request":{"type":"log_event","eventName":"sdk_stream_ended_no_result","eventData":{"had_error":true,"subagent_count":0,"message_count":35}}}
+2026-05-23 16:26:02.252 [warning] Channel not found for logEvent: 1gkccorsmetj
+2026-05-23 16:26:02.252 [info] Received message from webview: {"type":"request","requestId":"qicg674qr4","request":{"type":"update_session_state","sessionId":"852671f3-1ad5-4b14-98a2-afeaf5050cba","state":"idle","title":"Core Modules"}}

@@ -1,0 +1,10 @@
+[
+  {
+    "from": "team-lead",
+    "text": "msgld-qa standing by. I'm the QA specialist for the msgld team — covering Jest unit tests on NestJS backend (msgld-be), component/integration tests on Next.js frontends (msgld-admin, msgld-fe), and E2E verification on Expo mobile apps (msgld-app, msgld-mgmt). Ready for QA task assignments.",
+    "summary": "msgld-qa reporting for duty",
+    "timestamp": "2026-05-29T10:02:04.000Z",
+    "type": "message",
+    "read": true
+  }
+]

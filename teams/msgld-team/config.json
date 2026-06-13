@@ -1,0 +1,19 @@
+{
+  "name": "msgld-team",
+  "description": "MalikStreams msgld full-stack development team with specialized agents for frontend, backend, mobile, and QA",
+  "createdAt": 1780017900000,
+  "leadAgentId": "team-lead@msgld-team",
+  "leadSessionId": "msgld-lead-session",
+  "members": [
+    {
+      "agentId": "team-lead@msgld-team",
+      "name": "team-lead",
+      "agentType": "team-lead",
+      "model": "claude-sonnet-4-6",
+      "joinedAt": 1780017900000,
+      "tmuxPaneId": "",
+      "cwd": "/Users/sabiridwan/Projects/MalikStreams/msgold",
+      "subscriptions": []
+    }
+  ]
+}

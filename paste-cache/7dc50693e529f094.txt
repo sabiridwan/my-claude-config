@@ -1,0 +1,178 @@
+safetensors_rust.SafetensorError: Error while deserializing header: header too large
+
+
+
+# ComfyUI Error Report
+## Error Details
+- **Node ID:** 19:14
+- **Node Type:** LoadBackgroundRemovalModel
+- **Exception Type:** safetensors_rust.SafetensorError
+- **Exception Message:** safetensors_rust.SafetensorError: Error while deserializing header: header too large
+
+## Stack Trace
+```
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 535, in execute
+    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 335, in get_output_data
+    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+    await process_inputs(input_dict, i)
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 297, in process_inputs
+    result = f(**inputs)
+             ^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/internal/__init__.py", line 149, in wrapped_func
+    return method(locked_class, **inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+    to_return = cls.execute(*args, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_extras/nodes_bg_removal.py", line 25, in execute
+    bg = load(path)
+         ^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/bg_removal_model.py", line 84, in load
+    sd = load_torch_file(ckpt_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/utils.py", line 149, in load_torch_file
+    raise e
+
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/utils.py", line 133, in load_torch_file
+    with safetensors.safe_open(ckpt, framework="pt", device=device.type) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+```
+## System Information
+- **ComfyUI Version:** 0.22.3
+- **Arguments:** /Applications/ComfyUI.app/Contents/Resources/ComfyUI/main.py --user-directory /Users/sabiridwan/Documents/ComfyUI/user --input-directory /Users/sabiridwan/Documents/ComfyUI/input --output-directory /Users/sabiridwan/Documents/ComfyUI/output --front-end-root /Applications/ComfyUI.app/Contents/Resources/ComfyUI/web_custom_versions/desktop_app --base-directory /Users/sabiridwan/Documents/ComfyUI --database-url sqlite:////Users/sabiridwan/Documents/ComfyUI/user/comfyui.db --extra-model-paths-config /Users/sabiridwan/Library/Application Support/ComfyUI/extra_models_config.yaml --log-stdout --listen 127.0.0.1 --port 8000 --enable-manager
+- **OS:** darwin
+- **Python Version:** 3.12.11 (main, Aug 18 2025, 19:02:39) [Clang 20.1.4 ]
+- **Embedded Python:** false
+- **PyTorch Version:** 2.10.0
+## Devices
+
+- **Name:** mps
+  - **Type:** mps
+  - **VRAM Total:** 38654705664
+  - **VRAM Free:** 10532225024
+  - **Torch VRAM Total:** 38654705664
+  - **Torch VRAM Free:** 10532225024
+
+## Logs
+```
+2026-06-02T11:37:36.996899 - setup plugin alembic.autogenerate.schemas
+2026-06-02T11:37:36.996949 - setup plugin alembic.autogenerate.tables
+2026-06-02T11:37:36.996972 - setup plugin alembic.autogenerate.types
+2026-06-02T11:37:36.996990 - setup plugin alembic.autogenerate.constraints
+2026-06-02T11:37:36.997004 - setup plugin alembic.autogenerate.defaults
+2026-06-02T11:37:36.997017 - setup plugin alembic.autogenerate.comments
+2026-06-02T11:37:37.189400 - Could not autodetect AIMDO implementation, assuming Nvidia
+2026-06-02T11:37:37.189527 - comfy-aimdo unsupported operating system: Darwin
+2026-06-02T11:37:37.189543 - NOTE: comfy-aimdo currently only supports Windows and Linux
+2026-06-02T11:37:37.328975 - Adding extra search path custom_nodes /Users/sabiridwan/Documents/ComfyUI/custom_nodes
+2026-06-02T11:37:37.329014 - Adding extra search path download_model_base /Users/sabiridwan/Documents/ComfyUI/models
+2026-06-02T11:37:37.329030 - Adding extra search path custom_nodes /Applications/ComfyUI.app/Contents/Resources/ComfyUI/custom_nodes
+2026-06-02T11:37:37.329047 - Setting output directory to: /Users/sabiridwan/Documents/ComfyUI/output
+2026-06-02T11:37:37.329062 - Setting input directory to: /Users/sabiridwan/Documents/ComfyUI/input
+2026-06-02T11:37:37.329070 - Setting user directory to: /Users/sabiridwan/Documents/ComfyUI/user
+2026-06-02T11:37:37.459463 - [START] Security scan2026-06-02T11:37:37.459473 - 
+2026-06-02T11:37:38.289640 - [ComfyUI-Manager] Using uv as Python module for pip operations.
+2026-06-02T11:37:38.364604 - [DONE] Security scan2026-06-02T11:37:38.364622 - 
+2026-06-02T11:37:38.365627 - ** ComfyUI startup time:2026-06-02T11:37:38.365657 -  2026-06-02T11:37:38.365674 - 2026-06-02 11:37:38.3652026-06-02T11:37:38.365687 - 
+2026-06-02T11:37:38.365706 - ** Platform:2026-06-02T11:37:38.365716 -  2026-06-02T11:37:38.365723 - Darwin2026-06-02T11:37:38.365730 - 
+2026-06-02T11:37:38.365738 - ** Python version:2026-06-02T11:37:38.365745 -  2026-06-02T11:37:38.365752 - 3.12.11 (main, Aug 18 2025, 19:02:39) [Clang 20.1.4 ]2026-06-02T11:37:38.365759 - 
+2026-06-02T11:37:38.365766 - ** Python executable:2026-06-02T11:37:38.365773 -  2026-06-02T11:37:38.365780 - /Users/sabiridwan/Documents/ComfyUI/.venv/bin/python2026-06-02T11:37:38.365786 - 
+2026-06-02T11:37:38.365793 - ** ComfyUI Path:2026-06-02T11:37:38.365799 -  2026-06-02T11:37:38.365805 - /Applications/ComfyUI.app/Contents/Resources/ComfyUI2026-06-02T11:37:38.365811 - 
+2026-06-02T11:37:38.365818 - ** ComfyUI Base Folder Path:2026-06-02T11:37:38.365826 -  2026-06-02T11:37:38.365832 - /Applications/ComfyUI.app/Contents/Resources/ComfyUI2026-06-02T11:37:38.365839 - 
+2026-06-02T11:37:38.365845 - ** User directory:2026-06-02T11:37:38.365851 -  2026-06-02T11:37:38.365858 - /Users/sabiridwan/Documents/ComfyUI/user2026-06-02T11:37:38.365864 - 
+2026-06-02T11:37:38.365871 - ** ComfyUI-Manager config path:2026-06-02T11:37:38.365876 -  2026-06-02T11:37:38.365883 - /Users/sabiridwan/Documents/ComfyUI/user/__manager/config.ini2026-06-02T11:37:38.365889 - 
+2026-06-02T11:37:38.365897 - ** Log path:2026-06-02T11:37:38.365904 -  2026-06-02T11:37:38.365909 - /Users/sabiridwan/Documents/ComfyUI/user/comfyui.log2026-06-02T11:37:38.365915 - 
+2026-06-02T11:37:38.413589 - [ComfyUI-Manager] Skipped fixing the 'comfyui-frontend-package' dependency because the ComfyUI is outdated.
+2026-06-02T11:37:38.413811 - [PRE] ComfyUI-Manager
+2026-06-02T11:37:41.002242 - Found comfy_kitchen backend cuda: {'available': False, 'disabled': True, 'unavailable_reason': 'Extension file not found: /Users/sabiridwan/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfy_kitchen/backends/cuda/_C.abi3.so', 'capabilities': []}
+2026-06-02T11:37:41.002318 - Found comfy_kitchen backend triton: {'available': False, 'disabled': True, 'unavailable_reason': "ImportError: No module named 'triton'", 'capabilities': []}
+2026-06-02T11:37:41.002348 - Found comfy_kitchen backend eager: {'available': True, 'disabled': False, 'unavailable_reason': None, 'capabilities': ['apply_rope', 'apply_rope1', 'dequantize_mxfp8', 'dequantize_nvfp4', 'dequantize_per_tensor_fp8', 'quantize_mxfp8', 'quantize_nvfp4', 'quantize_per_tensor_fp8', 'scaled_mm_mxfp8', 'scaled_mm_nvfp4']}
+2026-06-02T11:37:41.048288 - Checkpoint files will always be loaded safely.
+2026-06-02T11:37:41.074828 - Total VRAM 36864 MB, total RAM 36864 MB
+2026-06-02T11:37:41.074904 - pytorch version: 2.10.0
+2026-06-02T11:37:41.076015 - Mac Version (26, 5)
+2026-06-02T11:37:41.076146 - Set vram state to: SHARED
+2026-06-02T11:37:41.076183 - Device: mps
+2026-06-02T11:37:42.280847 - Using sub quadratic optimization for attention, if you have memory or speed issues try using: --use-split-cross-attention
+2026-06-02T11:37:58.762182 - Python version: 3.12.11 (main, Aug 18 2025, 19:02:39) [Clang 20.1.4 ]
+2026-06-02T11:37:58.762255 - ComfyUI version: 0.22.3
+2026-06-02T11:37:58.762511 - comfy-aimdo version: 0.3.0
+2026-06-02T11:37:58.762770 - comfy-kitchen version: 0.2.8
+2026-06-02T11:37:58.764316 - [Prompt Server] web root: /Applications/ComfyUI.app/Contents/Resources/ComfyUI/web_custom_versions/desktop_app
+2026-06-02T11:37:58.764824 - Asset seeder disabled
+2026-06-02T11:37:58.764877 - [START] ComfyUI-Manager
+2026-06-02T11:37:58.840400 - [ComfyUI-Manager] Using GitPython backend2026-06-02T11:37:58.840458 - 
+2026-06-02T11:37:58.863468 - [ComfyUI-Manager] network_mode: public
+2026-06-02T11:37:58.865689 - [ComfyUI-Manager] The matrix sharing feature has been disabled because the `matrix-nio` dependency is not installed.
+    To use this feature, please run the following command:
+    /Users/sabiridwan/Documents/ComfyUI/.venv/bin/python -m pip install matrix-nio
+
+2026-06-02T11:38:03.688754 - 
+Import times for custom nodes:
+2026-06-02T11:38:03.688829 -    0.0 seconds: /Applications/ComfyUI.app/Contents/Resources/ComfyUI/custom_nodes/websocket_image_save.py
+2026-06-02T11:38:03.688857 -    4.0 seconds: /Users/sabiridwan/Documents/ComfyUI/custom_nodes/ComfyUI_LayerStyle
+2026-06-02T11:38:03.688877 - 
+2026-06-02T11:38:03.691532 - Context impl SQLiteImpl.
+2026-06-02T11:38:03.691573 - Will assume non-transactional DDL.
+2026-06-02T11:38:03.717985 - Starting server
+
+2026-06-02T11:38:03.718320 - To see the GUI go to: http://127.0.0.1:8000
+2026-06-02T11:38:07.297502 - [ComfyUI-Manager] The ComfyRegistry cache update is still in progress, so an outdated cache is being used.
+2026-06-02T11:38:07.324509 - FETCH DATA from: /Users/sabiridwan/Documents/ComfyUI/.venv/lib/python3.12/site-packages/comfyui_manager/custom-node-list.json2026-06-02T11:38:07.324528 - 2026-06-02T11:38:07.331998 -  [DONE]2026-06-02T11:38:07.332030 - 
+2026-06-02T11:38:12.992064 - got prompt
+2026-06-02T11:38:12.995437 - !!! Exception during processing !!! Error while deserializing header: header too large
+2026-06-02T11:38:12.998345 - Traceback (most recent call last):
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 535, in execute
+    output_data, output_ui, has_subgraph, has_pending_tasks = await get_output_data(prompt_id, unique_id, obj, input_data_all, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                                                              ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 335, in get_output_data
+    return_values = await _async_map_node_over_list(prompt_id, unique_id, obj, input_data_all, obj.FUNCTION, allow_interrupt=True, execution_block_cb=execution_block_cb, pre_execute_cb=pre_execute_cb, v3_data=v3_data)
+                    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 309, in _async_map_node_over_list
+    await process_inputs(input_dict, i)
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/execution.py", line 297, in process_inputs
+    result = f(**inputs)
+             ^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/internal/__init__.py", line 149, in wrapped_func
+    return method(locked_class, **inputs)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_api/latest/_io.py", line 1833, in EXECUTE_NORMALIZED
+    to_return = cls.execute(*args, **kwargs)
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy_extras/nodes_bg_removal.py", line 25, in execute
+    bg = load(path)
+         ^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/bg_removal_model.py", line 84, in load
+    sd = load_torch_file(ckpt_path)
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/utils.py", line 149, in load_torch_file
+    raise e
+  File "/Applications/ComfyUI.app/Contents/Resources/ComfyUI/comfy/utils.py", line 133, in load_torch_file
+    with safetensors.safe_open(ckpt, framework="pt", device=device.type) as f:
+         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+safetensors_rust.SafetensorError: Error while deserializing header: header too large
+
+2026-06-02T11:38:12.999024 - Prompt executed in 0.01 seconds
+
+```
+## Attached Workflow
+Please make sure that workflow does not contain any sensitive information such as API keys or passwords.
+```
+{"id":"64f1123f-2d68-488d-a464-5151dea4c189","revision":0,"last_node_id":21,"last_link_id":16,"nodes":[{"id":17,"type":"LoadImage","pos":[-6750.728970009313,1940.0588244182456],"size":[290,340],"flags":{},"order":0,"mode":0,"inputs":[{"localized_name":"image","name":"image","type":"COMBO","widget":{"name":"image"},"link":null},{"localized_name":"choose file to upload","name":"upload","type":"IMAGEUPLOAD","widget":{"name":"upload"},"link":null}],"outputs":[{"localized_name":"IMAGE","name":"IMAGE","type":"IMAGE","links":[15]},{"localized_name":"MASK","name":"MASK","type":"MASK","links":null}],"properties":{"Node name for S&R":"LoadImage","enableTabs":false,"tabWidth":65,"tabXOffset":10,"hasSecondTab":false,"secondTabText":"Send Back","secondTabOffset":80,"secondTabWidth":65,"cnr_id":"comfy-core","ver":"0.19.3"},"widgets_values":["WhatsApp Image 2026-06-01 at 23.04.12.jpeg","image"]},{"id":18,"type":"PreviewImage","pos":[-6004.985527612185,1940.1805319999396],"size":[225,280],"flags":{},"order":3,"mode":0,"inputs":[{"localized_name":"images","name":"images","type":"IMAGE","link":14}],"outputs":[],"properties":{"Node name for S&R":"PreviewImage"},"widgets_values":[]},{"id":19,"type":"5b40ca21-ba1a-41d5-b403-4d2d7acdc195","pos":[-6411.330578108367,1940.2638932730042],"size":[349.609375,145.9375],"flags":{},"order":2,"mode":0,"inputs":[{"localized_name":"image","name":"image","type":"IMAGE","link":15},{"name":"bg_removal_name","type":"COMBO","widget":{"name":"bg_removal_name"},"link":null}],"outputs":[{"localized_name":"IMAGE","name":"IMAGE","type":"IMAGE","links":[14]},{"name":"mask","type":"MASK","links":[16]}],"properties":{"proxyWidgets":[["14","bg_removal_name"]]},"widgets_values":[]},{"id":20,"type":"MaskPreview","pos":[-5724.493992497488,1941.0306597152894],"size":[225,280],"flags":{},"order":4,"mode":0,"inputs":[{"localized_name":"mask","name":"mask","type":"MASK","link":16}],"outputs":[],"properties":{"Node name for S&R":"MaskPreview"},"widgets_values":[]},{"id":21,"type":"MarkdownNote","pos":[-7286.205481862371,1937.5776519327824],"size":[497.234375,630.953125],"flags":{},"order":1,"mode":0,"inputs":[],"outputs":[],"title":"Model Link","properties":{},"widgets_values":["## Model Link (for Local Users)\n\n**background_removal**\n\n- [birefnet.safetensors](https://huggingface.co/Comfy-Org/BiRefNet/resolve/main/background_removal/birefnet.safetensors)\n\n\n## Model Storage Location\n\n```\n📂 ComfyUI/\n├── 📂 models/\n│   └── 📂 background_removal/\n│       └── birefnet.safetensors\n```\n\n## Report Issue\n\nNote: Please update ComfyUI first ([guide](https://docs.comfy.org/installation/update_comfyui)) and prepare required models. Desktop/Cloud updates follow stable releases, so some nightly-supported models may not be available yet.\n\n- Cannot run / runtime errors: [ComfyUI/issues](https://github.com/comfyanonymous/ComfyUI/issues)\n- UI / frontend issues: [ComfyUI_frontend/issues](https://github.com/Comfy-Org/ComfyUI_frontend/issues)\n- Workflow issues: [workflow_templates/issues](https://github.com/Comfy-Org/workflow_templates/issues)\n"],"color":"#222","bgcolor":"#000"}],"links":[[14,19,0,18,0,"IMAGE"],[15,17,0,19,0,"IMAGE"],[16,19,1,20,0,"MASK"]],"groups":[],"definitions":{"subgraphs":[{"id":"5b40ca21-ba1a-41d5-b403-4d2d7acdc195","version":1,"state":{"lastGroupId":0,"lastNodeId":21,"lastLinkId":16,"lastRerouteId":0},"revision":0,"config":{},"name":"Remove Background (BiRefNet)","inputNode":{"id":-10,"bounding":[-6728.534070722246,1475.2619799128663,150.9140625,88]},"outputNode":{"id":-20,"bounding":[-6169.049695722246,1475.2619799128663,128,88]},"inputs":[{"id":"7bc321cd-df31-4c39-aaf7-7f0d01326189","name":"image","type":"IMAGE","linkIds":[5,7],"localized_name":"image","pos":[-6601.620008222246,1499.2619799128663]},{"id":"e89d2cd8-daa3-4e29-8a69-851db85072cb","name":"bg_removal_name","type":"COMBO","linkIds":[12],"pos":[-6601.620008222246,1519.2619799128663]}],"outputs":[{"id":"16e7863c-4c38-46c2-aa74-e82991fbfe8d","name":"IMAGE","type":"IMAGE","linkIds":[8],"localized_name":"IMAGE","pos":[-6145.049695722246,1499.2619799128663]},{"id":"f7240c19-5b80-406e-a8e2-9b12440ee2d6","name":"mask","type":"MASK","linkIds":[11],"pos":[-6145.049695722246,1519.2619799128663]}],"widgets":[],"nodes":[{"id":13,"type":"RemoveBackground","pos":[-6536.764823982709,1444.9963409012412],"size":[302.25,72],"flags":{},"order":0,"mode":0,"inputs":[{"localized_name":"image","name":"image","type":"IMAGE","link":5},{"localized_name":"bg_removal_model","name":"bg_removal_model","type":"BACKGROUND_REMOVAL","link":3}],"outputs":[{"localized_name":"mask","name":"mask","type":"MASK","links":[4,11]}],"properties":{"Node name for S&R":"RemoveBackground"},"widgets_values":[]},{"id":14,"type":"LoadBackgroundRemovalModel","pos":[-6540.534070722246,1302.223464635445],"size":[311.484375,85.515625],"flags":{},"order":1,"mode":0,"inputs":[{"localized_name":"bg_removal_name","name":"bg_removal_name","type":"COMBO","widget":{"name":"bg_removal_name"},"link":12}],"outputs":[{"localized_name":"bg_model","name":"bg_model","type":"BACKGROUND_REMOVAL","links":[3]}],"properties":{"Node name for S&R":"LoadBackgroundRemovalModel","models":[{"name":"birefnet.safetensors","url":"https://huggingface.co/Comfy-Org/BiRefNet/resolve/main/background_removal/birefnet.safetensors","directory":"background_removal"}]},"widgets_values":["RMBG-2.0.safetensors"]},{"id":15,"type":"InvertMask","pos":[-6532.446160529669,1571.1111286839914],"size":[285.984375,48],"flags":{},"order":2,"mode":0,"inputs":[{"localized_name":"mask","name":"mask","type":"MASK","link":4}],"outputs":[{"localized_name":"MASK","name":"MASK","type":"MASK","links":[6]}],"properties":{"Node name for S&R":"InvertMask"},"widgets_values":[]},{"id":16,"type":"JoinImageWithAlpha","pos":[-6527.4370171636665,1674.3004951902876],"size":[284.96875,72],"flags":{},"order":3,"mode":0,"inputs":[{"localized_name":"image","name":"image","type":"IMAGE","link":7},{"localized_name":"alpha","name":"alpha","type":"MASK","link":6}],"outputs":[{"localized_name":"IMAGE","name":"IMAGE","type":"IMAGE","links":[8]}],"properties":{"Node name for S&R":"JoinImageWithAlpha"},"widgets_values":[]}],"groups":[],"links":[{"id":3,"origin_id":14,"origin_slot":0,"target_id":13,"target_slot":1,"type":"BACKGROUND_REMOVAL"},{"id":4,"origin_id":13,"origin_slot":0,"target_id":15,"target_slot":0,"type":"MASK"},{"id":6,"origin_id":15,"origin_slot":0,"target_id":16,"target_slot":1,"type":"MASK"},{"id":5,"origin_id":-10,"origin_slot":0,"target_id":13,"target_slot":0,"type":"IMAGE"},{"id":7,"origin_id":-10,"origin_slot":0,"target_id":16,"target_slot":0,"type":"IMAGE"},{"id":8,"origin_id":16,"origin_slot":0,"target_id":-20,"target_slot":0,"type":"IMAGE"},{"id":11,"origin_id":13,"origin_slot":0,"target_id":-20,"target_slot":1,"type":"MASK"},{"id":12,"origin_id":-10,"origin_slot":1,"target_id":14,"target_slot":0,"type":"COMBO"}],"extra":{}}]},"config":{},"extra":{"ds":{"scale":0.89106692201561,"offset":[7448.969088827149,-1435.9900193378437]},"frontendVersion":"1.43.17"},"version":0.4}
+```
+
+## Additional Context
+(Please add any additional context or steps to reproduce the error here)

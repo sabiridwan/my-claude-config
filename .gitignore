@@ -15,6 +15,7 @@ file-history/
 ide/
 todos/
 plans/
+tasks/
 
 # Plugin cache is downloaded from remote — only keep the manifest
 plugins/cache/

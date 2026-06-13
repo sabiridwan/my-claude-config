@@ -1,0 +1,12 @@
+
+2026-05-23 16:03:03.860 [info] From claude: 2026-05-23T08:03:03.859Z [DEBUG] [Bootstrap] Fetch ok
+
+2026-05-23 16:03:03.860 [info] From claude: 2026-05-23T08:03:03.860Z [DEBUG] [Bootstrap] Cache unchanged, skipping write
+
+2026-05-23 16:03:04.091 [info] Closing Claude on channel: nic1qrjgwtm
+2026-05-23 16:03:04.091 [error] Error spawning Claude (on channel nic1qrjgwtm): Error: Claude Code returned an error result: No conversation found with session ID: 2ad9a270-8e2b-4e90-9b10-b2f95c49dd2e
+2026-05-23 16:03:04.091 [info] OAuth tokens found in secure storage
+2026-05-23 16:03:04.094 [info] Received message from webview: {"type":"request","channelId":"nic1qrjgwtm","requestId":"vpkr4d7lev","request":{"type":"log_event","eventName":"sdk_stream_ended_no_result","eventData":{"had_error":true,"subagent_count":0,"message_count":1}}}
+2026-05-23 16:03:04.094 [warning] Channel not found for logEvent: nic1qrjgwtm
+2026-05-23 16:03:04.094 [info] Received message from webview: {"type":"request","requestId":"ai01embywni","request":{"type":"update_session_state","sessionId":"2ad9a270-8e2b-4e90-9b10-b2f95c49dd2e","state":"idle","title":"Core Module"}}
+2026-05-23 16:04:12.675 [info] Received message from webview: {"type":"request","requestId":"uhlv3dgjkke","request":{"type":"open_output_panel"}}
