@@ -120,7 +120,10 @@ Use when the product needs both a public/mobile-first app shell **and** an admin
 
 **Stack:** Next.js 16+ (App Router), TypeScript strict, Mongoose 9 + `@typegoose/typegoose` 13 (decorator-based schemas), `next-auth` v4 (JWT + CredentialsProvider), Formik 2 + Yup 1, `react-select` 5, Tailwind CSS 3 (brand token system).
 
-**Canonical reference:** [wzb-app](/Users/sabiridwan/Projects/wazobia/wzb-app) — read `src/lib/` for base abstractions and `src/modules/user/` as the canonical module example.
+**Canonical references:**
+- [zyncws](/Users/sabiridwan/Projects/zyncws) — primary canonical reference for the `src/frontend` + `src/backend` split structure used in all new projects. Read `src/backend/lib/base/` and `src/backend/modules/task/`.
+- [wzb-app](/Users/sabiridwan/Projects/wazobia/wzb-app) — legacy reference; older flat `src/modules/` layout (no frontend/backend split).
+- **Skill:** invoke `zync-nextjs-standalone` skill for step-by-step scaffolding guidance.
 
 ---
 
@@ -168,43 +171,71 @@ Call at the top of every admin API route. Throws `'Forbidden'` if session is mis
 
 ---
 
-#### Module file layout
+#### Project file layout
+
+All new zync-nextjs-standalone projects use a **`src/frontend` + `src/backend` split** (canonical: [zyncws](/Users/sabiridwan/Projects/zyncws)):
 
 ```
-src/modules/<feat>/
-  <feat>.schema.ts      ← Typegoose class extending BaseSchema; enums defined here
-  <feat>.repository.ts  ← extends AbstractBaseRepository; domain-specific queries
-  <feat>.service.ts     ← extends AbstractBaseService; business logic; exports singleton
+src/
+├── app/                          ← Thin Next.js wrappers ONLY — no logic here
+│   ├── layout.tsx                ← Root layout: fonts, <Providers> (SessionProvider only)
+│   ├── providers.tsx             ← 'use client'; SessionProvider wrapper
+│   ├── page.tsx                  ← Redirects / → default route
+│   ├── <feature>/page.tsx        ← Renders <FeaturePage> from frontend module
+│   ├── admin/
+│   │   ├── layout.tsx            ← Server Component; requireAdmin() → redirect if not ADMIN
+│   │   └── <feature>/page.tsx
+│   └── api/
+│       ├── auth/[...nextauth]/route.ts
+│       ├── <resource>/route.ts           ← requireAuth(); calls service singleton
+│       ├── <resource>/[ref]/route.ts
+│       ├── admin/<resource>/route.ts     ← requireAdmin(); calls service singleton
+│       └── admin/<resource>/[ref]/route.ts
+│
+├── frontend/
+│   ├── components/
+│   │   ├── ap/                   ← Shared Ap* components (ApButton, ApTextInput, etc.)
+│   │   └── app/                  ← Shared chrome (Navbar, etc.)
+│   ├── hooks/                    ← Shared React hooks
+│   └── modules/
+│       └── <feat>/
+│           ├── <Feat>Page.tsx    ← Top-level page component rendered by app/
+│           ├── model.ts          ← Frontend TypeScript interfaces (IFeat, IFeatProps)
+│           ├── service.ts        ← fetch() / axios calls to /api/* routes
+│           └── components/       ← Feature-scoped UI components
+│               └── *.tsx
+│
+├── backend/
+│   ├── lib/
+│   │   ├── base/
+│   │   │   ├── base.schema.ts
+│   │   │   ├── base.repository.ts
+│   │   │   └── base.service.ts
+│   │   ├── auth.ts               ← NextAuth options
+│   │   ├── auth-guard.ts         ← requireAuth()
+│   │   ├── admin-guard.ts        ← requireAdmin()
+│   │   └── mongoose.ts           ← connectToDatabase() singleton
+│   ├── modules/
+│   │   └── <feat>/
+│   │       ├── <feat>.schema.ts      ← Typegoose class extending BaseSchema; enums here
+│   │       ├── <feat>.repository.ts  ← extends AbstractBaseRepository; domain queries
+│   │       └── <feat>.service.ts     ← extends AbstractBaseService; exports singleton
+│   └── scripts/                  ← One-off seed scripts; call connectToDatabase() explicitly
+│
+└── shared/
+    └── types.ts                  ← Interfaces shared between frontend and backend
 ```
 
-No `.module.ts`, no `.resolver.ts`, no `.dto.ts` — this is not NestJS. Add `.client.ts` for long-lived external clients (use `globalThis` singleton to survive hot reloads).
+**Key rules:**
+- `app/` pages do nothing except import and render the module's `<FeaturePage>` component.
+- `app/api/` routes do nothing except call the backend service singleton and return JSON.
+- Frontend `service.ts` files call `fetch('/api/...')` — they never import backend modules directly.
+- Backend modules never import from `frontend/`.
+- `shared/` is the only cross-boundary import allowed.
 
 **Typegoose model registration guard:** always use `mongoose.models.X || getModelForClass(X)` to prevent "cannot overwrite model" errors on hot reload.
 
----
-
-#### App / route structure
-
-```
-src/app/
-  layout.tsx                  ← Root layout: fonts, <Providers> (SessionProvider only)
-  providers.tsx               ← 'use client'; SessionProvider wrapper
-  page.tsx                    ← Redirects / → default route
-  (app)/                      ← Mobile-first shell (max-w-md centered)
-    layout.tsx                ← AppLayout with brand bg/font
-    <feature>/page.tsx
-  (admin)/
-    (public)/                 ← Admin login (no auth)
-    (protected)/
-      layout.tsx              ← Async Server Component; getServerSession → redirect if not ADMIN
-      admin/<feature>/page.tsx
-  api/
-    auth/[...nextauth]/route.ts
-    auth/otp/route.ts
-    <resource>/route.ts       ← Public or user-authenticated
-    admin/<resource>/route.ts ← Always starts with requireAdmin()
-    admin/<resource>/[id]/route.ts
-```
+No `.module.ts`, no `.resolver.ts`, no `.dto.ts` — this is not NestJS. Add `.client.ts` for long-lived external clients (use `globalThis` singleton to survive hot reloads).
 
 ---
 
@@ -219,7 +250,7 @@ src/app/
 
 #### UI component patterns
 
-**Shared `Ap*` components** live in `src/components/ap/`, re-exported from `index.ts`. All are `'use client'` and wired to Formik via `useField()` — no manual `field` prop threading.
+**Shared `Ap*` components** live in `src/frontend/components/ap/`, re-exported from `index.ts`. All are `'use client'` and wired to Formik via `useField()` — no manual `field` prop threading.
 
 | Component | Purpose |
 |---|---|
@@ -235,9 +266,9 @@ src/app/
 
 All inputs show label + touched error automatically.
 
-**App shell** (`src/components/app/`): `ApHeader` (sticky 3-zone: left/center/right slots), `ProfileAvatar` (fixed avatar linking to /profile).
+**App shell** (`src/frontend/components/app/`): `ApHeader` (sticky 3-zone: left/center/right slots), `ProfileAvatar` (fixed avatar linking to /profile).
 
-**Admin shell** (`src/components/admin/`): `Sidebar` (fixed nav with active state via `usePathname`, sign-out button).
+**Admin shell** (`src/frontend/components/admin/`): `Sidebar` (fixed nav with active state via `usePathname`, sign-out button).
 
 ---
 
@@ -259,7 +290,7 @@ rounded-brand  border-radius default
 font-brand     primary font stack
 ```
 
-Also define `selectStyles.ts` in `src/components/ap/` exporting `buildSelectStyles(hasError)` returning a `react-select StylesConfig` aligned to brand tokens.
+Also define `selectStyles.ts` in `src/frontend/components/ap/` exporting `buildSelectStyles(hasError)` returning a `react-select StylesConfig` aligned to brand tokens.
 
 ---
 
