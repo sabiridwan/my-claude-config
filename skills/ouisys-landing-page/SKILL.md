@@ -205,7 +205,8 @@ Or for production deploys, match the operator's naming scheme.
         })(),
         ip_range_name: '<COUNTRY_LOWERCASE>',
         legals: [],
-        chainRedirectUrl: ''
+        chainRedirectUrl: '',
+        offer: <OFFER_ID>              // REQUIRED — engine sends this as offerId in every API call
       }
     };
 
@@ -368,6 +369,7 @@ npx serve .    # or: python3 -m http.server 8080
 - **Don't watch `[rds]` in custom event effects** — watch `[rds?.tag]` to avoid double-firing.
 - **Don't forget `window.OUISYS_COUNTRY`** — the phone input flag depends on it.
 - **Don't omit `window.pac_analytics.visitor.rockmanId`** — the engine requires it (any string works in dev).
+- **Don't omit `window.pac_analytics.visitor.offer`** — the engine reads this and sends it as `offerId` in every backend API call (`trigger-message`, `identify`, etc.). Missing it causes "offer id" errors from the backend. Get the correct offer ID from the backend team for your slug.
 - **Always set globals BEFORE `<script src="...ouisys-subscription-widget.js">`** — the bundle reads them at load time.
 - **`widget-base.css` is optional** — include it to get `--ow-*` token defaults; omit it if you're writing all widget styles yourself via class hooks.
 
