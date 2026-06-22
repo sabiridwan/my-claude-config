@@ -210,5 +210,5 @@
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": true,
   "voiceEnabled": true,
-  "model": "sonnet"
+  "model": "opus[1m]"
 }
