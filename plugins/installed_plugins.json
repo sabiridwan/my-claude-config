@@ -4,21 +4,21 @@
     "playwright@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-09T08:31:07.870Z",
-        "lastUpdated": "2026-06-24T10:33:53.270Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.489Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ],
     "frontend-design@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/frontend-design/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/frontend-design/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-09T08:31:22.118Z",
-        "lastUpdated": "2026-06-24T10:33:53.271Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.488Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ],
     "superpowers@claude-plugins-official": [
@@ -64,21 +64,21 @@
     "skill-creator@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/skill-creator/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/skill-creator/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-09T18:20:50.068Z",
-        "lastUpdated": "2026-06-24T10:33:53.270Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.488Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ],
     "feature-dev@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/feature-dev/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/feature-dev/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-09T18:21:20.506Z",
-        "lastUpdated": "2026-06-24T10:33:53.271Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.488Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ],
     "code-simplifier@claude-plugins-official": [
@@ -93,21 +93,21 @@
     "commit-commands@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/commit-commands/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/commit-commands/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-15T10:22:48.184Z",
-        "lastUpdated": "2026-06-24T10:33:53.271Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.489Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ],
     "playground@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playground/20763f93d8b0",
-        "version": "20763f93d8b0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playground/0bcb02a8213a",
+        "version": "0bcb02a8213a",
         "installedAt": "2026-04-16T02:32:45.049Z",
-        "lastUpdated": "2026-06-24T10:33:53.271Z",
-        "gitCommitSha": "20763f93d8b061177af30dfefb427806ee8a3aef"
+        "lastUpdated": "2026-06-24T10:45:35.489Z",
+        "gitCommitSha": "0bcb02a8213a172d98464f0f5c16ca41effceeea"
       }
     ]
   }
