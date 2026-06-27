@@ -1,4 +1,4 @@
-# zuxd × ZyncGold — landing premium output in the real codebase
+# zync-design × ZyncGold — landing premium output in the real codebase
 
 Premium UI only counts if it ships in the ecosystem's patterns. Map every design decision onto these. **Read the target repo's existing components first** — match what's there before adding anything.
 
@@ -32,6 +32,6 @@ In MSG repos the gold accent is `#C07D34` / `#DAA520` (`ApTheme.Color.primary`).
 
 ## Companion skills (use, don't duplicate)
 
-- **`zync-ux-designer`** — when the task wants a generated visual preview / Playwright screenshot or a consistency audit. zuxd sets the quality bar; that skill produces and reviews the artifact.
+- **`zync-ux-designer`** — when the task wants a generated visual preview / Playwright screenshot or a consistency audit. zync-design sets the quality bar; that skill produces and reviews the artifact.
 - **`frontend-design`** — for aesthetic direction / typography when starting a net-new visual identity.
-- **`zync-be-standard`, `zync-expo-standard`, `zync-nextjs-standalone`** — the authoritative scaffolding rules for each surface. zuxd is the *taste* layer on top of them.
+- **`zync-be-standard`, `zync-expo-standard`, `zync-nextjs-standalone`** — the authoritative scaffolding rules for each surface. zync-design is the *taste* layer on top of them.

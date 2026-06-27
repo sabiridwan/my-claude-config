@@ -1,4 +1,4 @@
-# zuxd recipes — concrete values
+# zync-design recipes — concrete values
 
 The specifics that separate premium output from template defaults. Copy these; don't invent ad-hoc values.
 

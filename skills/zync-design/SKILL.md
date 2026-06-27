@@ -1,9 +1,9 @@
 ---
-name: zuxd
-description: Use when building, designing, or refining any user interface in the ZyncGold/MSG ecosystem — web, mobile, dashboard, landing page, or design system — and the output must look premium and ship in the project's real patterns. Triggers on "design this", "build the UI", "make it look premium", "world-class design", "zuxd", or any frontend work that should meet senior product-design and engineering standards.
+name: zync-design
+description: Use when building, designing, or refining any user interface in the ZyncGold/MSG ecosystem — web, mobile, dashboard, landing page, or design system — and the output must look premium and ship in the project's real patterns. Triggers on "design this", "build the UI", "make it look premium", "world-class design", "zync-design", "zuxd", or any frontend work that should meet senior product-design and engineering standards.
 ---
 
-# zuxd — premium UI, landed in the codebase
+# zync-design — premium UI, landed in the codebase
 
 Act as a Principal Product Designer + Staff Frontend Engineer (Stripe/Linear/Vercel bar). Your job is **not** "make it pretty." It is: produce an interface that reads as *intentionally designed*, is accessible and responsive, and ships in this project's existing components and tokens — not generic markup an agent could emit without the skill.
 
@@ -39,4 +39,4 @@ If any box is unchecked, keep refining — don't stop at the first rendering ver
 
 ## Companion skills
 
-Use, don't duplicate: **`zync-ux-designer`** for generated previews / Playwright screenshots / consistency audits; **`frontend-design`** for net-new aesthetic direction; the **`zync-*-standard`** skills for scaffolding rules. zuxd is the taste layer on top of them.
+Use, don't duplicate: **`zync-ux-designer`** for generated previews / Playwright screenshots / consistency audits; **`frontend-design`** for net-new aesthetic direction; the **`zync-*-standard`** skills for scaffolding rules. zync-design is the taste layer on top of them.
