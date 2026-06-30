@@ -167,6 +167,7 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
+  "model": "opus[1m]",
   "hooks": {
     "Stop": [
       {
@@ -209,7 +210,7 @@
   },
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": true,
+  "switchModelsOnFlag": true,
   "voiceEnabled": true,
-  "model": "opus[1m]",
-  "switchModelsOnFlag": true
+  "tui": "fullscreen"
 }
