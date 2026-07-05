@@ -167,7 +167,6 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
-  "model": "claude-fable-5[1m]",
   "hooks": {
     "Stop": [
       {
