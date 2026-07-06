@@ -213,6 +213,5 @@
   "switchModelsOnFlag": true,
   "voiceEnabled": true,
   "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true,
-  "model": "opus[1m]"
+  "inputNeededNotifEnabled": true
 }
