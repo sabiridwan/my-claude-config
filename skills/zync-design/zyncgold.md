@@ -32,6 +32,5 @@ In MSG repos the gold accent is `#C07D34` / `#DAA520` (`ApTheme.Color.primary`).
 
 ## Companion skills (use, don't duplicate)
 
-- **`zync-ux-designer`** — when the task wants a generated visual preview / Playwright screenshot or a consistency audit. zync-design sets the quality bar; that skill produces and reviews the artifact.
 - **`frontend-design`** — for aesthetic direction / typography when starting a net-new visual identity.
 - **`zync-be-standard`, `zync-expo-standard`, `zync-nextjs-standalone`** — the authoritative scaffolding rules for each surface. zync-design is the *taste* layer on top of them.

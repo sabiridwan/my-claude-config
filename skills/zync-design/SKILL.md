@@ -15,14 +15,16 @@ Generic "use good design" guidance changes nothing — every agent already knows
 
 - **`recipes.md`** — the spacing/type/color/radius/shadow/motion scales with actual values, the premium-vs-template taste table, required state coverage, and the WCAG floor. Copy these; don't invent ad-hoc numbers.
 - **`zyncgold.md`** — how to land it: which standard (zync-nextjs / zync-expo / standalone), which tokens (`brand-*`, `ApTheme.Color.*`), which `Ap*`/folder primitives to reuse, and the hard rules (tokens only, reuse before create, context owns state, Formik+Yup forms).
+- **`preview.md`** — the render-screenshot-approve loop, with the Playwright template and viewport sizes. Read it before step 4.
 
 ## Workflow
 
 1. **Read first.** Open the target repo's existing components, tokens, and a sibling feature. Open `recipes.md` and `zyncgold.md`. Match what exists before adding anything.
 2. **Decide the system, not the screen.** Lock spacing scale, type scale, accent, radius, shadow — from `recipes.md` mapped onto the repo's tokens. Add a missing token to `theme.ts`/`tailwind.config`; never hardcode hex.
 3. **Compose from primitives.** Reuse/extend the repo's `Ap*`/folder components. Keep components dumb (props in, render out); state stays in context / page `load()`.
-4. **Design every state.** loading (skeleton matching layout) · empty (illustration + one CTA) · error (cause + retry) · populated · optimistic. A view missing these is not done.
-5. **Self-check against the output contract**, then refine until it passes.
+4. **Preview before you build.** Render the design to a screenshot (`preview.md`) with the repo's real tokens baked in, show the user, and iterate on the image. Only write final component code once they've approved it.
+5. **Design every state.** loading (skeleton matching layout) · empty (illustration + one CTA) · error (cause + retry) · populated · optimistic. A view missing these is not done.
+6. **Self-check against the output contract**, then refine until it passes.
 
 ## Output contract — the work is done only when
 
@@ -33,10 +35,12 @@ Generic "use good design" guidance changes nothing — every agent already knows
 - [ ] loading / empty / error / populated states all exist and match the real layout.
 - [ ] WCAG AA: contrast ≥4.5:1, visible focus rings, ≥44px touch targets, semantic markup.
 - [ ] Responsive mobile→desktop with no broken layouts or horizontal scroll.
+- [ ] The user approved a rendered preview before final component code was written.
+- [ ] Placed beside its adjacent screens, the view doesn't visually clash with them.
 - [ ] A second senior engineer would call every spacing/color/component choice deliberate.
 
 If any box is unchecked, keep refining — don't stop at the first rendering version.
 
 ## Companion skills
 
-Use, don't duplicate: **`zync-ux-designer`** for generated previews / Playwright screenshots / consistency audits; **`frontend-design`** for net-new aesthetic direction; the **`zync-*-standard`** skills for scaffolding rules. zync-design is the taste layer on top of them.
+Use, don't duplicate: **`frontend-design`** for net-new aesthetic direction; the **`zync-*-standard`** skills for scaffolding rules. zync-design is the taste layer on top of them.

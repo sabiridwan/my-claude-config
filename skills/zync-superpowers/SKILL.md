@@ -27,7 +27,7 @@ Master reference for all superpowers skills available in this setup. Maps every 
 | Work in isolation (git worktree) | `superpowers:using-git-worktrees` |
 | Create or edit a skill | `superpowers:writing-skills` |
 | Execute a task without user involvement | `zync-autopilot` |
-| Design UI with consistency | `zync-ux-designer` |
+| Design UI with consistency | `zync-design` |
 
 ## Recommended Flow for a Full Feature
 
