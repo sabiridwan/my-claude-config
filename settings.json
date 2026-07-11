@@ -165,6 +165,11 @@
       "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
       "/Users/sabiridwan/.claude/skills",
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
+    ],
+    "deny": [
+      "mcp__msgld__user_update_my_profile",
+      "mcp__msgld__estimate_approve",
+      "mcp__msgld__estimate_reject"
     ]
   },
   "hooks": {
@@ -176,6 +181,29 @@
             "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ skills/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true",
             "timeout": 30,
             "statusMessage": "Syncing Claude config to GitHub..."
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request — use find/aggregate/count only.\"}}'; fi",
+            "timeout": 10,
+            "statusMessage": "Checking DB read-only guard..."
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__msgld__user_update_my_profile|mcp__msgld__estimate_approve|mcp__msgld__estimate_reject",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: MCP write tool disabled for this session (read-only database access by request).\"}}'",
+            "timeout": 10
           }
         ]
       }
