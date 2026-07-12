@@ -241,5 +241,6 @@
   "switchModelsOnFlag": true,
   "voiceEnabled": true,
   "agentPushNotifEnabled": true,
-  "inputNeededNotifEnabled": true
+  "inputNeededNotifEnabled": true,
+  "model": "sonnet"
 }
