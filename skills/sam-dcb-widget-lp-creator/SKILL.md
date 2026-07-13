@@ -1,5 +1,5 @@
 ---
-name: sam-widget-lp-creator
+name: sam-dcb-widget-lp-creator
 description: Build or replicate an Ouisys/Mouisys DCB (direct-carrier-billing) subscription landing page in a repo that uses the hand-rolled React architecture (a single Root.tsx + Main.scss wrapping <SubscriptionWidget>, driven by an operator-registry of per-operator config files under src/configs/) — the pattern used by xx-dynamic-template and its per-page forks. Use this whenever the user wants to build, clone, replicate, or recreate a Mouisys-hosted page (they may give a c1.mouisys.com/<id> URL, a screenshot, or a design brief), add a new operator/country variant to an existing template repo, or asks to "make a new page" while working inside one of these repos. Do NOT use this for repos that build pages by importing granular components from ouisys-component-library (Header, TopLegals, SubscriptionArea, PageContent, etc.) directly — that's a different, older architecture (e.g. gr-dynamic-template) with a different playbook; check "Detect which architecture you're in" below before assuming this skill fits.
 ---
 
