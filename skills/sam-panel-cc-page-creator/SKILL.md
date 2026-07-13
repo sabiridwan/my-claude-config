@@ -269,6 +269,19 @@ ouisys_version_id=6490      # version_id from create response
 
 ---
 
+## Live Reference Examples
+
+Grounding examples for what the panel-created output actually looks like once published — useful when explaining the flow or sanity-checking a new page against a known-good one.
+
+- **Template preview hosting:** `http://ouisys.pages.sam-media.com/dynamic-templates/{country}/{template-name}/` — e.g. `http://ouisys.pages.sam-media.com/dynamic-templates/xx/cc-pay-widget/` for the `cc-pay-widget` template. This is separate from the S3 URL pattern in Phase 1 (which is the built HTML the panel actually loads); this Pages URL looks to be a staging/preview host for the template itself. Not yet confirmed which panel field (if any) consumes it — treat as reference only until verified live.
+- **Live pages built from this widget/template:**
+  - `https://pdfswitch-ai.com/lp/xlhaf?d_country=de`
+  - `https://vreducationlab.com/lp/xhb0k` — the published page for the current repo (`cc-dynamic-vreducationlab-template-gcomp`, `.env → defaultService: vreducationlab`)
+  - The `xlhaf` / `xhb0k` segments look like public page slugs distinct from the internal numeric `page_config_id` stored in `.ouisys` and from the `pageConfigs.slug` value (e.g. `cc_celerispay-xracademy50_001-`) captured in Phase 4 — exact mechanism generating these short slugs isn't confirmed yet.
+- **Product root (non-panel, non-`/lp/` page) for comparison:** `https://pdfswitch-ai.com/?d_country=se` — the underlying product's own site, as opposed to the Ouisys-hosted landing page for it.
+
+---
+
 ## Config Files
 
 **`.env`** — dev/runtime config (never put panel IDs here)
