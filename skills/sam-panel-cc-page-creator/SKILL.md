@@ -1,29 +1,47 @@
 ---
-name: ouisys-panel
-description: Use when creating a new credit card page, updating an existing page config, or pulling config from the Ouisys panel (panel.ouisys.com). Triggers when user says "create page", "update page config", "sync panel", "publish page", or references the Ouisys dashboard.
+name: sam-panel-cc-page-creator
+description: Use whenever the user wants to create a new credit card page in the Ouisys panel (panel.ouisys.com/dynamic-pages/create-credit-card), update an existing page config, or pull config from the panel. Make sure to use this skill whenever the user says "create page", "create a cc page", "new dynamic page", "update page config", "sync panel", "publish page", or references the Ouisys/panel.ouisys.com dashboard — even if they don't spell out every field. The single most important job of this skill is to ASK the user which template to use and what to name the page before touching the browser, rather than silently guessing.
 ---
 
-# Ouisys Panel — MCP Automation Skill
+# Sam Panel CC Page Creator — MCP Automation Skill
 
 ## Overview
 
 Automates interaction with `panel.ouisys.com` using the Playwright MCP browser. Two modes:
 
-- **Create** — fill the create-credit-card form from the current repo's `config.json` + `brand.config.json`, then capture the page ID from the API response
+- **Create** — interview the user for **template** + **page name** (Phase 0), then fill the create-credit-card form using those answers plus the rest of the fields from the current repo's `config.json` + `brand.config.json`, then capture the page ID from the API response
 - **Update / Pull** — use `yarn pull:config` (calls `c1.ouisys.com`) or re-submit via panel browser
 
 The Playwright browser maintains its session across invocations. Google OAuth only needs to be completed once.
 
+Every other field in the create form (country, slug, service, gateway, pricing, payment IDs) can reasonably be derived from repo config files — the user won't notice if those are wrong until much later. Template and page name are different: picking the wrong template produces a page with the wrong design, and page names are globally unique so a wrong guess either collides or silently shadows an existing page. Always get these two directly from the user first.
+
 ---
 
-## Phase 0 — Ensure Template + Version Exist
+## Phase 0 — Interview: Template + Page Name
+
+Do this before any browser automation, even if the current repo's `config.json`/`.env` already suggests obvious values. Ask the user directly:
+
+1. **Which template should this page use?**
+   - Show the Known Templates table below as quick options.
+   - If the user names something not in that table, don't guess the ID — `browser_navigate` to `/dynamic-pages/templates/list`, search for it, and confirm the template ID + latest version with the user before moving on.
+   - If the user says "use the one for this repo" / "the default", it's fine to match `cc-dynamic-template-*` against the repo name — but read back the resolved template name + version and get a explicit confirmation before submitting the form.
+2. **What should the page be named?**
+   - Explain the constraint up front: the stored name will be `{country}-{input}-dyn` and must be globally unique across the panel, including hidden/restored pages.
+   - Never silently default this to `.env → page` — confirm the exact string with the user, since a page created under the wrong name is awkward to fix after the fact (see Implementation Rules).
+
+Only once both answers are confirmed, proceed to Phase 1 and pull the remaining field values from config files.
+
+---
+
+## Phase 1 — Ensure Template + Version Exist
 
 Before creating a page, the panel requires a **template** entry (linked to the repo) and at least one **template version** (S3 URL of the built HTML). Check first — don't create if already present.
 
 ```
 1. browser_navigate → https://panel.ouisys.com/dynamic-pages/templates/list
 2. Search for template name matching the repo (e.g. cc-dynamic-template-demo)
-   - Found → click it → check "Template Versions" tab has at least one version → proceed to Phase 1
+   - Found → click it → check "Template Versions" tab has at least one version → proceed to Phase 2
    - Not found → create template (see below)
 ```
 
@@ -58,13 +76,13 @@ S3 URL pattern: `https://s3.eu-central-1.amazonaws.com/mobirun/os-ui/static/{rep
 
 ---
 
-## Phase 1 — Ensure Login
+## Phase 2 — Ensure Login
 
 ```
 1. browser_navigate → https://panel.ouisys.com/dynamic-pages/create-credit-card
 2. browser_snapshot → check page title / URL
    - If redirected to /login → proceed to step 3
-   - If already on the create form → skip to Phase 2
+   - If already on the create form → skip to Phase 3
 3. browser_click → "Continue with Google" button
 4. STOP — tell user: "Please complete Google sign-in in the Playwright browser, then say 'continue'."
 5. After user confirms → browser_snapshot to verify login succeeded
@@ -72,12 +90,14 @@ S3 URL pattern: `https://s3.eu-central-1.amazonaws.com/mobirun/os-ui/static/{rep
 
 ---
 
-## Phase 2A — Create New Page
+## Phase 3A — Create New Page
 
-Read these files from the current repo first:
+Template and page name come from the Phase 0 interview — do not re-derive them here.
+
+Read these files from the current repo for everything else:
 - `config.json` → `strategy`, `country`, `strategyConfigs.default.flowConfig` (slug, service, host)
 - `src/config/brand.config.json` → `brand.defaultServiceId`, `languages`, `links`, `pricing`
-- `.env` → `page`, `client`, `title`
+- `.env` → `client`, `title`
 
 Navigate and fill the form:
 
@@ -96,9 +116,9 @@ Navigate and fill the form:
 | Panel field | Source |
 |---|---|
 | Country | `config.json → country` |
-| Template | Select template by name matching `cc-dynamic-template-*` |
-| Template Version | Latest version available |
-| Page Name | `.env → page` (append `-dyn` suffix for draft pages) |
+| Template | **Phase 0 interview answer** (confirmed template name/ID) |
+| Template Version | **Phase 0 interview answer** (confirmed version, defaults to latest) |
+| Page Name | **Phase 0 interview answer** (`{country}-{input}-dyn`) |
 | Title | `.env → title` |
 | Slug | `strategyConfigs.default.flowConfig.slug` |
 | Service ID | `brand.config.json → brand.defaultServiceId` |
@@ -117,7 +137,7 @@ Navigate and fill the form:
 
 ---
 
-## Phase 2B — Update / Pull Existing Page
+## Phase 3B — Update / Pull Existing Page
 
 Once `ouisys_page_config_id` is in `.env`:
 
@@ -130,7 +150,7 @@ To update the page config in the panel, navigate to the unpublished pages list a
 
 ---
 
-## Phase 3 — Capture API Call Details
+## Phase 4 — Capture API Call Details
 
 After form submit, always run:
 
@@ -208,14 +228,14 @@ browser_network_request(index, part="response-body")     → { page_config_id, v
 
 ---
 
-## Phase 4 — Verify & Store IDs
+## Phase 5 — Verify & Store IDs
 
 ```
 browser_navigate → https://panel.ouisys.com/dynamic-pages/unpublished/list
 browser_snapshot → confirm new page appears in list
 ```
 
-Store IDs from Phase 3 response into `.ouisys` (not `.env`):
+Store IDs from Phase 4 response into `.ouisys` (not `.env`):
 ```
 ouisys_page_config_id=753   # page_config_id from create response
 ouisys_version_id=6490      # version_id from create response
@@ -245,13 +265,14 @@ ouisys_version_id=6490      # version_id from create response
 
 ## Implementation Rules
 
-- **Always run Phase 0 first** — verify template + version exist before trying to create a page
-- **Always read `config.json` + `brand.config.json` before filling the form** — never guess field values
+- **Always run Phase 0 first, and never skip it** — ask for template + page name directly, even when `config.json`/`.env` already imply an obvious answer. That implied answer may not be what the user wants for this specific page.
+- **Then run Phase 1** — verify the confirmed template + version actually exist in the panel before trying to create a page
+- **Always read `config.json` + `brand.config.json` before filling the rest of the form** — never guess field values other than template/page name
 - **Select template BEFORE clicking template version** — the version dropdown only loads after template is chosen; opening it too early shows wrong versions
-- **Verify template selection in the review payload** before saving — confirm `template_id` and `template_version_url` match the intended template, not the old one
-- **Page name is globally unique including hidden pages** — `{country}-{input}-dyn` must not exist anywhere in the DB. If it conflicts, restore and edit the existing page instead of creating new
+- **Verify template selection in the review payload** before saving — confirm `template_id` and `template_version_url` match what the user confirmed in Phase 0, not a stale default
+- **Page name is globally unique including hidden pages** — `{country}-{input}-dyn` must not exist anywhere in the DB. If it conflicts, tell the user and either ask for a different name or offer to restore/edit the existing page instead of creating new
 - **Auth is session-cookie based** — no Bearer token; Playwright browser handles auth automatically
-- **If login fails or session expired** → restart from Phase 1; never retry the form without a valid session
+- **If login fails or session expired** → restart from Phase 2; never retry the form without a valid session
 - **Always capture `page_config_id` from response body** — store immediately in `.ouisys`
 - **Never hardcode credentials** — all IDs go in `.ouisys` only
 - **Template ID 132 / version ID 1361** is `cc-dynamic-template-demo v2` — the canonical base template latest version
