@@ -19,19 +19,23 @@ Every other field in the create form (country, slug, service, gateway, pricing, 
 
 ---
 
-## Phase 0 — Interview: Template + Page Name
+## Phase 0 — Interview: Mode, Template/Source, Page Name
 
 Do this before any browser automation, even if the current repo's `config.json`/`.env` already suggests obvious values. Ask the user directly:
 
-1. **Which template should this page use?**
+0. **Fresh create or clone?**
+   - "Should this page be built from a template, or cloned from an existing published page?"
+   - **Fresh** → ask Q1 below, then follow Phase 1 → Phase 2 → Phase 3A.
+   - **Clone** → ask which existing page to clone (name, brand, or any distinguishing detail — you'll search for it in the published list in Phase 3B). No template question needed, the clone inherits the source page's template. Skip Phase 1 entirely (the source page's template registration already exists) and go straight to Phase 2 → Phase 3B.
+1. **Which template should this page use?** *(fresh create only — skip for clone)*
    - Show the Known Templates table below as quick options.
    - If the user names something not in that table, don't guess the ID — `browser_navigate` to `/dynamic-pages/templates/list`, search for it, and confirm the template ID + latest version with the user before moving on.
-   - If the user says "use the one for this repo" / "the default", it's fine to match `cc-dynamic-template-*` against the repo name — but read back the resolved template name + version and get a explicit confirmation before submitting the form.
-2. **What should the page be named?**
-   - Explain the constraint up front: the stored name will be `{country}-{input}-dyn` and must be globally unique across the panel, including hidden/restored pages.
+   - If the user says "use the one for this repo" / "the default", it's fine to match `cc-dynamic-template-*` against the repo name — but read back the resolved template name + version and get an explicit confirmation before submitting the form.
+2. **What should the page be named?** *(both modes)*
+   - Explain the constraint up front: the Page Name field only takes the part **after** the country code — the panel auto-prefills the country prefix from the Country field, so never type a country code yourself. What you type must **start with `cc`** (e.g. `cc-brandname`), and the full stored name (`{country}-cc-...-dyn`) must be globally unique across the panel, including hidden/restored pages.
    - Never silently default this to `.env → page` — confirm the exact string with the user, since a page created under the wrong name is awkward to fix after the fact (see Implementation Rules).
 
-Only once both answers are confirmed, proceed to Phase 1 and pull the remaining field values from config files.
+Only once the relevant answers are confirmed, proceed down the branch chosen in Q0.
 
 ---
 
@@ -119,7 +123,7 @@ Navigate and fill the form:
 | Country | `config.json → country` |
 | Template | **Phase 0 interview answer** (confirmed template name/ID) |
 | Template Version | **Phase 0 interview answer** (confirmed version, defaults to latest) |
-| Page Name | **Phase 0 interview answer** (`{country}-{input}-dyn`) |
+| Page Name | **Phase 0 interview answer** — input starts with `cc`, country prefix auto-filled by the panel (`{country}-{input}-dyn`) |
 | Title | `.env → title` |
 | Slug | `strategyConfigs.default.flowConfig.slug` |
 | Service ID | `brand.config.json → brand.defaultServiceId` |
@@ -138,7 +142,28 @@ Navigate and fill the form:
 
 ---
 
-## Phase 3B — Update / Pull Existing Page
+## Phase 3B — Clone from Existing Published Page
+
+Use this instead of Phase 3A when the user chose **clone** in Phase 0. This flow hasn't been confirmed against the live panel UI yet — treat the steps below as the starting approach; once you've actually run it, update this section with the confirmed clicks/selectors/API the same way Phase 4 documents the confirmed create-page API.
+
+```
+1. browser_navigate → https://panel.ouisys.com/dynamic-pages/published/list?pageNumber=1&pageSize=10
+2. browser_snapshot → look for a search/filter field; filter by the page name or brand the user gave in Phase 0
+   - If pagination hides the match, increase pageSize in the URL query (e.g. pageSize=100) or page through pageNumber
+3. Locate the source page's row → browser_snapshot to find a per-row action (kebab menu, "Clone"/"Duplicate" button, or similar)
+   - If no clone action is visible anywhere, STOP and tell the user — don't fall back to manually re-typing the source page's config from what's visible on screen; ask how they'd like to proceed
+4. Click the clone/duplicate action
+   - This likely opens a prefilled version of the create-credit-card form (same shape as Phase 3A) with the source page's template, slug, service, gateway, pricing, and payment fields already filled in
+5. browser_snapshot the opened form → confirm Template and other fields match the source page (sanity check the clone actually worked before touching anything)
+6. Update only the **Page Name** field to the value confirmed in Phase 0 (starts with `cc`; country prefix is auto-filled) — leave every other field as inherited from the source unless the user explicitly asked for other changes
+7. Submit → continue at Phase 4 to capture the API response the same way as a fresh create
+```
+
+Cloning is the faster path when the new page should be near-identical to an existing brand/offer (same gateway, pricing, payment IDs) and only needs a new name/slug — it skips re-deriving all the payment and pricing fields from repo config files, since the source page already has them correct in the panel.
+
+---
+
+## Phase 3C — Update / Pull Existing Page
 
 Once `ouisys_page_config_id` is in `.env`:
 
@@ -266,12 +291,14 @@ ouisys_version_id=6490      # version_id from create response
 
 ## Implementation Rules
 
-- **Always run Phase 0 first, and never skip it** — ask for template + page name directly, even when `config.json`/`.env` already imply an obvious answer. That implied answer may not be what the user wants for this specific page.
-- **Then run Phase 1** — verify the confirmed template + version actually exist in the panel before trying to create a page
-- **Always read `config.json` + `brand.config.json` before filling the rest of the form** — never guess field values other than template/page name
-- **Select template BEFORE clicking template version** — the version dropdown only loads after template is chosen; opening it too early shows wrong versions
-- **Verify template selection in the review payload** before saving — confirm `template_id` and `template_version_url` match what the user confirmed in Phase 0, not a stale default
-- **Page name is globally unique including hidden pages** — `{country}-{input}-dyn` must not exist anywhere in the DB. If it conflicts, tell the user and either ask for a different name or offer to restore/edit the existing page instead of creating new
+- **Always run Phase 0 first, and never skip it** — ask mode (fresh vs clone) + template (fresh only) + page name directly, even when `config.json`/`.env` already imply an obvious answer. That implied answer may not be what the user wants for this specific page.
+- **Page Name input always starts with `cc`, never a country code** — the panel auto-prefills the country from the Country field; typing a country code into the Page Name box yourself would double it up. Confirm the exact `cc-...` string with the user in Phase 0.
+- **Clone mode skips Phase 1** — the source page's template registration already exists in the panel, so go straight from Phase 0 to Phase 2 (login) then Phase 3B (clone). Only fresh-create mode needs Phase 1's template/version check.
+- **Fresh create: always read `config.json` + `brand.config.json` before filling the rest of the form** — never guess field values other than template/page name. **Clone: don't re-derive these from repo files** — they're inherited from the source page; only the Page Name changes.
+- **Select template BEFORE clicking template version** (fresh create) — the version dropdown only loads after template is chosen; opening it too early shows wrong versions
+- **Verify template selection in the review payload** before saving — confirm `template_id` and `template_version_url` match what the user confirmed in Phase 0 (fresh) or the source page (clone), not a stale default
+- **Page name is globally unique including hidden pages** — `{country}-cc-...-dyn` must not exist anywhere in the DB. If it conflicts, tell the user and either ask for a different name or offer to restore/edit the existing page instead of creating new
+- **Phase 3B (clone) is unconfirmed against the live UI** — verify each step with `browser_snapshot` as you go rather than trusting the described selectors, and update that section with what you actually find on the first live run
 - **Auth is session-cookie based** — no Bearer token; Playwright browser handles auth automatically
 - **If login fails or session expired** → restart from Phase 2; never retry the form without a valid session
 - **Always capture `page_config_id` from response body** — store immediately in `.ouisys`
