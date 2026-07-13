@@ -7,9 +7,10 @@ description: Use whenever the user wants to create a new credit card page in the
 
 ## Overview
 
-Automates interaction with `panel.ouisys.com` using the Playwright MCP browser. Two modes:
+Automates interaction with `panel.ouisys.com` using the Playwright MCP browser. Three modes:
 
-- **Create** — interview the user for **template** + **page name** (Phase 0), then fill the create-credit-card form using those answers plus the rest of the fields from the current repo's `config.json` + `brand.config.json`, then capture the page ID from the API response
+- **Create fresh** — interview the user for **template** + **page name** (Phase 0), then fill the create-credit-card form using those answers plus the rest of the fields from the current repo's `config.json` + `brand.config.json`, then capture the page ID from the API response
+- **Clone** — interview the user for **which existing published page to clone** + **new page name** (Phase 0), find it via `/dynamic-pages/published/list`, duplicate it, and rename — inherits the source page's template, slug, gateway, pricing, and payment fields instead of rebuilding them from repo config files
 - **Update / Pull** — use `yarn pull:config` (calls `c1.ouisys.com`) or re-submit via panel browser
 
 The Playwright browser maintains its session across invocations. Google OAuth only needs to be completed once.
