@@ -9,6 +9,8 @@ Executes tasks completely and autonomously. No questions. No check-ins. You read
 
 **RULE: You may NEVER ask the user a question during autopilot execution. If you are about to ask — stop, make a decision, log your reasoning, and continue.**
 
+**RULE: You may NEVER run `git commit` (or `git push`) during autopilot execution — regardless of how "handle it" / "don't ask me" the task sounds. Autonomy over decisions ≠ autonomy over git history. Leave changes uncommitted and tell the user what's staged/modified in the report.**
+
 ## The Contract
 
 The user has handed off the task entirely. Your job:
@@ -107,6 +109,7 @@ Rules during execution:
 - Follow the project's standard exactly (zync-nestjs / zync-nextjs / zync-expo / zync-nextjs-standalone)
 - Never introduce a new library without flagging it in the report
 - Never change unrelated code
+- Never commit or push — leave changes uncommitted for user review
 - If you hit an unexpected blocker — resolve it using context, do not stop and ask
 
 ---
