@@ -20,7 +20,7 @@ Ports HR and Accounting/Finance feature updates from the Zerp ecosystem into the
 
 Full sub-module parity, both repos:
 
-- **HR**: employee, department, payroll (+ sub-components), leave (+ group), attendance (+ shift/group/timetable), timesheet, claim (+ group/type), advance (+ transaction), loan (+ repayment), approval (+ policy/orchestrator), calendar, training (+ group/assignment/progress), dashboard, org-chart, ESS, letters.
+- **HR**: employee, department, payroll (+ sub-components), leave (+ group), attendance (+ shift/group/timetable), timesheet, claim (+ group/type), advance (+ transaction), loan (+ repayment), approval (+ policy/orchestrator), calendar, training (+ group/assignment/progress), dashboard, org-chart, ESS, letters, performance (+ review-scale/review-template/tasks).
 - **Finance/Accounting**: account (+ category), journal, transaction, payment, cashbook, note, trade, contra, taxation, shortcut, report, assets, fiscal.
 
 **Sub-module locations already differ between source and target** — e.g. `employee`/`department` sit under `hr/` in zerp-be but are root-level modules in zyncg-server; `recruitment` is root-level in zerp-be but nested under `hr/` in zyncg-server. **Never hardcode a path.** Every run, locate the real target-side module by name + content search before touching anything, and record what you found in the ledger's `zyncg path` column so the next run doesn't rediscover it.
