@@ -135,3 +135,7 @@ This script is a skeleton, not literal copy-paste — the invoking session fills
 - Replay zerp-be's full historical commit range on a bootstrap run — bootstrap is a current-state diff, not a history replay.
 - Skip the coexistence review phase even when BE and Admin ports each look fine in isolation.
 - Run the full Playwright e2e suite by default in the Verify phase — mention it's available on request, don't run it unasked.
+
+## Validation status
+
+One dry-run test validated the skill by porting the Advance auto-deduction feature (BE-only) from zerp-be into a zyncg-server worktree. Every Protection Policy, Branch Strategy, and Ledger rule exercised in that test was followed correctly: tsc clean, 23/23 tests passing, zero deletions, zero unplanned commits, and the dev-v1 branch confirmed untouched. Critically, the agent correctly deferred a genuine architecture gap in zyncg's Loan/Payroll instead of improvising a risky fix, confirming that the "stop and report, don't guess" contract is honored. However, this test used an isolated branch instead of the literal `sync/from-zerp` branch name, involved a sub-module path that was identical between source and target (no path-discovery loop exercised), and did not run the full 4-phase Workflow orchestration or Coexistence review across both BE and Admin repos in parallel. Until a live run hits a path-mismatch sub-module and exercises the full Workflow tool pipeline from Discover through Verify, treat branch-naming, path-discovery, and cross-repo coexistence validation as still-open risk.
