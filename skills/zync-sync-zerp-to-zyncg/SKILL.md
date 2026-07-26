@@ -63,3 +63,22 @@ Before editing any target file:
 5. If a shared function has diverged too far for a safe additive patch to be obvious, **stop and report the conflict** — record it in the ledger's Notes column as deferred. Don't improvise a merge.
 
 This mirrors `zerp-merge-to-my`'s "abort and report, don't improvise" rule, applied to a diff-based port instead of a git merge.
+
+## Branch Strategy
+
+Each run, in both target repos:
+
+1. Precondition: working tree clean. If not, stop and ask — don't stash or discard.
+2. Ensure `sync/from-zerp` exists: create from current `dev-v1` if absent; if present, checkout and merge latest `dev-v1` into it first (avoid syncing against a stale base).
+3. All porting happens on `sync/from-zerp`. **Never touch `dev-v1` directly.**
+4. Never auto-commit, never auto-merge `sync/from-zerp` back into `dev-v1`. The user reviews, tests, commits, and merges manually.
+
+## Don't
+
+- Touch `dev-v1` (or whatever the real dev branch is) directly in either zyncg repo.
+- Delete or blind-overwrite anything zyncg-only — protection is automatic via diff; when uncertain, stop and report rather than guess.
+- Auto-commit or auto-merge `sync/from-zerp`.
+- Assume a path mapping from a prior ledger entry without re-verifying it still holds — target repos restructure independently between runs.
+- Replay zerp-be's full historical commit range on a bootstrap run — bootstrap is a current-state diff, not a history replay.
+- Skip the coexistence review phase even when BE and Admin ports each look fine in isolation.
+- Run the full Playwright e2e suite by default in the Verify phase — mention it's available on request, don't run it unasked.
