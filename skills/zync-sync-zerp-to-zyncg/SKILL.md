@@ -24,3 +24,30 @@ Full sub-module parity, both repos:
 - **Finance/Accounting**: account (+ category), journal, transaction, payment, cashbook, note, trade, contra, taxation, shortcut, report, assets, fiscal.
 
 **Sub-module locations already differ between source and target** — e.g. `employee`/`department` sit under `hr/` in zerp-be but are root-level modules in zyncg-server; `recruitment` is root-level in zerp-be but nested under `hr/` in zyncg-server. **Never hardcode a path.** Every run, locate the real target-side module by name + content search before touching anything, and record what you found in the ledger's `zyncg path` column so the next run doesn't rediscover it.
+
+## Ledger
+
+Each target repo has `docs/sync-ledger/zerp-sync.md`:
+
+```
+| Module | Sub-module | zyncg path | Last-synced zerp SHA | Date | Notes |
+```
+
+`Notes` records: the resolved path mapping, zyncg-only features preserved/skipped, and any conflict deferred back to the user. This file is part of the diff on `sync/from-zerp` — the user commits it themselves (see Branch Strategy).
+
+### Bootstrap run (no ledger row for a sub-module yet)
+
+zerp-be alone has 1275+ commits touching `hr/`+`finance/` — replaying that history is meaningless noise for an independently-diverged target. Bootstrap instead does a **current-state feature diff**:
+
+1. Read the full current zerp implementation of the sub-module (all layer files).
+2. Locate and read the full current zyncg implementation of the equivalent.
+3. Diff semantically: zerp-only logic (port in) vs zyncg-only logic (protected, leave alone) vs shared logic that has diverged (see Protection Policy).
+4. Port the net-new/changed pieces additively.
+5. Seed the ledger row with zerp's current HEAD SHA (scoped to that sub-module's resolved path) as the baseline.
+
+### Incremental run (ledger already has a row)
+
+1. `git log <lastSHA>..HEAD --oneline -- <resolved zerp path>` in the source repo.
+2. Read each commit's diff (or review the set together if long) to understand what changed.
+3. Port relevant changes using the same additive/protection rules as bootstrap.
+4. Bump the ledger row's SHA to the new HEAD, update notes.
