@@ -51,3 +51,15 @@ zerp-be alone has 1275+ commits touching `hr/`+`finance/` — replaying that his
 2. Read each commit's diff (or review the set together if long) to understand what changed.
 3. Port relevant changes using the same additive/protection rules as bootstrap.
 4. Bump the ledger row's SHA to the new HEAD, update notes.
+
+## Protection Policy — auto-detect via diff, no upfront list
+
+Before editing any target file:
+
+1. Read the target file's current full content.
+2. Diff it semantically against the corresponding source file.
+3. Anything present in the target but absent from source (fields, methods, whole files, gold-specific branches woven into shared functions) is **protected by default** — never deleted, never silently overwritten.
+4. Only port: (a) net-new source features absent from target, (b) fixes to logic that is genuinely shared (not diverged) — merged in additively (new optional field, new branch, new method), never a wholesale file replace.
+5. If a shared function has diverged too far for a safe additive patch to be obvious, **stop and report the conflict** — record it in the ledger's Notes column as deferred. Don't improvise a merge.
+
+This mirrors `zerp-merge-to-my`'s "abort and report, don't improvise" rule, applied to a diff-based port instead of a git merge.
