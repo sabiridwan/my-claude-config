@@ -73,6 +73,59 @@ Each run, in both target repos:
 3. All porting happens on `sync/from-zerp`. **Never touch `dev-v1` directly.**
 4. Never auto-commit, never auto-merge `sync/from-zerp` back into `dev-v1`. The user reviews, tests, commits, and merges manually.
 
+## Orchestration — Workflow tool, 4 phases
+
+Given the scope (~16 HR + 13 Finance sub-modules × 2 repos), this skill is executed via the Workflow tool, not ad-hoc Agent calls, so BE and Admin porting run concurrently and get cross-checked before landing:
+
+```js
+export const meta = {
+  name: 'zync-sync-zerp-to-zyncg',
+  description: 'Port HR/Finance updates from zerp into zyncg-server + zyncg-admin',
+  phases: [
+    { title: 'Discover', detail: 'resolve ledger + compute per-sub-module work-list, both repo pairs' },
+    { title: 'Port', detail: 'parallel BE/Admin streams, foundation sub-modules first' },
+    { title: 'Coexistence review', detail: 'confirm BE-exposed fields match FE consumption' },
+    { title: 'Verify', detail: 'jest + build both repos, update ledgers' },
+  ],
+}
+
+phase('Discover')
+const [beWork, adminWork] = await parallel([
+  () => agent('Read zyncg-server ledger + hr/finance tree, read zerp-be equivalents, produce a per-sub-module work-list (bootstrap vs incremental per the Ledger section, resolved path mapping, commit range if incremental).', {label: 'discover:be'}),
+  () => agent('Same for zerp-admin -> zyncg-admin.', {label: 'discover:admin'}),
+])
+
+phase('Port')
+const [beResult, adminResult] = await parallel([
+  () => pipeline(beWork.subModules, sm =>
+    agent(`Port sub-module ${sm.name} from zerp-be (${sm.zerpPath}) into zyncg-server (${sm.zyncgPath}). Follow the Protection Policy: read zyncg's full current file(s) first, diff semantically, never remove zyncg-only logic, port net-new/changed zerp logic additively. Update the ledger row. If a shared function has diverged too far to patch safely, stop and report the conflict in the ledger Notes instead of guessing.`,
+      {label: `port:be:${sm.name}`, phase: 'Port'})
+  ).then(rs => rs.filter(Boolean)),
+  () => pipeline(adminWork.subModules, sm =>
+    agent(`Port sub-module ${sm.name} from zerp-admin into zyncg-admin. Same Protection Policy as the BE stream.`,
+      {label: `port:admin:${sm.name}`, phase: 'Port'})
+  ).then(rs => rs.filter(Boolean)),
+])
+
+phase('Coexistence review')
+const coexistence = await agent(
+  'Read the full diff on sync/from-zerp in BOTH zyncg-server and zyncg-admin. Confirm every new GraphQL field/mutation/enum zyncg-server now exposes that zyncg-admin gql/query.ts changes depend on actually exists with matching name/type/shape. Flag mismatches in either direction.',
+  {schema: COEXISTENCE_SCHEMA}
+)
+
+phase('Verify')
+const verify = await parallel([
+  () => agent('In zyncg-server on sync/from-zerp: run `pnpm test` scoped to touched hr/finance paths, then `pnpm build`. Report pass/fail.', {label: 'verify:server'}),
+  () => agent('In zyncg-admin on sync/from-zerp: run `pnpm build`. Do not run the Playwright e2e suite unless explicitly asked. Report pass/fail.', {label: 'verify:admin'}),
+])
+
+return { beResult, adminResult, coexistence, verify }
+```
+
+**Batching within Port:** order `beWork.subModules`/`adminWork.subModules` foundation-first — same shape as `zerp-hr-sync`/`zerp-account-sync`'s batching (e.g. Employee/Department/Account before their dependents) — so a dependent sub-module's port agent can read an already-ported foundation file if needed.
+
+This script is a skeleton, not literal copy-paste — the invoking session fills in `beWork`/`adminWork` shapes and `COEXISTENCE_SCHEMA` from the actual Discover output before calling the Workflow tool.
+
 ## Don't
 
 - Touch `dev-v1` (or whatever the real dev branch is) directly in either zyncg repo.
