@@ -224,12 +224,6 @@
     "caveman@caveman": true
   },
   "extraKnownMarketplaces": {
-    "browserbase": {
-      "source": {
-        "source": "github",
-        "repo": "browserbase/skills"
-      }
-    },
     "caveman": {
       "source": {
         "source": "github",
