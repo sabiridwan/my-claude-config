@@ -31,16 +31,6 @@
         "gitCommitSha": "917e5f53b16b115b70a3a355ed5f4993b9f8b73d"
       }
     ],
-    "slack@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/slack/1.1.0",
-        "version": "1.1.0",
-        "installedAt": "2026-04-09T08:32:30.815Z",
-        "lastUpdated": "2026-06-23T04:01:02.932Z",
-        "gitCommitSha": "7b9458950d38bb01ddb48b669f9fa89bcdfd98b8"
-      }
-    ],
     "firecrawl@claude-plugins-official": [
       {
         "scope": "user",
@@ -81,15 +71,6 @@
         "gitCommitSha": "ba44a00d510384dd75cc85650dce228c2f439848"
       }
     ],
-    "code-simplifier@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/code-simplifier/1.0.0",
-        "version": "1.0.0",
-        "installedAt": "2026-04-15T09:26:57.390Z",
-        "lastUpdated": "2026-04-15T09:26:57.390Z"
-      }
-    ],
     "commit-commands@claude-plugins-official": [
       {
         "scope": "user",
@@ -97,16 +78,6 @@
         "version": "ba44a00d5103",
         "installedAt": "2026-04-15T10:22:48.184Z",
         "lastUpdated": "2026-07-28T08:09:28.940Z",
-        "gitCommitSha": "ba44a00d510384dd75cc85650dce228c2f439848"
-      }
-    ],
-    "playground@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playground/ba44a00d5103",
-        "version": "ba44a00d5103",
-        "installedAt": "2026-04-16T02:32:45.049Z",
-        "lastUpdated": "2026-07-28T08:09:28.941Z",
         "gitCommitSha": "ba44a00d510384dd75cc85650dce228c2f439848"
       }
     ],
