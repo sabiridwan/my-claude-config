@@ -210,7 +210,7 @@
     ]
   },
   "enabledPlugins": {
-    "playwright@claude-plugins-official": true,
+    "playwright@claude-plugins-official": false,
     "frontend-design@claude-plugins-official": true,
     "superpowers@claude-plugins-official": true,
     "slack@claude-plugins-official": true,
