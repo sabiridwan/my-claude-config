@@ -27,3 +27,6 @@ plugins/marketplaces/
 
 # Project-specific Claude state
 projects/
+
+# cc-skill-sync run reports — regenerable, noisy in history
+cc-skill-sync/reports/
