@@ -58,14 +58,33 @@ wallet config), `service`, `slug`, `flags`, `env` — this is what `cc-payment-i
 ## upload-to-s3-tagged.js
 
 - Refuses to run with uncommitted changes (`git status --porcelain`).
-- Creates the next `vN` git tag (prompts for a message), `git push origin <vN>`.
+- Creates the next `vN` git tag (prompts for a message — **empty is rejected and re-prompts forever**),
+  `git push origin <vN>`.
+- **Prompts via inquirer in raw mode → cannot be piped.** `printf '\n\n…' |` gets swallowed by the
+  first prompt then dies `SIGINT`; `yes "" |` loops on the tag prompt. Drive with `expect` (script in
+  the parent SKILL.md).
+- Needs `osui_aws_access_key_id` / `osui_secret_access_key` exported. In `~/.zshrc`, which a
+  non-login shell does not source — `source ~/.zshrc` first.
+- Requires Node per `.nvmrc` (**v20.12.2**); Node 21+ breaks `ssr-dynamic.js` on read-only
+  `global.navigator`.
+- On success prints `Upload record saved!` with `{ id, version, version_url, reason, template_id,
+  created_by }` — `id` is the `template_version_id` the panel wizard will reference.
 - Uploads `dist/static/**` under `os-ui/static/…` (bucket **`mobirun`**, `eu-central-1`, `public-read`;
   HTML `max-age=1`, assets `max-age=604800`).
 - Uploads `staging.html` as `os-ui/static/<page>/html/<vN>_index.html`.
 - Records it: `POST https://c1.ouisys.com/api/v1/upload-template` with
   `{ env_dump, template_name:page, country, version_url, created_by, git_origin, version:vN, reason }`.
 
-## publish-page.js
+## publish-page.js — DOES NOT WORK for cc-dynamic pages
+
+**Do not use `yarn publish:page` to publish a credit-card page.** Publish via the panel instead:
+row `Actions` → `Publish` (see `cc-ouisys-panel`).
+
+Why it fails here: it looks for `<country>-<slug>-staging.html`, where
+`slug = slugify(scenario || "${strategy}_${scenariosConfig}")`. A cc-dynamic `.env` has **no
+`scenario`**, and `build:upload` uploads `html/staging.html`, `html/index.html`, `html/v1_index.html`
+— never a `<country>-<slug>-staging.html`. So the `headObject` check 404s and nothing is promoted.
+It is boilerplate inherited from the DCB flow. Kept documented below for reference only.
 
 - `slug = slugify(scenario || `${strategy}_${scenariosConfig}`)`.
 - On S3: copies `<country>-<slug>-staging.html` → `<country>-<slug>-production.html` (backs up existing prod).

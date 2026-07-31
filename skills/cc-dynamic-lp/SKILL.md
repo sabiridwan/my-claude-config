@@ -139,19 +139,68 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
 `references/build-upload-contract.md` for what a green verify does and does not guarantee (it does
 **not** run the private webpack build).
 
-### 5. Build, upload, publish (in the team's authenticated environment)
+### 5. Build → upload → create page → QA → publish
 
-These require repo + AWS + panel access, so hand these steps to the user or run where credentials
-exist. Exact commands and what each does are in `references/build-upload-contract.md`:
+**Order matters, and it is not what you'd guess.** The panel's Card Create wizard requires a
+`Template Version`, which only exists after a build has been uploaded. So the page is created
+**after** the build, not before:
 
-1. Create the page in the panel: `panel.ouisys.com/dynamic-pages/create-credit-card` (or configure
-   via `yarn manage:configs`), which produces the page config; `yarn pull:config id=<id>` syncs
-   `config.json` + `.env`.
-2. Commit (the git repo name must equal `.env` `page`).
-3. `yarn build:upload` → builds client + SSR, renders `staging.html`, uploads to S3
-   (`os-ui/static/<page>/html/<vN>_index.html`) and records it via `POST /api/v1/upload-template`.
-4. `yarn publish:page` → promotes staging→production on S3 and calls `release-page`; prints the
-   preview URL `http://c1.ouisys.com/preview/?country=<country>&page=<page>&scenario=<slug>`.
+1. **Template exists in the panel**, named exactly the git repo name (`cc-ouisys-panel` →
+   `references/templates.md`). No build attached yet is fine.
+2. **Commit** — the upload refuses a dirty tree, and the repo name must equal `.env` `page`.
+3. **`bash deploy.sh`** (or `yarn build:upload`) → builds client + SSR, renders `staging.html`,
+   uploads to S3 (`os-ui/static/<page>/html/<vN>_index.html`), pushes a `vN` git tag, and records it
+   via `POST /api/v1/upload-template`. Produces **v1**.
+   - Needs `osui_aws_access_key_id` / `osui_secret_access_key` **exported in the shell**. They
+     commonly live in `~/.zshrc`, which is **not** sourced for a non-login shell — `source ~/.zshrc`
+     first or the credential check fails.
+   - **Cannot be driven with a pipe** — see the pty note below. Use `expect`.
+4. **Verify the version attached**: template details → `Template Versions` tab shows the `vN` row and
+   its `ID` (= `template_version_id`). Cross-check against the upload's `Upload record saved!` output.
+5. **Create the page in the panel** → `cc-ouisys-panel` / `references/create-page.md`, selecting this
+   template + the new version. (`yarn pull:config id=<id>` can later sync `config.json` + `.env` back
+   from a saved page config.)
+6. **QA on staging** — the new page serves at `https://staging.mouisys.com/<xcid>` while still
+   Unpublished. Run `cc-tester` there **before** publishing.
+7. **Publish** — panel row `Actions` → `Publish`.
+
+> **`yarn publish:page` does NOT work for a cc-dynamic page — do not run it as step 7.**
+> It is DCB-flow boilerplate. It derives its S3 keys as
+> `{country}-{slugify(scenario || strategy_scenariosConfig)}-staging.html` → `-production.html`, but a
+> cc-dynamic `.env` has **no `scenario`**, and `build:upload` writes `html/staging.html`,
+> `html/index.html`, `html/v1_index.html`. The names never match, so it 404s instead of promoting
+> anything. Publishing happens in the panel.
+
+#### deploy.sh / build:upload cannot be piped — it needs a pty
+
+Both `pre-build-dynamic.js` (4 prompts: Client / Title / Country / Page) and
+`upload-to-s3-tagged.js` (tag message) prompt via **inquirer, which reads stdin in raw mode**:
+
+- `printf '\n\n\n\n' | bash deploy.sh` → the entire buffer is consumed by the **first** prompt as
+  keystrokes, then the next prompt dies on EOF: `error Command failed with signal "SIGINT"`.
+- `yes "" | bash deploy.sh` → worse: the tag prompt rejects empty messages and loops forever.
+
+Drive it with `expect` instead. The 4 pre-build prompts accept the `.env` defaults on a bare Enter;
+the tag message must be non-empty:
+
+```expect
+#!/usr/bin/expect -f
+set timeout 900
+spawn bash deploy.sh
+foreach label {Client Title Country Page} {
+    expect -re "\\? $label:" { send "\r" }
+}
+expect -re "Enter a tag message" { send "Uploaded version v1 — <reason>\r" }
+expect eof
+catch wait result
+exit [lindex $result 3]
+```
+
+Also pin Node: `.nvmrc` is **v20.12.2**. On Node 21+ `global.navigator` is a read-only getter, so
+`ssr-dynamic.js`'s `global.navigator = {...}` throws `TypeError: Cannot set property navigator` and
+`build:ssr:server` exits 1. **Never patch `ssr-dynamic.js`** (shared boilerplate) — switch Node. `nvm`
+is a shell function and is *not* inherited by a script's subshell, so a `nvm use` in your terminal
+does not carry into `deploy.sh`; source `nvm.sh` and `nvm use` inside the script.
 
 ## Local dev config (dummy pageConfigs — not published)
 

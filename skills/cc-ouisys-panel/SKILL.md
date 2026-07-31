@@ -52,9 +52,18 @@ Left nav → Dynamic Pages expands to these routes (memorize; navigating by URL 
 | DCB Create | `/dynamic-pages/create` | New DCB / MSISDN page wizard |
 | **Card Create** | `/dynamic-pages/create-credit-card` | **New credit-card page wizard** |
 
-Each list row has an **Actions** dropdown (Preview, View Details, Create Campaign, **Clone**,
-**Edit**, **Hide**, **Delete**). Lists support a **Broad search** box (top right) — the fastest way to
+Each list row has an **Actions** dropdown (Preview, View Details, **Edit**, **Clone**, **Publish**,
+**Hide**, **Delete**). Lists support a **Broad search** box (top right) — the fastest way to
 find a page by name or xcid. Edit opens `/dynamic-pages/update/{id}`.
+
+Two things that will otherwise cost you time:
+
+- **The Actions menu renders in a portal** — after clicking `Actions` a screenshot may show nothing.
+  `find` the menu item and click it by `ref`. Clicking a page name or `Quick Preview` frequently does
+  not navigate, and `View Details` can silently do nothing; use `Actions` → `Preview`.
+- **`Actions` → `Preview` opens `https://staging.mouisys.com/<xcid>`** — the real build with the real
+  config, and it works while the page is still **Unpublished**. This is where you QA a new page
+  *before* exposing it to traffic.
 
 ## The three workflows
 
@@ -81,6 +90,12 @@ Every credit-card page name is built from ordered, hyphen-separated tokens. Use 
 new name, validate an existing one, or derive a sibling page. **Page name = template name = git repo
 name**, so getting it right matters for the build to attach.
 
+> **Page name and template name are DIFFERENT strings.** Only the *template* name must equal the git
+> repo name (== `.env` `page`) for the build to attach. The *page* name follows the formula below and
+> is its own value — e.g. page
+> `xx-cc-pdfbrain-streamtrainfit-applepay-googlepay-acquired-lc-download-gcomp-dyn` on template
+> `cc-dynamic-streamtrainfit-template-download-nid-gcomp`. Verified working; don't force them equal.
+
 **Formula**
 
 `{country}-cc-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`
@@ -101,6 +116,8 @@ name**, so getting it right matters for the build to attach.
 
 **Slug** — carries the acquirer + price and is where **bank + Mid derive from**:
 `cc_{acquirer}-{product}portal{price}_{code}-`, e.g. `cc_acquired-xrlab360portal5999_000-`.
+(The `portal` segment is not universal — a real live slug is `cc_acquired-streamtrainfit5999_000-`.
+Take the slug from the ticket or a sibling page; don't synthesise it.)
 
 **Validation rules**
 - Lowercase, hyphen-separated, ends in `-dyn`.
@@ -122,7 +139,23 @@ rules, and read it back to the user before creating.
   or Delete, summarize exactly what will happen (which page, which fields, live vs. draft) and get a
   clear "yes" in chat. Delete and Hide affect live traffic — treat them with extra care.
 - **Never guess required fields.** Fields marked `*` are required. If you don't have a value, ask;
-  don't invent one (especially gateway keys, bank/merchant IDs, MCC, prices).
+  don't invent one (especially gateway keys, bank/merchant IDs, MCC, prices). Note the wizard's grey
+  placeholder text often looks like a real value (`AGDS030924001`, `BCR2DN4T6O6NPIB5`,
+  `Prizeflix B.V.`) — it is **not** a value, and some of it belongs to a *different* merchant.
+  Conversely `celerispay` / `4` in the wallet blocks are **prefilled real values** that will save
+  as-is unless you overwrite them.
+- **NEVER type into the MCC combobox.** Its search filter throws
+  `m.toLowerCase is not a function`, which crashes the panel to a blank "Something went wrong" screen
+  and **loses every field you had filled**. Click it open and pick from the list instead. Select the
+  MCC early, since it survives refilling the rest.
+- **A credit-card page needs a template that already has an uploaded build version.** `Template
+  Version` is required and lists only what's been uploaded. So the real order is: create Template →
+  scaffold → build+upload (`v1`) → *then* create the page. Don't start the wizard before that.
+- **QA on staging before publishing.** A newly created page serves at
+  `https://staging.mouisys.com/<xcid>` while still Unpublished. Run `cc-tester` there first; `Publish`
+  is the step that exposes it to real traffic.
+- **Publish via the panel** (`Actions` → `Publish`), never `yarn publish:page` — that script is DCB
+  boilerplate whose S3 filenames don't match a cc-dynamic build, so it 404s instead of publishing.
 - **Prices come from the panel plan config.** The Plan section (Full Price, Trial Price, Currency,
   Trial Days, Billing Cycle, Is Local Currency) is the source of truth for pricing. Set it
   deliberately and read it back to the user before saving.

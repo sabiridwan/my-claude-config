@@ -13,13 +13,20 @@ their work.
 ## The pipeline it runs
 
 ```
-1. Gather inputs (once)        -> shared product config
-2. Panel: create / clone page  -> cc-ouisys-panel   (produces the page config + id)
-3. Scaffold LP + payments      -> cc-dynamic-lp      (which calls cc-payment-integration)
-4. Wire checkout + verify      -> cc-dynamic-lp verify
-5. Build -> upload -> publish   -> HAND OFF to the user (needs repo/AWS/panel creds)
-6. QA the live/preview page    -> cc-tester          (posts report to the Notion ticket)
+1. Gather inputs (once)         -> shared product config
+2. Panel: create the TEMPLATE   -> cc-ouisys-panel   (name == git repo name; no build yet)
+3. Scaffold LP + payments       -> cc-dynamic-lp      (which calls cc-payment-integration)
+4. Wire checkout + verify       -> cc-dynamic-lp verify
+5. Commit -> build -> upload     -> produces template v1 + attaches it
+6. Panel: create the PAGE       -> cc-ouisys-panel   (needs v1 to exist; yields the xcid)
+7. QA on STAGING (pre-publish)  -> cc-tester          against staging.mouisys.com/<xcid>
+8. Publish                      -> panel Actions -> Publish (traffic-exposing; confirm first)
 ```
+
+**The page is created after the build, not before.** The Card Create wizard's `Template Version` field
+is required and only lists versions that have actually been uploaded, so an unbuilt template gives you
+nothing to select. Creating the *template* is step 2; creating the *page* is step 6. Getting this
+backwards is the most common way to stall this pipeline.
 
 Announce the plan up front as a short checklist, then walk it. Keep a running status so the user
 always knows which stage they're in and what's left.
@@ -38,11 +45,16 @@ Collect the union of what the downstream skills need, so the user answers once:
 
 If a `product.json` already exists, read it and only ask for gaps.
 
-## 2. Create or clone the page in the panel
+## 2. Create the Template in the panel (not the page yet)
 
-Invoke **cc-ouisys-panel**. Create a new credit-card page (or clone an existing one if the user
-is spinning a variant), including the "create a Template named the same as the git repo" step.
-Capture the resulting page id / config — the next steps need `page` to equal the repo name.
+Invoke **cc-ouisys-panel** → `references/templates.md`. Create a Template whose name is **exactly the
+git repo name** (== `.env` `page`) with the right Country. It will have no versions attached yet —
+that's correct; step 5 produces `v1`.
+
+Do **not** open the Card Create wizard here. The page comes at step 6.
+
+If the user is spinning a variant of an existing page, `Clone` is the shortcut instead — but the clone
+still points at a template+version, so the same build prerequisite applies.
 
 ## 3. Scaffold the LP + payment core
 
@@ -59,33 +71,68 @@ Follow the generated `PAYMENT_WIRING.md`, then run the cc-dynamic-lp verify scri
 proceed past a red verify — fix hardcoded prices, absolute URLs, loader/early-return issues, or
 comp/non-comp timing first.
 
-## 5. Build, upload, publish (HAND OFF)
+## 5. Commit, build, upload (runnable here if creds are in the shell)
 
-This step needs the user's repo, AWS, and panel credentials, so it runs in **their** authenticated
-environment, not here. Do not attempt it or ask for secrets. Instead, print the exact command
-sequence for them to run and what each does:
+This needs repo + AWS credentials. It does **not** have to be a hand-off: the keys usually live in
+`~/.zshrc`, which a non-login shell doesn't source, so `source ~/.zshrc` and the build runs fine
+in-session. Never ask the user to paste secrets; just source their profile.
 
-1. `yarn pull:config id=<id>` — sync `config.json` + `.env` from the panel page.
-2. commit (git repo name must equal `.env` `page`).
-3. `yarn build:upload` — build client + SSR, upload to S3, record via `upload-template`.
-4. `yarn publish:page` — promote staging->production, call `release-page`; prints the preview URL.
+1. **Commit** — `build:upload` refuses a dirty tree, and the repo name must equal `.env` `page`.
+2. **`bash deploy.sh`** (wraps `yarn build:upload`) — builds client + SSR, uploads to S3, pushes a
+   `vN` git tag, records via `upload-template`.
 
-Ask them to paste back the preview / production URL when it's live.
+Two things that will bite (details in `cc-dynamic-lp` SKILL.md):
 
-## 6. QA the page
+- **It cannot be piped.** Both prompting scripts use inquirer in raw mode. `printf '\n\n\n\n' |` is
+  eaten by the first prompt then dies `SIGINT`; `yes "" |` loops forever on the tag prompt (empty tag
+  messages are rejected). **Drive it with `expect`.**
+- **Node must match `.nvmrc` (v20.12.2).** On Node 21+ `ssr-dynamic.js` throws
+  `TypeError: Cannot set property navigator`. Never patch `ssr-dynamic.js`.
 
-Once the URL is live, invoke **cc-tester** on it with the Notion ticket. It dry-runs card / Apple
-Pay / Google Pay to API submission, exercises **both the comp checkout and the non-comp creative**
-(`?non-comp=true`), checks content + pricing (incl. per-country wallet amounts) vs config, scans for
-company leakage, walks the ticket, and posts the pass/fail report back to the ticket. Relay the summary.
+Then confirm the version attached: template details → `Template Versions` shows the `vN` row; its `ID`
+is the `template_version_id`. Cross-check with the `Upload record saved!` output.
+
+## 6. Create the page in the panel
+
+Now that `v1` exists, invoke **cc-ouisys-panel** → `references/create-page.md` and run the Card Create
+wizard, selecting this template + the new version. Read the step-2 JSON payload back to the user and
+get a yes before **Save**.
+
+Capture the **xcid** from the resulting Unpublished row — you need it for the URL.
+
+Note: there is **no Card section** in the wizard (only Google Pay / Apple Pay). Which payment tabs
+render is decided in the page code, so don't stall asking whether to "enable card" panel-side.
+
+## 7. QA on staging — before publishing
+
+The new page already serves at **`https://staging.mouisys.com/<xcid>`** with the real build and real
+config while still Unpublished. Invoke **cc-tester** against *that* URL with the Notion ticket. It
+dry-runs card / Apple Pay / Google Pay to API submission, exercises **both the comp checkout and the
+non-comp creative** (`?non-comp=true`), checks content + pricing (incl. per-country wallet amounts) vs
+config, scans for company leakage, walks the ticket, and posts the pass/fail report back. Relay the
+summary.
+
+Fix and re-upload (`v2`) rather than publishing over a FAIL.
+
+## 8. Publish
+
+Panel row `Actions` → **`Publish`**. This exposes the page to real traffic — confirm explicitly first,
+then verify it moved to the Published list.
+
+**Never `yarn publish:page`** — it's DCB boilerplate whose S3 filenames don't match a cc-dynamic build,
+so it 404s instead of publishing.
 
 ## Orchestration rules
 
-- **One stage at a time; confirm before side-effectful ones** — creating/publishing a panel page
-  and posting to a ticket are actions the user should green-light.
-- **Never hold or enter credentials.** Step 5 is always a hand-off.
-- **Stop on failure.** A red verify (step 4) or a FAIL in cc-tester (step 6) pauses the pipeline;
-  surface it, fix or hand back, then resume — don't march past a failure.
+- **One stage at a time; confirm before side-effectful ones** — saving a page config, publishing, and
+  posting to a ticket are actions the user should green-light.
+- **Never ask for or echo credentials.** Source the user's shell profile (`source ~/.zshrc`) rather
+  than requesting keys; never print them.
+- **Stop on failure.** A red verify (step 4) or a FAIL in cc-tester (step 7) pauses the pipeline;
+  surface it, fix and re-upload, then resume — never publish over a FAIL.
+- **Ask, don't invent, for panel required fields.** Especially gateway keys, bank/merchant IDs, MCC,
+  and the Google Pay `Merchant Name` (user-visible). The wizard's grey placeholders can belong to a
+  *different* merchant — they are not defaults to copy.
 - **Resumable.** If the user already did an earlier stage (page exists, project scaffolded), skip
   to the right step rather than restarting.
 - Keep the checklist visible and mark stages done as you go.

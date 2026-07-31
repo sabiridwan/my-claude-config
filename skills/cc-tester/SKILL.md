@@ -36,6 +36,10 @@ Ask only for what you can't infer:
 - **Notion ticket** — page URL or ID. If given, fetch it **first**: it usually contains the
   target URL and the acceptance criteria to verify, and it's where the report gets posted.
 - **Target URL** — the `/xhosp` checkout (or preview URL). Pull it from the ticket if present.
+  **Prefer the pre-publish staging URL: `https://staging.mouisys.com/<xcid>`.** A page created in the
+  panel serves the real build with the real config there *while still Unpublished* — so the normal,
+  correct time to run this skill is **before** publishing, not after. Get the `xcid` from the
+  Unpublished row (or `Actions` → `Preview`, which opens exactly that URL).
 - **Test card / wallet values** — gateway test card (number, month, year, cvv, email). If the
   user hasn't supplied these, ask once; do not invent live-looking numbers.
 
@@ -65,8 +69,17 @@ Shape (fields you'll check against): `slug`, `gateway`, `service.{id,displayName
 `payments.card.bankId`, `payments.applePay.{bankId,merchantIdentifier,supportedNetworks,...}`,
 `payments.googlePay.{bankId,gateway,gatewayMerchantId,allowedCardNetworks,allowedAuthMethods,...}`,
 `flags.forceComp`, `env.page`. Snapshot it once at the start and compare everything against it.
-Note which payment methods actually exist in `payments` — a wallet-only page has no card form,
-so the card check is **N/A**, not a FAIL.
+
+**`payments` will normally have NO `card` key** — the panel's Card Create wizard only writes
+`googlePay` + `applePay`, so a card-less config is the standard shape, not a defect. **Which tabs
+render is decided in the page code, not the config.** So determine the card check from the *rendered
+page*, not from `payments`:
+
+- Card form renders → run check 1 normally (a missing `payments.card.bankId` is expected; `bankId`
+  falls back `card ?? applePay ?? googlePay`).
+- No card form renders → check 1 is **N/A**, not a FAIL.
+
+Never report "config has no `payments.card`" as a FAIL on its own.
 
 ## The checklist
 
@@ -176,8 +189,10 @@ and every host in `read_network_requests`. **FAIL** on:
 - Any in-page request to an internal host before the final gateway redirect.
 
 **Avoid false positives:** the preview/CDN host may itself contain a flagged substring — e.g.
-`c1.mouisys.com` contains "ouisys". Confirm each hit's real context (is it the page's own
-same-origin host, or a bare `ouisys.com`?) before calling it a FAIL. Record each true hit with
+`c1.mouisys.com` and `staging.mouisys.com` both contain "ouisys" inside **"mouisys"**. That is the
+page's own serving host, **not** a leak — never FAIL it. Match on a word boundary (bare `ouisys.com`,
+`panel.ouisys.com`, `c1.ouisys.com`), not a bare substring. Confirm each hit's real context (is it the
+page's own same-origin host?) before calling it a FAIL. Record each true hit with
 its exact string + source location so it can be scrubbed. Config fields embedded in page JS
 (`slug`, `bankId`, `gateway`) are source-visible by design of the payment core — note them as
 observations unless they surface in visible copy.
