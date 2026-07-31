@@ -361,7 +361,12 @@ console.log('  1. Follow PAYMENT_WIRING.md to mount <CheckoutSection/> in src/Ro
 console.log('  2. Replace the logo placeholder + review copy/colors');
 console.log('  3. Verify:  node ' + path.join(SKILL_ROOT, 'scripts/verify.mjs') + ' --out ' + outDir);
 console.log('  4. Commit, then create the repo + push:  git add -A && git commit -m "init" && git push -u origin main');
-console.log('  5. Configure the page in the panel, then build:upload → publish:page (see references/build-upload-contract.md)');
+console.log('  5. Panel: create the TEMPLATE named exactly this repo (no build attached yet)');
+console.log('  6. Commit, then build+upload → produces v1 (deploy.sh needs a pty: use expect, NOT a pipe)');
+console.log('  7. Panel: create the PAGE (Card Create) selecting this template + v1 → gives you the xcid');
+console.log('  8. QA on https://staging.mouisys.com/<xcid> BEFORE publishing (cc-tester)');
+console.log('  9. Publish via panel Actions → Publish. Do NOT use publish:page (DCB boilerplate, 404s)');
+console.log('     Details: references/build-upload-contract.md + cc-ouisys-panel/references/create-page.md');
 
 // ---------- helpers ----------
 // Skip root-level screenshot images (design captures, not build inputs). Product imagery lives

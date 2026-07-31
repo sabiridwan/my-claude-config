@@ -27,6 +27,11 @@ S3 upload is owned by `cc-dynamic-lp`. The two connect through one rule the user
 **a new page needs a Template whose name equals the git repo name** (so the uploaded build lands on
 the right template). See "Create a new page" below.
 
+> **Overlaps with `sam-panel-cc-page-creator`.** That skill does the same job but repo-driven: it
+> interviews for template + page name, fills the rest from the current repo's `config.json` /
+> `brand.config.json` / `.env`, and captures the API ids. Prefer **this** skill when the config values
+> come from a ticket or a sibling page (the common case). Don't run both.
+
 ## Prerequisites
 
 - The user's Chrome must be **logged into panel.ouisys.com**. If a screen shows a login page instead

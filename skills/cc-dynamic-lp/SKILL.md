@@ -146,7 +146,7 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
 **after** the build, not before:
 
 1. **Template exists in the panel**, named exactly the git repo name (`cc-ouisys-panel` →
-   `references/templates.md`). No build attached yet is fine.
+   `cc-ouisys-panel/references/templates.md`). No build attached yet is fine.
 2. **Commit** — the upload refuses a dirty tree, and the repo name must equal `.env` `page`.
 3. **`bash deploy.sh`** (or `yarn build:upload`) → builds client + SSR, renders `staging.html`,
    uploads to S3 (`os-ui/static/<page>/html/<vN>_index.html`), pushes a `vN` git tag, and records it
@@ -157,7 +157,7 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
    - **Cannot be driven with a pipe** — see the pty note below. Use `expect`.
 4. **Verify the version attached**: template details → `Template Versions` tab shows the `vN` row and
    its `ID` (= `template_version_id`). Cross-check against the upload's `Upload record saved!` output.
-5. **Create the page in the panel** → `cc-ouisys-panel` / `references/create-page.md`, selecting this
+5. **Create the page in the panel** → `cc-ouisys-panel/references/create-page.md`, selecting this
    template + the new version. (`yarn pull:config id=<id>` can later sync `config.json` + `.env` back
    from a saved page config.)
 6. **QA on staging** — the new page serves at `https://staging.mouisys.com/<xcid>` while still

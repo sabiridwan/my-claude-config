@@ -5,6 +5,16 @@ description: Use whenever the user wants to create a new credit card page in the
 
 # Sam Panel CC Page Creator — MCP Automation Skill
 
+> **Overlaps with `cc-ouisys-panel`.** Both skills drive `panel.ouisys.com` for credit-card pages and
+> trigger on similar phrasing. Difference in practice:
+> - **`cc-ouisys-panel`** — general panel operation (create / clone / edit / publish), with a
+>   field-by-field Card Create walkthrough in `cc-ouisys-panel/references/create-page.md`. Prefer it when the config
+>   values come from a ticket or a sibling page.
+> - **this skill** — repo-driven: interviews for template + page name, then fills the rest from the
+>   current repo's `config.json` / `brand.config.json` / `.env`, and captures the API ids.
+>
+> Prefer `cc-ouisys-panel` unless you specifically want the repo-config-driven fill. Don't run both.
+
 ## Overview
 
 Automates interaction with `panel.ouisys.com` using the Playwright MCP browser. Three modes:
@@ -104,13 +114,27 @@ Read these files from the current repo for everything else:
 - `src/config/brand.config.json` → `brand.defaultServiceId`, `languages`, `links`, `pricing`
 - `.env` → `client`, `title`
 
+> **Before you touch the form — two traps that cost you the whole thing:**
+>
+> 1. **NEVER type into the MCC combobox.** Its search filter throws
+>    `m.toLowerCase is not a function`, crashing the panel to a blank "Something went wrong" screen and
+>    **discarding every field you already filled**. Click it open and pick from the list. Select the MCC
+>    **early**, since it survives while you refill the rest.
+> 2. **The wizard has NO Card section** — only Google Pay and Apple Pay, so the saved `payments` has no
+>    `card` key. That is normal. Which payment tabs render is decided in the **page code**, not the
+>    panel, so don't stall asking whether to enable card here.
+>
+> Also: `Template Version` is required and lists only builds already uploaded to that template — so the
+> page must be created **after** the build+upload, not before.
+
 Navigate and fill the form:
 
 ```
 1. browser_navigate → https://panel.ouisys.com/dynamic-pages/create-credit-card
 2. browser_snapshot → identify all form fields
-3. Fill fields from config (map below)
-4. Click "Next" / submit
+3. Fill fields from config (map below). Click-select the MCC; never type in it.
+4. Click "Next" → step 2 renders the JSON payload. EXPAND the collapsed nodes
+   (service / flags / payments / plan) and read them back to the user, then Save.
 5. browser_network_requests (filter: "panel.ouisys.com/api") → find POST /api/v2/create-page-config
 6. browser_network_request(index) part="response-body" → extract page_config_id
 7. Store in .env as ouisys_page_config_id=<page_config_id>
@@ -134,11 +158,23 @@ Navigate and fill the form:
 | Trial Price | `brand.config.json → pricing.trialPrice` |
 | Full Price | `brand.config.json → pricing.subscriptionPrice` |
 
-**Payment fields with no source yet:** Use placeholder values if creating a test page:
-- Gateway Merchant ID → `AGDS030924001`
-- Google Merchant ID → `BCR2DN4T6O6NPIB5`
-- Merchant Name → `Prizeflix B.V.`
-- Apple Pay Merchant Identifier → `merchant.com.xracademy.online.2`
+**Payment fields with no source yet — ASK, do not copy the wizard's placeholders.**
+
+These are gateway/merchant identities. A wrong value either breaks the charge or shows the **wrong
+company to the customer**, and it won't surface until QA (or production). Get them from the ticket or a
+live sibling page's config (`Actions → Preview` → `window.configJson.pageConfigs`).
+
+The greyed text in the wizard is placeholder text harvested from *other* pages — some of it belongs to
+a **different legal entity**. In particular:
+
+- **`Merchant Name` must NOT be `Prizeflix B.V.`** unless that is genuinely this page's merchant. It is
+  shown to the user inside the Google Pay sheet as who they are paying. Use the **MCC legal entity you
+  selected** on this same form (e.g. `PEPPEROSE LIMITED`).
+- `Gateway Merchant ID` (`AGDS030924001`) / `Google Merchant ID` (`BCR2DN4T6O6NPIB5`) /
+  `Apple Pay Merchant Identifier` (`merchant.com.xracademy.online.2`) are the *acquired*-gateway values
+  for the PDFBrain/xracademy family. Reuse them only when this page really is on that acquirer+MCC.
+- `Google Pay Gateway` and `Bank ID` come **prefilled with real values** (`celerispay`, `4`) that save
+  as-is — overwrite them to match the actual gateway (e.g. `acquired`, `8`).
 
 ---
 
@@ -266,6 +302,32 @@ Store IDs from Phase 4 response into `.ouisys` (not `.env`):
 ouisys_page_config_id=753   # page_config_id from create response
 ouisys_version_id=6490      # version_id from create response
 ```
+
+Also record the row's **Xcid** (e.g. `xhfjm`) — it's the page's public id and you need it for the URL.
+
+Note the Unpublished row's **Configuration** column shows `Strategy: —` / `Name: —` / `Service:` blank
+for credit-card pages. That's a list-rendering quirk, **not** an empty config.
+
+---
+
+## Phase 6 — QA on staging, then publish
+
+**The page is testable before it is public.** `Actions → Preview` opens
+**`https://staging.mouisys.com/<xcid>`**, serving the real build with the real panel config while the
+page is still Unpublished. Confirm `window.configJson.pageConfigs` matches what you saved, and run the
+`cc-tester` skill against that URL — **before** publishing.
+
+Then publish: row `Actions` → **`Publish`**. This exposes the page to real traffic, so confirm with the
+user explicitly first, and verify it moved to the Published list afterwards.
+
+> **Do NOT use the repo's `yarn publish:page`.** It is DCB-flow boilerplate: it looks for
+> `{country}-{slugify(scenario || strategy_scenariosConfig)}-staging.html`, but a cc-dynamic `.env` has
+> no `scenario` and the build uploads `html/staging.html` / `html/index.html` / `html/vN_index.html`.
+> The names never match, so it 404s instead of publishing anything.
+
+**Panel UI quirks:** the `Actions` dropdown renders in a portal (a screenshot may show no menu — find
+the item and click by ref); clicking a page name or `Quick Preview` often doesn't navigate, and
+`View Details` can silently do nothing. Go through `Actions`.
 
 ---
 

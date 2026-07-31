@@ -47,7 +47,7 @@ If a `product.json` already exists, read it and only ask for gaps.
 
 ## 2. Create the Template in the panel (not the page yet)
 
-Invoke **cc-ouisys-panel** → `references/templates.md`. Create a Template whose name is **exactly the
+Invoke **cc-ouisys-panel** → `cc-ouisys-panel/references/templates.md`. Create a Template whose name is **exactly the
 git repo name** (== `.env` `page`) with the right Country. It will have no versions attached yet —
 that's correct; step 5 produces `v1`.
 
@@ -94,7 +94,7 @@ is the `template_version_id`. Cross-check with the `Upload record saved!` output
 
 ## 6. Create the page in the panel
 
-Now that `v1` exists, invoke **cc-ouisys-panel** → `references/create-page.md` and run the Card Create
+Now that `v1` exists, invoke **cc-ouisys-panel** → `cc-ouisys-panel/references/create-page.md` and run the Card Create
 wizard, selecting this template + the new version. Read the step-2 JSON payload back to the user and
 get a yes before **Save**.
 
