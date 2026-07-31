@@ -1,0 +1,104 @@
+/* GENERATED per product by scaffold.mjs. The :root block below is built from the product's
+   extracted brand (color + theme + fonts). Everything else is layout that follows the reference
+   Ouisys /xhosp page and reads only these CSS variables — so re-theming never touches the layout. */
+{{THEME_ROOT}}
+
+.cc-checkout * { box-sizing: border-box; }
+.cc-checkout { font-family: var(--cc-body); color: var(--cc-ink); background: var(--cc-body-bg); min-height: 100%; }
+.cc-checkout a { color: var(--cc-brand-soft); text-decoration: none; }
+.cc-checkout a:hover { text-decoration: underline; }
+.cc-checkout h1, .cc-checkout h2, .cc-checkout h3, .cc-checkout h4 { font-family: var(--cc-display); line-height: 1.15; margin: 0; }
+
+.cc-head { background: var(--cc-head-bg); border-bottom: 1px solid var(--cc-line); position: sticky; top: 0; z-index: 20; }
+.cc-head__in { max-width: 1080px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
+.cc-logo { display: flex; align-items: center; gap: 10px; font-family: var(--cc-display); font-weight: 700; font-size: 22px; text-transform: uppercase; letter-spacing: .02em; color: var(--cc-ink); }
+.cc-logo svg, .cc-logo img { height: 24px; }
+.cc-secure { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--cc-muted); font-weight: 600; }
+.cc-secure svg { width: 14px; height: 14px; }
+
+.cc-wrap { max-width: 1080px; margin: 0 auto; padding: 26px 20px 56px; display: grid; grid-template-columns: 1fr 380px; gap: 26px; align-items: start; }
+@media (max-width: 900px) { .cc-wrap { grid-template-columns: 1fr; } .cc-summary-col { order: -1; } }
+.cc-card { background: var(--cc-card); border: 1px solid var(--cc-line); border-radius: 14px; box-shadow: var(--cc-shadow); }
+.cc-pad { padding: 22px; }
+
+.cc-title { font-size: 30px; text-transform: uppercase; font-weight: 700; }
+.cc-trial { margin: 12px 0 4px; font-family: var(--cc-display); font-size: 22px; font-weight: 700; color: var(--cc-brand-soft); text-transform: uppercase; }
+.cc-terms { color: var(--cc-muted); font-size: 13px; }
+
+.cc-pick { font-family: var(--cc-display); text-transform: uppercase; font-size: 16px; letter-spacing: .03em; margin: 36px 0 14px; }
+.cc-methods { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 4px; }
+.cc-method { border: 1.5px solid var(--cc-line); border-radius: 11px; padding: 13px 6px; text-align: center; cursor: pointer; font-weight: 600; font-size: 12.5px; color: var(--cc-muted); background: var(--cc-card-2); display: flex; flex-direction: column; align-items: center; gap: 6px; transition: .15s; }
+.cc-method:hover { border-color: var(--cc-brand); color: var(--cc-ink); }
+.cc-method--active { border-color: var(--cc-brand); background: var(--cc-brand-tint); color: var(--cc-ink); box-shadow: 0 0 0 3px var(--cc-brand-ring); }
+.cc-method svg { height: 20px; }
+
+.cc-form { margin-top: 20px; }
+.cc-field { margin-bottom: 14px; }
+.cc-field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--cc-muted); margin-bottom: 6px; }
+.cc-field input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--cc-line); border-radius: 10px; font-size: 15px; font-family: var(--cc-body); background: var(--cc-card-2); color: var(--cc-ink); }
+.cc-field input::placeholder { color: var(--cc-placeholder); }
+.cc-field input:focus { outline: none; border-color: var(--cc-brand); box-shadow: 0 0 0 3px var(--cc-brand-ring); }
+.cc-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.cc-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--cc-muted); margin: 14px 0 16px; }
+.cc-consent input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; width: 18px; min-width: 18px; height: 18px; margin: 1px 0 0; padding: 0; flex: 0 0 auto; accent-color: var(--cc-brand); }
+.cc-pay-btn { width: 100%; border: none; border-radius: 11px; padding: 16px; margin-top: 6px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 17px; font-weight: 700; color: #fff; background: var(--cc-brand); cursor: pointer; transition: .15s; box-shadow: 0 6px 18px var(--cc-brand-glow); }
+.cc-pay-btn:hover { background: var(--cc-brand-dark); }
+.cc-pay-btn:disabled { opacity: .6; cursor: default; }
+.cc-wallet-btn { width: 100%; height: 50px; border-radius: 11px; padding: 0 16px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 7px; border: none; margin-top: 4px; }
+/* Store-standard Apple Pay button — always visible (black, Apple mark), like the other Ouisys pages. */
+.cc-wallet-btn--apple { background: #000; color: #fff; }
+.cc-wallet-btn--apple svg { margin: 0 1px -3px; }
+.cc-wallet-btn--gpay { background: #fff; color: #3c4043; border: 1.5px solid var(--cc-line); }
+/* Host for the official Google Pay button injected via client.createButton(). */
+.cc-gpay-host { width: 100%; min-height: 50px; margin-top: 4px; }
+.cc-gpay-host > * { width: 100% !important; }
+.cc-gpay-host .gpay-card-info-container, .cc-gpay-host button { width: 100% !important; border-radius: 11px !important; }
+.cc-wallet-note { text-align: center; font-size: 12.5px; color: var(--cc-muted); padding: 16px; border: 1px dashed var(--cc-line); border-radius: 11px; margin-top: 4px; }
+.cc-form-error { color: #f87171; font-size: 13px; margin-top: 4px; }
+.cc-threeds { width: 100%; min-height: 420px; border: 0; }
+.cc-valueprop { color: var(--cc-muted); font-size: 13.5px; margin-top: 18px; }
+
+.cc-info { margin-top: 22px; display: flex; flex-direction: column; gap: 16px; }
+.cc-info h4 { font-family: var(--cc-display); text-transform: uppercase; font-size: 16px; letter-spacing: .02em; margin-bottom: 5px; }
+.cc-info p { color: var(--cc-muted); font-size: 13.5px; }
+.cc-info ul { margin: 4px 0 0 18px; color: var(--cc-muted); font-size: 13.5px; }
+.cc-info li::marker { color: var(--cc-brand); }
+
+.cc-summary-col { position: sticky; top: 82px; display: flex; flex-direction: column; gap: 16px; }
+.cc-sum h3 { font-family: var(--cc-display); text-transform: uppercase; font-size: 18px; }
+.cc-sum__row { display: flex; justify-content: space-between; align-items: baseline; padding: 9px 0; font-size: 14px; }
+.cc-sum__name { font-family: var(--cc-display); text-transform: uppercase; font-size: 16px; }
+.cc-sum__price { font-family: var(--cc-display); font-size: 30px; font-weight: 700; }
+.cc-sum__permo { color: var(--cc-muted); font-size: 12.5px; }
+.cc-sum__try { background: var(--cc-brand-tint); color: var(--cc-brand-soft); font-weight: 700; font-size: 13px; border-radius: 10px; padding: 10px 12px; margin: 10px 0; text-align: center; border: 1px solid var(--cc-brand-ring); }
+.cc-sum__total { border-top: 1px solid var(--cc-line); margin-top: 6px; padding-top: 12px; font-size: 18px; font-weight: 700; font-family: var(--cc-display); }
+.cc-sum__links { display: flex; justify-content: space-between; align-items: center; margin-top: 12px; font-size: 13px; }
+.cc-guar { display: flex; align-items: center; gap: 8px; font-weight: 600; font-size: 13px; color: var(--cc-ink); }
+.cc-guar svg { width: 18px; height: 18px; color: var(--cc-brand); }
+.cc-badges { display: flex; gap: 8px; flex-wrap: wrap; }
+.cc-badges svg { height: 26px; }
+
+/* ── Non-comp creative (full-area tap → wallet) ── */
+.cc-noncomp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 0 20px 40px; background: var(--cc-body-bg); }
+.cc-noncomp__head { width: 100%; max-width: 460px; padding: 18px 0; }
+.cc-noncomp__head .cc-logo { justify-content: center; }
+.cc-creative { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; margin-top: 4vh; }
+.cc-creative__media { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid var(--cc-line); background: var(--cc-card); }
+.cc-creative__media video, .cc-creative__media img { display: block; width: 100%; height: auto; }
+.cc-creative__status { font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .04em; font-size: 15px; color: var(--cc-muted); }
+.cc-creative__cta { width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: var(--cc-brand); box-shadow: 0 6px 18px var(--cc-brand-glow); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
+.cc-creative__cta.is-ready { opacity: 1; transform: none; pointer-events: auto; }
+
+.cc-foot { background: var(--cc-foot-bg); color: var(--cc-foot-muted); padding: 40px 20px; font-size: 13px; border-top: 1px solid var(--cc-line); }
+.cc-foot a { color: var(--cc-foot-muted); }
+.cc-foot a:hover { color: var(--cc-foot-ink); }
+.cc-foot__in { max-width: 1080px; margin: 0 auto; }
+.cc-foot__blurb { max-width: 640px; margin-bottom: 26px; }
+.cc-foot__blurb h3 { font-family: var(--cc-display); text-transform: uppercase; color: var(--cc-foot-ink); font-size: 22px; margin-bottom: 8px; }
+.cc-foot__blurb h3 span { color: var(--cc-brand); }
+.cc-foot__cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
+@media (max-width: 700px) { .cc-foot__cols { grid-template-columns: 1fr; gap: 18px; } }
+.cc-foot h6 { color: var(--cc-foot-ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; font-family: var(--cc-body); }
+.cc-foot__links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
+.cc-foot__cards { display: flex; gap: 8px; margin-top: 16px; }
+.cc-foot__cards svg { height: 24px; }

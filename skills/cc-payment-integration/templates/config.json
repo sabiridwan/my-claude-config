@@ -1,0 +1,19 @@
+{
+  "strategy": "credit-card",
+  "country": "xx",
+  "strategyConfigs": {
+    "default": {
+      "flow": "creditCard",
+      "flowConfig": {
+        "host": "",
+        "slug": "{{SLUG}}",
+        "device": "smart",
+        "country": "xx",
+        "service": "{{SERVICE_ID}}",
+        "operators": null,
+        "automaticallySubmitAllOperators": false
+      }
+    },
+    "operators": {}
+  }
+}

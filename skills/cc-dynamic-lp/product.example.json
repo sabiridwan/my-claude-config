@@ -1,0 +1,50 @@
+{
+  "serviceId": "streamtrainfit",
+  "serviceDisplayName": "Streamtrainfit",
+  "country": "xx",
+  "title": "Streamtrainfit",
+
+  "creative": "download",
+  "nid": true,
+  "_note_name": "productName is derived from serviceId+creative+nid → cc-dynamic-streamtrainfit-template-download-nid-gcomp (see references/naming-convention.md). Set productName only to override.",
+
+  "slug": "cc_celerispay-xracademy50_001-",
+  "gateway": "celeris",
+  "scenariosConfig": "xx-creditcard-streamtrainfit",
+  "bankId": { "card": "REPLACE_ME", "applePay": "REPLACE_ME", "googlePay": "REPLACE_ME" },
+  "applePay": { "merchantIdentifier": "merchant.com.streamtrainfit" },
+  "googlePay": { "gatewayMerchantId": "REPLACE_ME" },
+
+  "paymentMethods": ["applePay", "googlePay", "card"],
+
+  "consent": { "requireConsent": true, "walletRequireConsent": false, "checkConsentByDefault": true },
+
+  "_note_brand": "Extract these from the product's LIVE site via Claude-in-Chrome (SPAs won't web_fetch). theme=dark|light; primary=CTA colour; fonts from the site + a matching Google Fonts URL; logoSvg = inline logo.",
+  "brand": {
+    "theme": "dark",
+    "primary": "#DC2626",
+    "primaryDark": "#B91C1C",
+    "primarySoft": "#FCA5A5",
+    "displayFont": "'Oswald', 'Roboto Condensed', sans-serif",
+    "bodyFont": "'Montserrat', Roboto, -apple-system, 'Segoe UI', sans-serif",
+    "googleFonts": "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap",
+    "logoSvg": ""
+  },
+  "copy": {
+    "benefits": ["Unlimited guided workouts & training plans", "Ad-free!"],
+    "chargeDescriptor": "STREAMTRAINFIT",
+    "supportEmail": "help@streamtrainfit.com",
+    "tagline": "Discover Your Inner Balance <span>&amp; Strength</span>",
+    "blurb": "Streamtrainfit is your all-in-one platform for expertly crafted fitness, yoga, and mindfulness programs designed for modern life."
+  },
+
+  "locale": "en",
+
+  "devFallbackPlan": {
+    "trialPrice": "0.01",
+    "trialDays": 1,
+    "fullPrice": "49.99",
+    "billingCycleDays": 30,
+    "currency": "€"
+  }
+}

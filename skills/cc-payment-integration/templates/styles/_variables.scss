@@ -1,0 +1,80 @@
+// GENERATED per product by scripts/scaffold.mjs — branding tokens substituted from product.json.
+:root {
+  --brand: {{PRIMARY_COLOR}};
+  --brand-dark: {{PRIMARY_DARK}};
+  --brand-tint: {{PRIMARY_TINT}};
+  --ink: #1a1d23;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --bg: #f5f7fa;
+  --card: #ffffff;
+  --radius: 12px;
+  --font: {{FONT_STACK}};
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font-family: var(--font); }
+
+.pay-page {
+  max-width: 1080px;
+  margin: 0 auto;
+  padding: 28px 20px 60px;
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 28px;
+  align-items: start;
+}
+@media (max-width: 860px) {
+  .pay-page { grid-template-columns: 1fr; }
+  .summary { order: -1; }
+}
+
+.hero, .summary {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 24px;
+}
+.hero__brand { display: flex; align-items: center; gap: 10px; font-weight: 800; }
+.hero__logo {
+  width: 34px; height: 34px; border-radius: 9px; display: grid; place-items: center;
+  color: #fff; background: linear-gradient(135deg, var(--brand), var(--brand-dark)); font-weight: 900;
+}
+.hero__title { font-size: 24px; margin: 18px 0 6px; }
+.hero__lede { color: var(--muted); margin: 0 0 22px; }
+
+.pay-methods { display: flex; flex-direction: column; gap: 12px; }
+.card-form label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 12px; }
+.card-form input {
+  width: 100%; padding: 13px 14px; border: 1.5px solid var(--line); border-radius: 10px;
+  font-size: 15px; margin-top: 6px;
+}
+.card-form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.pay-btn {
+  width: 100%; border: none; border-radius: 11px; padding: 16px; font-size: 17px; font-weight: 700;
+  color: #fff; background: var(--brand); cursor: pointer;
+}
+.pay-btn:disabled { opacity: .6; cursor: default; }
+.wallet-btn { width: 100%; border-radius: 10px; padding: 15px; font-weight: 600; cursor: pointer; border: 1.5px solid var(--line); background: #fff; }
+.wallet-btn.apple-pay { background: #000; color: #fff; border-color: #000; }
+.form-error { color: #dc2626; font-size: 13px; }
+.consent { display: flex; gap: 8px; font-size: 12px; color: var(--muted); margin-bottom: 12px; }
+.threeds-frame { width: 100%; min-height: 420px; border: 0; }
+
+.summary__title { font-size: 15px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); }
+.summary__row { display: flex; justify-content: space-between; padding: 11px 0; font-size: 14px; }
+.summary__row--total { border-top: 1px solid var(--line); font-weight: 800; font-size: 18px; }
+.summary__renew { font-size: 12px; color: var(--muted); }
+.pay-footer { grid-column: 1 / -1; text-align: center; color: var(--muted); font-size: 12px; }
+
+// Loader overlay — fixed on top of the always-rendered tree (never an early return).
+.page-loader {
+  position: fixed; inset: 0; z-index: 9999; background: var(--bg);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 16px;
+}
+.page-loader__spinner {
+  width: 44px; height: 44px; border: 4px solid var(--line); border-top-color: var(--brand);
+  border-radius: 50%; animation: page-spin .8s linear infinite;
+}
+.page-loader__label { color: var(--muted); font-size: 14px; }
+@keyframes page-spin { to { transform: rotate(360deg); } }
