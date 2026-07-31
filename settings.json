@@ -240,15 +240,15 @@
       }
     }
   },
-  "voiceEnabled": true,
+  "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold"
   },
   "skipDangerousModePermissionPrompt": true,
-  "tui": "fullscreen",
   "autoCompactEnabled": true,
   "switchModelsOnFlag": true,
   "inputNeededNotifEnabled": true,
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "voiceEnabled": true
 }
