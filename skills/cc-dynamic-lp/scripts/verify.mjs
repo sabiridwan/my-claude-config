@@ -103,6 +103,61 @@ if (exists('src/CheckoutSection.tsx')) {
   }
 }
 
+// 6a3. White-label integrity + footer completeness. The generated checkout must not carry a
+// parent-company name, an internal host, or an absolute off-domain URL — cc-tester check 6 treats
+// each as a hard FAIL, and THIS is the verify an embed project actually runs before shipping
+// (cc-payment-integration's own verify has a URL check but is not the documented gate here).
+// It also catches the opposite failure: a footer whose company/legal fields were left blank, which
+// is what the scaffold now emits by default rather than a plausible-but-wrong entity.
+{
+  const CHECKOUT = path.join(outDir, 'src/checkout');
+  // The product's OWN domain is allowed: the page is served from it, and the footer's legal links
+  // must point at the product's real policy pages (incl. sibling hosts like portal.<product>.com).
+  // Derive it from checkoutMeta's siteUrl rather than hardcoding.
+  // siteUrl is "/" under the proxy, so take the domain from siteLabel (e.g. "www.streamtrainfit.com").
+  let ownBase = null;
+  if (exists('src/checkout/checkoutMeta.ts')) {
+    const meta = read('src/checkout/checkoutMeta.ts');
+    const m = meta.match(/"siteLabel"\s*:\s*"([^"]+)"/) || meta.match(/"siteUrl"\s*:\s*"https?:\/\/([^/"]+)"/);
+    if (m) ownBase = m[1].replace(/^https?:\/\//, '').split('/')[0].split('.').slice(-2).join('.');
+  }
+  const ALLOW = [/pay\.google\.com/, /applepay/i, /apple\.com/, /www\.w3\.org\/2000\/svg/,
+                 /fonts\.(googleapis|gstatic)\.com/, /^https?:\/\/localhost/,
+                 ...(ownBase ? [new RegExp(`^https?://([^/]+\\.)?${ownBase.replace(/\./g, '\\.')}(/|$)`)] : [])];
+  const LEAK = /\bsam[-\s]?media\b|\bsammedia\b|panel\.ouisys\.com|c1\.ouisys\.com|\bouisys\.com\b/i;
+  const walk = (dir) => fs.existsSync(dir)
+    ? fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) => {
+        const p = path.join(dir, e.name);
+        return e.isDirectory() ? walk(p) : [p];
+      })
+    : [];
+  const bad = [];
+  for (const f of walk(CHECKOUT)) {
+    if (!/\.(ts|tsx|scss)$/.test(f)) continue;
+    const body = fs.readFileSync(f, 'utf8');
+    const where = path.relative(outDir, f);
+    if (LEAK.test(body)) bad.push(`${where} → parent-company/internal string`);
+    for (const u of body.match(/https?:\/\/[^\s"'`)]+/g) || []) {
+      if (!ALLOW.some((re) => re.test(u))) bad.push(`${where} → ${u}`);
+    }
+  }
+  if (bad.length) fail.push(`White-label / domain-preservation violation in src/checkout: ${bad.join('; ')}`);
+  else pass.push('No parent-company strings or absolute off-domain URLs in src/checkout');
+
+  // Footer identity must be filled in from the PRODUCT's own site, not left empty and not copied
+  // from the reference /xhosp page (which shows the parent company).
+  if (exists('src/checkout/checkoutMeta.ts')) {
+    const meta = read('src/checkout/checkoutMeta.ts');
+    const blank = ['companyName', 'companyAddress'].filter((k) => new RegExp(`"${k}"\\s*:\\s*""`).test(meta));
+    const noLegal = /"legalLinks"\s*:\s*\[\s*\]/.test(meta) || !/"legalLinks"/.test(meta);
+    if (blank.length || noLegal) {
+      fail.push(`checkoutMeta.ts footer identity incomplete (${[...blank, noLegal ? 'legalLinks' : ''].filter(Boolean).join(', ')}) — harvest these from the product's live footer`);
+    } else {
+      pass.push('Footer identity present (company, address, legal links)');
+    }
+  }
+}
+
 // 6b. Git remote basename must equal the .env page (pre:build enforces page === repo name).
 if (fs.existsSync(path.join(outDir, '.git'))) {
   try {

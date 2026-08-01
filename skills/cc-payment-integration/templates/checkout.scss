@@ -89,16 +89,24 @@
 .cc-creative__cta { width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: var(--cc-brand); box-shadow: 0 6px 18px var(--cc-brand-glow); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
 .cc-creative__cta.is-ready { opacity: 1; transform: none; pointer-events: auto; }
 
-.cc-foot { background: var(--cc-foot-bg); color: var(--cc-foot-muted); padding: 40px 20px; font-size: 13px; border-top: 1px solid var(--cc-line); }
-.cc-foot a { color: var(--cc-foot-muted); }
+.cc-foot { background: var(--cc-foot-bg); color: var(--cc-foot-muted); padding: 44px 20px 40px; font-size: 14px; border-top: 3px solid var(--cc-brand); }
+.cc-foot a { color: var(--cc-foot-muted); text-decoration: none; }
 .cc-foot a:hover { color: var(--cc-foot-ink); }
 .cc-foot__in { max-width: 1080px; margin: 0 auto; }
-.cc-foot__blurb { max-width: 640px; margin-bottom: 26px; }
+.cc-foot__blurb { max-width: 640px; margin-bottom: 30px; }
 .cc-foot__blurb h3 { font-family: var(--cc-display); text-transform: uppercase; color: var(--cc-foot-ink); font-size: 22px; margin-bottom: 8px; }
 .cc-foot__blurb h3 span { color: var(--cc-brand); }
-.cc-foot__cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px; }
-@media (max-width: 700px) { .cc-foot__cols { grid-template-columns: 1fr; gap: 18px; } }
-.cc-foot h6 { color: var(--cc-foot-ink); font-size: 11px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 10px; font-family: var(--cc-body); }
-.cc-foot__links { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 8px; }
-.cc-foot__cards { display: flex; gap: 8px; margin-top: 16px; }
-.cc-foot__cards svg { height: 24px; }
+.cc-foot__cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px; }
+@media (max-width: 700px) { .cc-foot__cols { grid-template-columns: 1fr; gap: 26px; } }
+/* Column headings mirror the product site: accent-coloured, display face, uppercase. */
+.cc-foot h6 { color: var(--cc-brand); font-size: 15px; text-transform: uppercase; letter-spacing: .04em; margin-bottom: 14px; font-family: var(--cc-display); font-weight: 700; }
+.cc-foot p { margin: 0 0 6px; line-height: 1.55; }
+/* Legal links as a chevron list, as on the product footer — not an inline wrap. */
+.cc-foot__links { display: flex; flex-direction: column; gap: 9px; margin-top: 2px; }
+.cc-foot__links a { position: relative; padding-left: 14px; }
+.cc-foot__links a::before { content: '\203A'; position: absolute; left: 0; top: -1px; color: var(--cc-brand); font-weight: 700; }
+.cc-foot__site { color: var(--cc-brand) !important; }
+.cc-foot__site:hover { opacity: .85; }
+.cc-foot__paylabel { margin-top: 16px; color: var(--cc-foot-ink); }
+.cc-foot__cards { display: flex; gap: 10px; margin-top: 10px; flex-wrap: wrap; }
+.cc-foot__cards svg { height: 30px; width: auto; }

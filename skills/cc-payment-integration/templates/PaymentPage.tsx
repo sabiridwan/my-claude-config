@@ -145,10 +145,12 @@ export default function PaymentPage() {
             </div>
             <div>
               <h6>Company Details</h6>
-              <p>{META.companyName}</p>
-              <p>{META.companyAddress}</p>
-              {'companyRegNo' in META ? <p>Company registration number: {(META as any).companyRegNo}</p> : null}
-              <p><a href={(META as any).siteUrl}>{(META as any).siteLabel}</a></p>
+              {(META as any).copyright ? <p>{(META as any).copyright}</p> : null}
+              <p>{META.companyName}{META.companyAddress ? `, ${META.companyAddress}` : ''}</p>
+              {(META as any).companyRegNo ? <p>Company registration number: {(META as any).companyRegNo}</p> : null}
+              <p><a className="cc-foot__site" href={(META as any).siteUrl}>{(META as any).siteLabel}</a></p>
+              <p className="cc-foot__paylabel">Secure Payment Options</p>
+              <div className="cc-foot__cards" dangerouslySetInnerHTML={{ __html: CARD_BADGES }} />
             </div>
             <div>
               <h6>Legal</h6>
