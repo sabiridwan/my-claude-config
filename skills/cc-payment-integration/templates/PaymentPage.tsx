@@ -144,13 +144,19 @@ export default function PaymentPage() {
               <p><a href={`mailto:${META.supportEmail}`}>{META.supportEmail}</a></p>
             </div>
             <div>
-              <h6>{META.companyName}</h6>
+              <h6>Company Details</h6>
+              <p>{META.companyName}</p>
               <p>{META.companyAddress}</p>
-              <p><a href="https://www.sam-media.com">www.sam-media.com</a></p>
+              {'companyRegNo' in META ? <p>Company registration number: {(META as any).companyRegNo}</p> : null}
+              <p><a href={(META as any).siteUrl}>{(META as any).siteLabel}</a></p>
             </div>
             <div>
               <h6>Legal</h6>
-              <div className="cc-foot__links"><a href="#">Privacy Policy</a><a href="#">Refund Policy</a><a href="#">Terms &amp; Conditions</a><a href="#">FAQ</a></div>
+              <div className="cc-foot__links">
+                {((META as any).legalLinks ?? []).map((l: { label: string; href: string }) => (
+                  <a key={l.href} href={l.href} target="_blank" rel="noopener noreferrer">{l.label}</a>
+                ))}
+              </div>
             </div>
           </div>
         </div>
