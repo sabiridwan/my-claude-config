@@ -1,6 +1,19 @@
 {
   "version": 1,
-  "lastRun": null,
-  "repos": {},
+  "lastRun": "2026-08-01",
+  "repos": {
+    "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-streamtrainfit-template-download-nid-gcomp": {
+      "sha": "2c3e4718e48292f37391e92885526932a519b470",
+      "harvestedAt": "2026-08-01"
+    },
+    "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-omnilearnhub-template-download-nid-gcomp": {
+      "sha": "9344356bc5d6422fc087aa871e055a2826803882",
+      "harvestedAt": "2026-08-01"
+    },
+    "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-xrlab360-template-download-nid-gcomp": {
+      "sha": "2a18a173d0874eabf3c0a862fef71e4c6108330e",
+      "harvestedAt": "2026-08-01"
+    }
+  },
   "rejected": []
 }
