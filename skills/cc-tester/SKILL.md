@@ -1,6 +1,6 @@
 ---
 name: "cc-tester"
-description: "QA a Sam Media / Ouisys cc-dynamic credit-card landing page end to end: dry-run card, Apple Pay and Google Pay checkout in the browser up to API submission (no real charge), exercise BOTH the comp checkout and the non-comp creative (?non-comp=true), verify page content and pricing against the pageConfigs data, scan for leaked company/internal details, walk the linked Notion ticket and post the pass/fail report back to it. Use for \"test this LP\", \"cc tester\", \"QA the checkout\", \"check card/apple pay/google pay\", \"test non-comp\", \"verify pricing matches config\", \"check for company/brand leakage\", or when a Notion ticket asks to test a credit-card page."
+description: "QA a Sam Media / Ouisys cc-dynamic credit-card landing page end to end: dry-run card, Apple Pay and Google Pay checkout in the browser up to API submission (no real charge), exercise BOTH the comp checkout and the non-comp creative (?non-comp=true), verify page content and pricing against the pageConfigs data, cross-check the LP against the PRODUCT site for design/font/theme/content parity, scan for leaked company/internal details, walk the linked Notion ticket and post the pass/fail report back to it. Use for \"test this LP\", \"cc tester\", \"QA the checkout\", \"check card/apple pay/google pay\", \"test non-comp\", \"verify pricing matches config\", \"check for company/brand leakage\", \"does the LP match the product site\", or when a Notion ticket asks to test a credit-card page. Accepts a PRODUCT url (e.g. streamtrainfit.com) as the target, not just an Ouisys/staging url."
 ---
 
 # cc-tester — QA a cc-dynamic credit-card landing page
@@ -10,8 +10,13 @@ produce a **pass/fail report**. Each payment method is exercised in a real brows
 dry-run up to the point of API submission** — the tester confirms the correct
 `/api/v1/frontend/*` endpoint fires with a valid payload and **must not complete a real
 charge**. It also checks that rendered content and every visible price come from the page's
-config data, scans the page for any leaked company/internal detail, walks the linked Notion
-ticket, and posts the report back to that ticket.
+config data, **cross-checks the page against the product's own site** (theme, fonts, accent colour,
+header/footer, copy — the page is proxied onto the product domain, so it must read as that site),
+scans the page for any leaked company/internal detail, walks the linked Notion ticket, and posts the
+report back to that ticket.
+
+You can point it at the **product URL** (`streamtrainfit.com`) rather than an Ouisys/staging URL — it
+resolves the LP at `/xhosp` and uses the product root as the design reference. See Inputs.
 
 This is the QA counterpart to `cc-dynamic-lp` (builds the page) and `cc-payment-integration`
 (builds the checkout). It only reads and drives the page; it never edits the project.
@@ -40,6 +45,22 @@ Ask only for what you can't infer:
   panel serves the real build with the real config there *while still Unpublished* — so the normal,
   correct time to run this skill is **before** publishing, not after. Get the `xcid` from the
   Unpublished row (or `Actions` → `Preview`, which opens exactly that URL).
+- **Product URL** — the product's own marketing site (`https://streamtrainfit.com`). **Always needed**,
+  because check 4b compares the LP against it. Infer it from `pageConfigs.service.id` /
+  `checkoutMeta.siteLabel` if not given; confirm with the user if that guess is ambiguous.
+
+  **If the user passes a PRODUCT link instead of an Ouisys/staging URL, that is not a mistake —
+  it is the normal way to ask for this test.** Treat it as *both* inputs:
+  - the **LP under test** is that domain + the page path, i.e. `https://<product>/xhosp`
+    (carry through any query the user included, e.g. `?d_country=nl`);
+  - the **design reference** is the product root, `https://<product>/`.
+
+  Confirm the `/xhosp` path actually serves the checkout before testing it. If it 404s (common
+  before the page is published, or when the proxy isn't wired yet), fall back to the staging URL
+  `https://staging.mouisys.com/<xcid>` for the *functional* checks and keep the product site as the
+  reference for check 4b — and say clearly in the report which URL each result came from, because a
+  staging render can differ from the proxied one.
+
 - **Test card / wallet values** — gateway test card (number, month, year, cvv, email). If the
   user hasn't supplied these, ask once; do not invent live-looking numbers.
 
@@ -177,6 +198,51 @@ and *mismatched* content, which is just as visible to a buyer:
 
 Open the product's real site alongside the page and compare the two footers directly.
 
+### 4b. Product ↔ LP parity (design, font, theme, content) — ALWAYS run this
+
+The LP is **proxied onto the product's own domain**: to a buyer, `product.com/xhosp` is a page *of
+that site*. Chrome that doesn't match is a trust/scam signal and the single most common complaint on
+these pages. So this check is not optional and not cosmetic — run it on **every** page, every time.
+
+Load the **product root** and the **LP** side by side and diff them mechanically, not by eye. Sweep
+computed styles on both (product sites are usually JS-rendered SPAs, so `web_fetch` returns an empty
+shell — you must render them):
+
+```js
+// run on BOTH pages, then compare the two objects
+const c = document.createElement('canvas').getContext('2d');
+const hex = v => { try { c.fillStyle = '#000'; c.fillStyle = v; return c.fillStyle } catch { return v } };
+const el = document.querySelector('h1,h2') || document.body;
+({
+  bodyBg:    hex(getComputedStyle(document.body).backgroundColor),
+  bodyFont:  getComputedStyle(document.body).fontFamily,
+  headFont:  getComputedStyle(el).fontFamily,
+  accents:   [...document.querySelectorAll('a,button')]
+               .map(e => hex(getComputedStyle(e).backgroundColor))
+               .filter(x => x !== '#000000'),
+  footerBg:  hex(getComputedStyle(document.querySelector('footer') || document.body).backgroundColor),
+})
+```
+
+Compare and record each row:
+
+| Dimension | PASS when |
+| --- | --- |
+| **Theme** | Both light or both dark; page background in the same family. A light checkout under a dark product site is a **FAIL**. |
+| **Fonts** | The LP's display and body families are the product's. Tailwind-v4 sites report `oklch()` colours and real font stacks — read them from computed style, not source. |
+| **Accent / CTA colour** | The LP's primary CTA and accents are the product's brand colour, not a template default. |
+| **Header** | Same logo treatment and scale, same background. (Nav links are deliberately omitted from checkout — that's expected, not a FAIL.) |
+| **Footer** | Same structure and content as check 4: company block, support contact, legal list, card marks. |
+| **Copy/tone** | Product name, tagline and benefits describe the *same* product. A leftover benefit or blurb from another product is a **FAIL** — these are copy-pasted between repos and it happens. |
+| **Legal entity** | The merchant named on the LP matches the one on the product's own footer. |
+
+**FAIL** on any theme, font, accent or entity mismatch. Log smaller spacing/scale differences as
+observations. Screenshot both footers and both headers for the report — a reviewer should be able to
+see the two side by side without re-running anything.
+
+Also confirm the LP is genuinely reachable on the product domain (`product.com/xhosp`) rather than
+only on staging; if it isn't yet, mark that **BLOCKED** and note which URL every other result used.
+
 ### 5. Pricing matches config data
 
 Extract every visible price / trial-day / billing-cycle string; assert each equals the matching
@@ -219,7 +285,7 @@ observations unless they surface in visible copy.
 ### 7. Walk the Notion ticket
 
 Map each ticket acceptance item to a check above (or run the extra step it asks for). Every item
-must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6, test it explicitly. Report
+must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b), test it explicitly. Report
 any requirement left unverified as an open item.
 
 ## Output — pass/fail report
@@ -227,10 +293,11 @@ any requirement left unverified as an open item.
 Write a Markdown report to the workspace folder named
 `cc-tester-report-<page>-<YYYY-MM-DD>.md` and present it. Structure:
 
-- **Header:** page/slug, URL, gateway, environment (staging vs prod), payment methods present,
+- **Header:** page/slug, **LP URL and product URL** (say which host each check ran against),
+  gateway, environment (staging vs proxied-on-product-domain), payment methods present,
   run timestamp, ticket link.
 - **Summary line:** e.g. `2 PASS · 1 FAIL · 2 BLOCKED · 1 N/A`.
-- **Results table:** one row per check (1–7) with Status, expected vs observed, and evidence
+- **Results table:** one row per check (1, 2, 3, 3b, 4, 4b, 5, 6, 7) with Status, expected vs observed, and evidence
   (payload snippet, response, config-vs-rendered diff, leaked-string location, screenshot name).
 - **Observations:** non-fatal items worth review (source-visible config, cosmetic nits,
   cross-brand ids, third-party hosts).
@@ -252,5 +319,14 @@ if the user asked. If no ticket was given, just deliver the report file.
   N/A as PASS.
 - Leakage of the parent company is a hard FAIL — but rule out same-origin-host false positives
   first.
+- **Never skip check 4b.** It needs no test card, no wallet account and no gateway — so it is the one
+  check that always runs, even when everything payment-related is BLOCKED. "The page looks fine" is
+  not evidence; compare computed styles against the product site and put both screenshots in the
+  report.
+- A **synthetic `.click()` is not a valid wallet test.** Wallet SDKs require real user activation, and
+  a JS click can latch a component's `busy` flag so the *next*, real click silently no-ops. Drive
+  wallet buttons with real input events, and reload between attempts.
+- Wallet SDKs load **lazily on tab select**. Probing `window.ApplePaySession` on the default Card tab
+  reports `undefined` — that is not a FAIL. Select the tab first, then probe.
 - Keep the run non-destructive: no project edits, no completed charges, no real PII, no ticket
   status change without explicit ask.
