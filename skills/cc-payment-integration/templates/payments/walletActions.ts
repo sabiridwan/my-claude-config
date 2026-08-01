@@ -47,6 +47,12 @@ export function startApplePay(cb: Cbs = {}): boolean {
       const merchantSession = await validateMerchant(event.validationURL, LOCALE);
       session.completeMerchantValidation(merchantSession);
     };
+    // Apple Pay fires oncancel when the user dismisses the sheet (or the QR flow times out).
+    // Without this the caller's busy/disabled state never resets and the button goes dead until a
+    // reload — the non-comp creative is a single tap target, so that strands the user entirely.
+    session.oncancel = () => {
+      cb.onError?.(new Error('apple_pay_cancelled'));
+    };
     session.onpaymentauthorized = async (event: any) => {
       try {
         const r = await processApplePayment(event.payment, LOCALE);
