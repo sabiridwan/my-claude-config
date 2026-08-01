@@ -118,7 +118,20 @@ registered.
 - **Never hardcode prices.** They live in `pageConfigs.plan` and change per campaign; a hardcoded
   value silently ships a wrong price. Always read the snapshot taken at first render.
 - **Relative URLs only.** The page must stay on the product domain; an absolute CDN/API URL breaks
-  domain preservation and can leak the visitor off-domain mid-flow.
+  domain preservation and can leak the visitor off-domain mid-flow. This includes the **footer legal
+  links** — write them as `/faq`, `/legal/<uuid>`, `/login`, not full URLs. The page is proxied onto
+  the product's domain, so relative paths resolve there. Only a policy on a *different subdomain*
+  (`portal.<product>.com`) may stay absolute.
+- **The footer carries the PRODUCT's identity, never the parent company's.** The checkout is served
+  from the product's own domain, so its chrome must read as that site. Harvest `companyName`,
+  `companyAddress`, `companyRegNo`, `supportPhone`, `supportEmail`, `copyright`, `siteLabel` and
+  `legalLinks` from the **live product footer** and pass them in `copy.*`.
+  Do **not** lift the reference `/xhosp` page's block: it names `Sam Media B.V.` (Amsterdam,
+  `www.sam-media.com`, a `+31` number), which `cc-tester` check 6 treats as a hard FAIL *and* is the
+  wrong merchant of record — the products all name **Pepperose LTD**, matching the panel MCC.
+  `scaffold.mjs` therefore defaults these to **empty strings** rather than a plausible-looking
+  placeholder, and `cc-dynamic-lp`'s `verify.mjs` fails a build that leaves them blank. An empty
+  footer is a loud failure; a confidently wrong one is not.
 - **Loader is an overlay, never an early return.** Early-returning the loader removes the mount
   target, so the page can deadlock. Always wire the 4000 ms fail-open timer too.
 - **Decide comp/non-comp synchronously** before the first paint, then confirm with the wallet probe —

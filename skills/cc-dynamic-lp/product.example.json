@@ -30,12 +30,29 @@
     "googleFonts": "https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Oswald:wght@500;600;700&display=swap",
     "logoSvg": ""
   },
+  "_note_footer": "The /xhosp page is PROXIED onto the product's own domain, so its footer must read as the product site's own footer — same company, same contact, same legal links. HARVEST every field below from the live product footer; do NOT copy the reference /xhosp page, which shows the PARENT company (a cc-tester hard FAIL) and the wrong merchant of record. legalLinks hrefs must be SITE-RELATIVE paths ('/faq', '/legal/<id>') because the page is served from the product's domain — absolute URLs are a domain-preservation violation and verify.mjs fails them. The only exception is a policy hosted on a different subdomain (e.g. portal.<product>.com), which has to stay absolute.",
   "copy": {
     "benefits": ["Unlimited guided workouts & training plans", "Ad-free!"],
     "chargeDescriptor": "STREAMTRAINFIT",
+    "supportPhone": "+44 1494 326040",
     "supportEmail": "help@streamtrainfit.com",
     "tagline": "Discover Your Inner Balance <span>&amp; Strength</span>",
-    "blurb": "Streamtrainfit is your all-in-one platform for expertly crafted fitness, yoga, and mindfulness programs designed for modern life."
+    "blurb": "Streamtrainfit is your all-in-one platform for expertly crafted fitness, yoga, and mindfulness programs designed for modern life.",
+
+    "companyName": "Pepperose LTD",
+    "companyAddress": "The Maylands Building, Office 42, Maylands Avenue, Hemel Hempstead, England, HP2 7TG",
+    "companyRegNo": "06112811",
+    "siteUrl": "/",
+    "siteLabel": "streamtrainfit.com",
+    "copyright": "Copyright © 2026 Streamtrainfit",
+    "legalLinks": [
+      { "label": "FAQ", "href": "/faq" },
+      { "label": "Cookies Policy", "href": "/legal/<cookies-id>" },
+      { "label": "Privacy & Data Policy", "href": "/legal/<privacy-id>" },
+      { "label": "Refund & Return Policy", "href": "/legal/<refund-id>" },
+      { "label": "Terms & Conditions", "href": "/legal/<terms-id>" },
+      { "label": "Unsubscribe", "href": "/login" }
+    ]
   },
 
   "locale": "en",

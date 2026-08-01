@@ -158,6 +158,25 @@ The checkout renders one of two layouts and the tester must exercise both:
 consent text, button labels, currency symbol. Flag anything on the page with no config source,
 and anything in config that should appear but doesn't.
 
+**Footer completeness + product continuity.** The page is proxied onto the product's own domain, so
+its footer must read as that site's footer. Check 6 catches *banned* content; this catches *missing*
+and *mismatched* content, which is just as visible to a buyer:
+
+- **Company block present and correct** — company name, address, registration number. It must be the
+  **merchant of record** shown on the product's own site (for this family, `Pepperose LTD`,
+  Hemel Hempstead, reg `06112811`) — **not** the parent company and not blank. A blank company block
+  is a FAIL: the scaffold defaults these to empty on purpose so an unharvested footer is loud.
+- **Support contact matches the product**, not the reference page's (`+31 970 1020 8696` is
+  xracademy's — its presence on another product's page is a FAIL).
+- **Legal links resolve and are site-relative** (`/faq`, `/legal/<uuid>`). An `href="#"` stub is a
+  FAIL. An absolute product URL is an observation unless it points at a *different subdomain*
+  (e.g. `portal.<product>.com`), which is legitimate.
+- **Visual continuity** — accent rule + accent display-font headings + card marks, themed to the same
+  brand tokens as the rest of the page. A footer in the generic checkout style on a product-branded
+  page is the "different app" red flag this whole page is meant to avoid.
+
+Open the product's real site alongside the page and compare the two footers directly.
+
 ### 5. Pricing matches config data
 
 Extract every visible price / trial-day / billing-cycle string; assert each equals the matching

@@ -97,6 +97,39 @@ The scaffold turns `brand` into a `:root` theme in `checkout.scss` (colours, fon
 neutrals, gradients) and injects the Google Fonts `<link>` into `index.html`. The **layout never
 changes** — only the theme — which is exactly the ticket's "same layout, each product's brand."
 
+### 1c. Harvest the product's footer identity too (not just colours)
+
+The page is **proxied onto the product's own domain** (`product.com/xhosp`), so to a visitor it is a
+page *of that site*. Chrome that doesn't match reads as a scam signal. So the footer is not generic
+checkout furniture — it must carry the product's own identity:
+
+| `copy.*` field | Where it comes from |
+| --- | --- |
+| `companyName`, `companyAddress`, `companyRegNo` | the product footer's company block — this is the **merchant of record** |
+| `supportPhone`, `supportEmail` | the product footer's support block |
+| `siteLabel` | the product domain as displayed (`siteUrl` is `/` under the proxy) |
+| `copyright` | the product's own copyright line |
+| `legalLinks[]` | the product's real policy pages |
+
+**Do not copy the reference `/xhosp` page's footer.** It shows the *parent company* (`Sam Media B.V.`,
+Amsterdam, `www.sam-media.com`, a `+31` number) — which `cc-tester` check 6 treats as a hard FAIL and
+which is, for these pages, simply the wrong legal entity: every product site names **Pepperose LTD**,
+matching the MCC on the panel config. Shipping the reference's block states the wrong merchant.
+
+**`legalLinks` hrefs must be site-relative** (`/faq`, `/legal/<uuid>`, `/login`). Under the proxy they
+resolve on the product's domain; absolute URLs are a domain-preservation violation and
+`verify.mjs` fails them. Sole exception: a policy hosted on a *different subdomain*
+(e.g. `portal.<product>.com`) has to stay absolute — the check allows the product's own registrable
+domain, including its subdomains.
+
+These IDs are usually opaque UUIDs (`/legal/cad975c8-…`), so they cannot be guessed — read them off
+the live footer with `read_page`/`javascript_tool` like the brand sweep above.
+
+The generated footer mirrors the product's structure: an accent top rule, accent display-font column
+headings, a chevron legal list, the company block, and a "Secure Payment Options" row with the card
+marks. `verify.mjs` fails a build whose `companyName`/`companyAddress`/`legalLinks` are blank, so an
+unharvested footer cannot ship silently.
+
 ### 2. Scaffold
 
 ```bash

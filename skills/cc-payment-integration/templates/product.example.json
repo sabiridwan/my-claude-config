@@ -23,6 +23,23 @@
     "logo": "streamtrainfit.svg"
   },
 
+  "_note_footer": "The checkout is served from the product's OWN domain, so its footer must read as the product site's own footer. Harvest every copy.* field below from the LIVE product footer — never from the reference /xhosp page, which shows the parent company (cc-tester hard FAIL) and the wrong merchant of record. legalLinks hrefs are SITE-RELATIVE ('/faq', '/legal/<id>'); absolute URLs break domain preservation and fail verify.mjs, except a policy on a different subdomain (portal.<product>.com), which must stay absolute.",
+  "copy": {
+    "supportPhone": "+44 1494 326040",
+    "supportEmail": "help@streamtrainfit.com",
+    "companyName": "Pepperose LTD",
+    "companyAddress": "The Maylands Building, Office 42, Maylands Avenue, Hemel Hempstead, England, HP2 7TG",
+    "companyRegNo": "06112811",
+    "siteUrl": "/",
+    "siteLabel": "streamtrainfit.com",
+    "copyright": "Copyright © 2026 Streamtrainfit",
+    "legalLinks": [
+      { "label": "FAQ", "href": "/faq" },
+      { "label": "Privacy & Data Policy", "href": "/legal/<privacy-id>" },
+      { "label": "Terms & Conditions", "href": "/legal/<terms-id>" }
+    ]
+  },
+
   "locale": "en",
 
   "devFallbackPlan": {
