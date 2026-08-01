@@ -4,7 +4,9 @@ Route: `/dynamic-pages/create-credit-card`. Two steps: **1 Page Information** �
 Step 1 is safe to fill and re-fill. Step 2 shows the raw JSON payload and its **Save** button is the
 committing action — read the payload back to the user and get a yes before clicking it.
 
-Field map below is from a real run (Streamtrainfit, 2026-07-31). Verified working.
+Field map below is from a real run (2026-07-31), verified working. **Every identifier shown is a
+placeholder** — gateway/merchant IDs, slugs, template ids and xcids are per-page and must come from
+the ticket or a live sibling's config, never copied from here.
 
 ## Prerequisites — both must already be true
 
