@@ -10,9 +10,9 @@
 .cc-checkout h1, .cc-checkout h2, .cc-checkout h3, .cc-checkout h4 { font-family: var(--cc-display); line-height: 1.15; margin: 0; }
 
 .cc-head { background: var(--cc-head-bg); border-bottom: 1px solid var(--cc-line); position: sticky; top: 0; z-index: 20; }
-.cc-head__in { max-width: 1080px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; justify-content: space-between; }
-.cc-logo { display: flex; align-items: center; gap: 10px; font-family: var(--cc-display); font-weight: 700; font-size: 22px; text-transform: uppercase; letter-spacing: .02em; color: var(--cc-ink); }
-.cc-logo svg, .cc-logo img { height: 24px; }
+.cc-head__in { max-width: 1080px; margin: 0 auto; padding: 20px 20px; display: flex; align-items: center; justify-content: space-between; }
+.cc-logo { display: flex; align-items: center; gap: 10px; font-family: var(--cc-display); font-weight: 700; font-size: 27px; text-transform: uppercase; letter-spacing: .02em; color: var(--cc-ink); }
+.cc-logo svg, .cc-logo img { height: 38px; }
 .cc-secure { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--cc-muted); font-weight: 600; }
 .cc-secure svg { width: 14px; height: 14px; }
 
