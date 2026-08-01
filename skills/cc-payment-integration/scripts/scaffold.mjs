@@ -200,7 +200,10 @@ write(`${PREFIX}/PaymentPage.tsx`, subst(page));
     companyName: copy.companyName || '',
     companyAddress: copy.companyAddress || '',
     companyRegNo: copy.companyRegNo || '',
-    siteUrl: copy.siteUrl || `https://${domain}`,
+    // Relative by default: the page is proxied onto the product's own domain, so "/" is the product
+    // home. An absolute default would violate the skill's own "Relative URLs only" rule and fail
+    // cc-dynamic-lp's verify.
+    siteUrl: copy.siteUrl || '/',
     siteLabel: copy.siteLabel || domain,
     copyright: copy.copyright || `© ${cfg.serviceDisplayName || cfg.serviceId}. All rights reserved.`,
     legalLinks: copy.legalLinks || []

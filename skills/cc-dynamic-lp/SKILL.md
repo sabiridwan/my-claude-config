@@ -242,22 +242,28 @@ dev (`yarn dev`) has no such injection, and the template's `RootContext` reads
 `pageConfigs.cardMccInformation.mcc` / `service` / `flags` at first render — so without a config the
 page throws `Cannot read properties of undefined (reading 'mcc')`.
 
-The scaffold handles this by injecting a **dummy config into `src/index.html`** inside a build-time
-guard:
+The scaffold handles this with **`src/checkout/devConfig.ts`** — a localhost-guarded module imported
+from `CheckoutSection` *before* `PaymentPage`, so the mock is installed before anything reads
+`pageConfigs`:
 
-```html
-<% if (process.env.NODE_ENV !== 'production') { %>
-  <script>window.configJson = window.configJson || { "pageConfigs": { … } };</script>
-<% } %>
+```ts
+// src/checkout/devConfig.ts — assigns window.configJson only on localhost
+if (typeof window !== 'undefined' && /^(localhost|127\.0\.0\.1)$/.test(window.location.hostname)) {
+  window.configJson = window.configJson || { pageConfigs: { /* … */ } };
+}
 ```
 
-Why this shape matters: it loads **synchronously in `<head>` before `bundle.js`** (so config exists
-before React reads it), it is **dropped from the production build** (the lodash conditional evaluates
-to nothing when `NODE_ENV=production`, so it never appears in `staging.html`/the published page), and
-it is **never bundled into JS**. The `|| window.configJson` guard also means that if a backend
-injection is ever present it always wins. Do **not** replace this with a `.ts`/`.json` import from
-source — that would compile the mock into the production bundle. `verify.mjs` fails the build if the
-mock is present but unguarded, and warns if any source file imports a bundled dev config.
+Why a module and not an `index.html` injection: **entry (`index.tsx`) and `index.html` edits do not
+hot-reload in this webpack**, so a template-injected mock is painful to iterate on; a normal module
+import does reload. The `|| window.configJson` guard means a real backend injection always wins, and
+the hostname guard makes it inert in production — it ships in the bundle but never executes off
+localhost. `verify.mjs` checks both properties: the dev config must exist **and** be localhost-guarded,
+and it must be imported from `CheckoutSection` before `PaymentPage` reads the config.
+
+> An earlier revision of this skill described an `index.html` build-time injection
+> (`<% if (process.env.NODE_ENV !== 'production') { %>`) and forbade the module import. That guidance
+> was wrong for this template and no longer matches the scaffold — the module form above is what
+> ships and what `verify.mjs` enforces. See also "Two things that bite", item 2.
 
 ## Wallet buttons + Apple Pay behavior (store-standard)
 

@@ -28,6 +28,13 @@ is required and only lists versions that have actually been uploaded, so an unbu
 nothing to select. Creating the *template* is step 2; creating the *page* is step 6. Getting this
 backwards is the most common way to stall this pipeline.
 
+**For a brand-new product, confirm the GitLab project exists before step 5.** The scaffold sets
+`origin` to `git@git.sam-media.com:ouisys/dynamic-templates/xx/<name>.git`, but creating that
+*project* is a separate manual step — push-to-create is off. If `git ls-remote origin` or
+`git push -u origin main` returns *"project could not be found"*, create it first (GitLab UI, or
+`POST /api/v4/projects` with a PAT — SSH keys can push to an existing project but cannot create one).
+`build:upload` pushes a `vN` tag, so it fails identically without it.
+
 Announce the plan up front as a short checklist, then walk it. Keep a running status so the user
 always knows which stage they're in and what's left.
 

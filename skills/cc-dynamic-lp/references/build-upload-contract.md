@@ -57,6 +57,14 @@ wallet config), `service`, `slug`, `flags`, `env` — this is what `cc-payment-i
 
 ## upload-to-s3-tagged.js
 
+- **Requires the GitLab project to already exist.** It pushes a `vN` tag, so a brand-new product fails
+  here — push-to-create is **off** on `git.sam-media.com`, and the scaffold only sets the `origin`
+  remote, it does not create the project. Symptom: `git ls-remote origin` (or the tag push) returns
+  *"The project you were looking for could not be found or you don't have permission to view it"*.
+  Create the project under `ouisys/dynamic-templates/xx/` named exactly the repo, then
+  `git push -u origin main`, before running this. SSH keys alone can push to an existing project but
+  cannot create one; project creation needs the GitLab UI or a REST call with a personal access token
+  (`POST /api/v4/projects` with `namespace_id`).
 - Refuses to run with uncommitted changes (`git status --porcelain`).
 - Creates the next `vN` git tag (prompts for a message — **empty is rejected and re-prompts forever**),
   `git push origin <vN>`.

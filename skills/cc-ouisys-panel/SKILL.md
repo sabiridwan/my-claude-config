@@ -124,6 +124,20 @@ name**, so getting it right matters for the build to attach.
 (The `portal` segment is not universal — a real live slug is `cc_acquired-streamtrainfit5999_000-`.
 Take the slug from the ticket or a sibling page; don't synthesise it.)
 
+**Page names are globally unique — check before you commit to one.** A product often already has a
+live page under the conventional name, so the name you derive can be taken. Search **Published,
+Unpublished and Hidden** for the product before creating; a clash either fails or silently shadows an
+existing page.
+
+When the conventional `{domain}` token collides, **substitute the product for the domain token**
+rather than mangling the rest: e.g. `xx-cc-pdfbrain-omnilearnhub-…-dyn` was already live, so the new
+page became `xx-cc-omnilearnhub-applepay-googlepay-acquired-lc-download-gcomp-dyn`. Verify the
+substitute is free across all three lists, then read it back to the user before creating.
+
+(Watch for the inverse too: a *live* page may carry a defective name — `xcpj0` is
+`xx-xx-cc-pdfbrain-streamtrainfit-…` with a duplicated country token — which is precisely why the
+correctly-formed name was still available. Don't "fix" an existing page's name; just don't copy it.)
+
 **Validation rules**
 - Lowercase, hyphen-separated, ends in `-dyn`.
 - **Exactly one country token** — a duplicated `xx-xx-` is the most common defect; flag it.
