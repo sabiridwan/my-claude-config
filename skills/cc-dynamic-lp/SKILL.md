@@ -297,12 +297,105 @@ The decision is made **synchronously** by `resolveMode.decideComp()` (no flash),
 non-comp only when `!flags.forceComp` AND `window.ApplePaySession` AND iOS AND outside India — or
 forced with `?non-comp=true`. `forceComp` always wins. This mirrors the reference RootContext logic.
 
+### The SSR pre-render is ALWAYS comp — this flickers on non-comp devices
+
+The comp/non-comp decision being synchronous stops a flash *within* the client render, but it does
+**not** stop the one that matters most, and this only shows on the built page — never on
+`yarn dev`, which serves no SSR markup. Verified against a real `staging.html`:
+
+```
+image-overlay / hero-cta / page-wrapper / footer-wrapper → 1 each
+noncomp-funnel / animated-text / download-animation      → 0
+```
+
+Two facts combine:
+
+1. `ssr-dynamic.js` renders under **jsdom** with `navigator.userAgent = "node.js"` and no query
+   string. So `!country` (no `?d_country`) short-circuits the rule and the pre-rendered HTML is
+   **always the comp page**.
+2. `src/index.tsx` calls `createRoot(...).render(<Root/>)` — **not `hydrateRoot`**. The client
+   *discards* the SSR markup rather than adopting it.
+
+So a non-comp visitor's browser paints the full comp landing from the HTML, then React throws it
+away and swaps in the creative. Nothing inside React can prevent this: the flash happens before the
+(deferred) bundle executes.
+
+The fix must run **before first paint**, i.e. inline in `<head>` of the SSR template. Prod uses
+`ouisys-clients/webpack/template.ssr.html` (and `no-tag-manager-template.ssr.html`), **not** the
+project's `src/index.html` — that one is only used when `HTML=true`. Patch the template via
+`patch-package` (add `"postinstall": "patch-package"`), re-apply the same rule pre-paint, and hide
+`#root` until React commits:
+
+```html
+<style>.os-noncomp-boot #root{visibility:hidden}.os-noncomp-boot body{background:#fff}</style>
+<script>(function(){try{
+  var q=new URLSearchParams(location.search), nc=(q.get('non-comp')||'').toLowerCase();
+  if(['false','off','0'].indexOf(nc)>=0) return;                       // explicit comp
+  var forced=['true','1','download','video','download-card','video-card'].indexOf(nc)>=0;
+  var device=!!q.get('d_country') && !!window.ApplePaySession
+             && /iPhone|iPad|iPod/.test(navigator.userAgent);
+  if(forced||device){
+    document.documentElement.className+=' os-noncomp-boot';
+    setTimeout(function(){ document.documentElement.className =                 // safety net
+      document.documentElement.className.replace(/\bos-noncomp-boot\b/,''); },4000);
+  }
+}catch(e){}})();</script>
+```
+
+Then release it on React's first commit — `Root.tsx`:
+`useEffect(() => document.documentElement.classList.remove('os-noncomp-boot'), [])`.
+
+- The **4s safety net is required**: without it a bundle that never boots leaves a permanently blank
+  page. With it, a dead bundle degrades to the comp page.
+- Deliberately **not** checked pre-paint: `pageConfigs.flags.forceComp` and the India IP rule — both
+  ride on the async analytics payload that doesn't exist that early. Both resolve *towards* comp, so
+  their worst case is a brief blank instead of a brief wrong page. That's the safe direction.
+- Comp visitors never get the class, so they keep the instant SSR paint. No regression for the
+  majority.
+
+Verify on the **built** output, not the dev server: serve `dist/`, then load `staging.html` with a
+JS-stripped copy (`?non-comp=true` → `#root` hidden, comp markup present but unpainted; after 4s
+visible) and with JS on (creative renders, class removed).
+
 Creative assets (`download.webm`, `download-start/end.webp`, ~290 KB) are **bundled with
 `cc-payment-integration`** and emitted into `src/checkout/assets/` — the checkout is self-contained
 and does NOT depend on the base template's assets, so it works on any base. To use a different
 animation, drop replacement files into the skill's `templates/assets/` (or the project's
 `src/checkout/assets/`). Apple Pay in non-comp uses the same SDK (QR on desktop). Test non-comp
 locally with `?non-comp=true`.
+
+### The creative's completion must be driven by the video, not a timer
+
+The reference `Creative` advances its status copy on a fixed `STEP_DURATION_MS = 1200` and, on the
+final message, sets `downloadIsReady` → which swaps the `<video>` for the finished `download-end`
+still. That means completion fires at `(messages - 1) × 1200` = **3.6s** while `download.webm/mp4`
+is **6.5s** (`ffprobe -show_entries format=duration`). The progress ring is cut off around 55% and
+snaps to a closed ring — it reads as broken right at the moment you're asking for the tap.
+
+Drive the sequence off real playback instead:
+
+- `onTimeUpdate` → advance the copy on `currentTime / duration`, so text and ring stay in sync at any
+  asset length (swap the animation and nothing needs retuning).
+- `onEnded` → final message + `setDownloadIsReady(true)`. The swap to the still then lands on the
+  frame the video already finished at, so it reads as one continuous animation.
+- Keep the 1200ms timer as a **fallback only** (autoplay blocked, decode error, no `<video>`), or the
+  funnel can dead-end with no CTA. `onError` should hand back to that timer — *not* jump to the
+  success state, which would show a completed ring over a half-drawn animation.
+
+Check the asset's real duration before assuming the timings agree; they are set in two unrelated
+places and nothing keeps them consistent.
+
+### Adding a UI string requires `translations/en.json`, not just a defaultMessage
+
+`localization/index.tsx` types `FormattedMessage`'s `id` as
+`TranslationKeys = KeysOfType<typeof translations.en, string>`. An id that isn't a key of
+`src/localization/translations/en.json` is a **compile error**, regardless of `defaultMessage`. So a
+new string is a two-file change: add the key to `translations/en.json`, then use it. (The
+`extractedMessages/` copy is gitignored and regenerates via `yarn extract-messages`.) The other ~17
+locales fall back to the English default until translated.
+
+Reusing an existing id to avoid this is a trap — the ids are shared across components, so retargeting
+one relabels every other button using it.
 
 ## Two things that bite in this template (and how the scaffold handles them)
 
@@ -326,4 +419,9 @@ locally with `?non-comp=true`.
 - **Same-origin, relative URLs**; the page stays on the product domain (domain preservation) — the
   only off-domain step is the final gateway redirect after payment.
 - **Keep the template's SSR loader + comp/non-comp gate.** They prevent a blank server render and
-  layout flashes; mount the checkout inside the existing comp branch rather than replacing the gate.
+  in-render layout flashes; mount the checkout inside the existing comp branch rather than replacing
+  the gate. They do **not** cover the SSR→client comp flash on non-comp devices — that needs the
+  pre-paint guard above, because it happens before any React code runs.
+- **Judge flicker/first-paint on the built page, never on `yarn dev`.** The dev server ships no SSR
+  markup, so the whole class of pre-paint bugs is invisible there. Build, serve `dist/`, and look at
+  `staging.html`.
