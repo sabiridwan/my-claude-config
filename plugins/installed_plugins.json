@@ -4,21 +4,21 @@
     "playwright@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/7a514d3abe4c",
-        "version": "7a514d3abe4c",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/be7222af65f0",
+        "version": "be7222af65f0",
         "installedAt": "2026-04-09T08:31:07.870Z",
-        "lastUpdated": "2026-08-04T18:00:12.638Z",
-        "gitCommitSha": "7a514d3abe4c748926e73a5fdb1d8296f2da8801"
+        "lastUpdated": "2026-08-04T18:29:39.125Z",
+        "gitCommitSha": "be7222af65f0a9b916cb3f79303854fbceb513bb"
       }
     ],
     "frontend-design@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/frontend-design/7a514d3abe4c",
-        "version": "7a514d3abe4c",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/frontend-design/be7222af65f0",
+        "version": "be7222af65f0",
         "installedAt": "2026-04-09T08:31:22.118Z",
-        "lastUpdated": "2026-08-04T18:00:12.638Z",
-        "gitCommitSha": "7a514d3abe4c748926e73a5fdb1d8296f2da8801"
+        "lastUpdated": "2026-08-04T18:29:39.125Z",
+        "gitCommitSha": "be7222af65f0a9b916cb3f79303854fbceb513bb"
       }
     ],
     "superpowers@claude-plugins-official": [
@@ -54,31 +54,31 @@
     "skill-creator@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/skill-creator/7a514d3abe4c",
-        "version": "7a514d3abe4c",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/skill-creator/be7222af65f0",
+        "version": "be7222af65f0",
         "installedAt": "2026-04-09T18:20:50.068Z",
-        "lastUpdated": "2026-08-04T18:00:12.639Z",
-        "gitCommitSha": "7a514d3abe4c748926e73a5fdb1d8296f2da8801"
+        "lastUpdated": "2026-08-04T18:29:39.124Z",
+        "gitCommitSha": "be7222af65f0a9b916cb3f79303854fbceb513bb"
       }
     ],
     "feature-dev@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/feature-dev/7a514d3abe4c",
-        "version": "7a514d3abe4c",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/feature-dev/be7222af65f0",
+        "version": "be7222af65f0",
         "installedAt": "2026-04-09T18:21:20.506Z",
-        "lastUpdated": "2026-08-04T18:00:12.638Z",
-        "gitCommitSha": "7a514d3abe4c748926e73a5fdb1d8296f2da8801"
+        "lastUpdated": "2026-08-04T18:29:39.124Z",
+        "gitCommitSha": "be7222af65f0a9b916cb3f79303854fbceb513bb"
       }
     ],
     "commit-commands@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/commit-commands/7a514d3abe4c",
-        "version": "7a514d3abe4c",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/commit-commands/be7222af65f0",
+        "version": "be7222af65f0",
         "installedAt": "2026-04-15T10:22:48.184Z",
-        "lastUpdated": "2026-08-04T18:00:12.639Z",
-        "gitCommitSha": "7a514d3abe4c748926e73a5fdb1d8296f2da8801"
+        "lastUpdated": "2026-08-04T18:29:39.124Z",
+        "gitCommitSha": "be7222af65f0a9b916cb3f79303854fbceb513bb"
       }
     ],
     "caveman@caveman": [
