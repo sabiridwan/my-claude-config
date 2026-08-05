@@ -78,16 +78,31 @@
 .cc-badges { display: flex; gap: 8px; flex-wrap: wrap; }
 .cc-badges svg { height: 26px; }
 
-/* ── Non-comp creative (full-area tap → wallet) ── */
-.cc-noncomp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 0 20px 40px; background: var(--cc-body-bg); }
+/* ── Non-comp creative (full-area tap → wallet) ──
+   Background is a literal white, not a themed token: the non-comp funnel reads as an OS/app
+   install surface, not the branded checkout, so it stays white regardless of product theme. Same
+   reason .cc-creative__media has no border. */
+.cc-noncomp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 0 20px 40px; background: #fff; color: #14181F; }
 .cc-noncomp__head { width: 100%; max-width: 460px; padding: 18px 0; }
 .cc-noncomp__head .cc-logo { justify-content: center; }
 .cc-creative { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; margin-top: 4vh; }
-.cc-creative__media { width: 100%; border-radius: 16px; overflow: hidden; border: 1px solid var(--cc-line); background: var(--cc-card); }
-.cc-creative__media video, .cc-creative__media img { display: block; width: 100%; height: auto; }
-.cc-creative__status { font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .04em; font-size: 15px; color: var(--cc-muted); }
-.cc-creative__cta { width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: var(--cc-brand); box-shadow: 0 6px 18px var(--cc-brand-glow); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
+.cc-creative__media { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: #fff; }
+.cc-creative__media video, .cc-creative__media img { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* video → end-poster crossfade, never a hard unmount/mount (that flickers) */
+.cc-creative__video { opacity: 1; transition: opacity .5s ease; }
+.cc-creative__video.is-hidden { opacity: 0; }
+.cc-creative__endshot { opacity: 0; transition: opacity .5s ease; }
+.cc-creative__endshot.is-shown { opacity: 1; }
+.cc-creative__status { font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .04em; font-size: 15px; color: rgba(20,24,31,.62); }
+.cc-creative__cta { position: relative; width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: var(--cc-brand); box-shadow: 0 6px 18px var(--cc-brand-glow); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
 .cc-creative__cta.is-ready { opacity: 1; transform: none; pointer-events: auto; }
+.cc-creative__cta:disabled { cursor: default; }
+.cc-creative__cta-label { transition: opacity .15s ease; }
+.cc-creative__cta.is-busy .cc-creative__cta-label { opacity: 0; }
+/* tap-busy spinner: brand-colored, matches the CTA background so button + its own loading state agree */
+.cc-creative__spinner { display: none; position: absolute; inset: 0; margin: auto; width: 20px; height: 20px; border: 2.5px solid rgba(255,255,255,.4); border-top-color: #fff; border-radius: 50%; animation: cc-spin .7s linear infinite; }
+.cc-creative__cta.is-busy .cc-creative__spinner { display: block; }
+@keyframes cc-spin { to { transform: rotate(360deg); } }
 
 .cc-foot { background: var(--cc-foot-bg); color: var(--cc-foot-muted); padding: 44px 20px 40px; font-size: 14px; border-top: 3px solid var(--cc-brand); }
 .cc-foot a { color: var(--cc-foot-muted); text-decoration: none; }

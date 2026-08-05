@@ -136,3 +136,11 @@ registered.
   target, so the page can deadlock. Always wire the 4000 ms fail-open timer too.
 - **Decide comp/non-comp synchronously** before the first paint, then confirm with the wallet probe —
   otherwise the layout flashes.
+- **Non-comp creative: crossfade, never swap; white bg, no border; busy state needs a spinner.** The
+  video→end-poster transition must be a stacked opacity crossfade driven by the video's real
+  `onEnded` (not the message-cycle timer) with the end poster preloaded on mount — a hard
+  unmount/mount swap on a cold-fetched image is a visible flicker right at the end of the animation.
+  `.cc-noncomp` / `.cc-creative__media` default to literal white, no `--cc-line` border (this funnel
+  reads as an OS/app-install surface, not the branded checkout, regardless of product theme). The CTA
+  needs a tap-busy state (`.is-busy`): label fades, a brand-colored spinner shows — `isLoading` used
+  to just disable the button with no visual feedback.
