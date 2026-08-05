@@ -251,5 +251,6 @@
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "voiceEnabled": true,
-  "model": "sonnet"
+  "model": "sonnet",
+  "remoteControlAtStartup": true
 }
