@@ -94,7 +94,7 @@
 .cc-creative__endshot { opacity: 0; transition: opacity .5s ease; }
 .cc-creative__endshot.is-shown { opacity: 1; }
 .cc-creative__status { font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .04em; font-size: 15px; color: rgba(20,24,31,.62); }
-.cc-creative__cta { position: relative; width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: var(--cc-brand); box-shadow: 0 6px 18px var(--cc-brand-glow); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
+.cc-creative__cta { position: relative; width: 100%; border: none; border-radius: 11px; padding: 17px; font-family: var(--cc-display); text-transform: uppercase; letter-spacing: .03em; font-size: 18px; font-weight: 700; color: #fff; background: #0CB504; box-shadow: 0 6px 18px rgba(12,181,4,.35); cursor: pointer; opacity: 0; transform: translateY(6px); pointer-events: none; transition: opacity .4s, transform .4s; }
 .cc-creative__cta.is-ready { opacity: 1; transform: none; pointer-events: auto; }
 .cc-creative__cta:disabled { cursor: default; }
 .cc-creative__cta-label { transition: opacity .15s ease; }
