@@ -140,9 +140,9 @@ registered.
   video→end-poster transition must be a stacked opacity crossfade driven by the video's real
   `onEnded` (not the message-cycle timer) with the end poster preloaded on mount — a hard
   unmount/mount swap on a cold-fetched image is a visible flicker right at the end of the animation.
-  `.cc-noncomp` / `.cc-creative__media` default to literal white, no `--cc-line` border (this funnel
-  reads as an OS/app-install surface, not the branded checkout, regardless of product theme). The CTA
-  background defaults to literal `#0CB504` green too — not `var(--cc-brand)` — same "install-surface,
-  not the branded checkout" reasoning. The CTA needs a tap-busy state (`.is-busy`): label fades, a
+  `.cc-noncomp` / `.cc-creative__media` default to literal white, no `--cc-line` border, and **no
+  header/logo** (this funnel reads as an OS/app-install surface, not the branded checkout, regardless
+  of product theme). The CTA background defaults to literal `#0CB504` green too — not
+  `var(--cc-brand)` — same reasoning. The CTA needs a tap-busy state (`.is-busy`): label fades, a
   white spinner shows on the green — `isLoading` used to just disable the button with no visual
   feedback.

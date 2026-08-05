@@ -3,12 +3,12 @@ import Creative from './Creative';
 import { triggerWalletPayment, ensureApplePaySDK } from '../payments/walletActions';
 import { getService } from '../payments/paymentConfig';
 import { tracker } from '../payments/tracker';
-import { META } from '../checkoutMeta';
 
 // The non-comp funnel: a full-area creative that, on tap, triggers the wallet payment (Apple Pay on
 // Apple devices, else Google Pay). Shown when the page resolves to non-comp (device-detected iOS +
 // Apple Pay outside India, or ?non-comp=true). The whole area is the tap target, matching the
-// reference download template.
+// reference download template. No header/logo by default — reads as an OS/app-install surface, not
+// the branded checkout.
 export default function NonComp() {
   const [busy, setBusy] = useState(false);
   const service = getService();
@@ -29,9 +29,6 @@ export default function NonComp() {
 
   return (
     <div className="cc-noncomp" onClick={onContinue}>
-      <header className="cc-noncomp__head">
-        <span className="cc-logo" dangerouslySetInnerHTML={{ __html: META.logoSvg + (service.displayName || META.serviceName) }} />
-      </header>
       <Creative onContinue={onContinue} isLoading={busy} />
     </div>
   );
