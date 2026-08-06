@@ -398,6 +398,11 @@ Drive the sequence off real playback instead:
 Check the asset's real duration before assuming the timings agree; they are set in two unrelated
 places and nothing keeps them consistent.
 
+The non-comp creative's CSS has its own sharp edges (bundled ring assets crop on short viewports,
+inset-vs-padding, the white-background-becomes-a-border trap) — those live in cc-payment-integration's
+SKILL.md ("Non-comp creative" non-negotiables), since it owns `checkout.scss`. Fix them there so every
+future page inherits the fix, not just the one you're looking at.
+
 ### Adding a UI string requires `translations/en.json`, not just a defaultMessage
 
 `localization/index.tsx` types `FormattedMessage`'s `id` as

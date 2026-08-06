@@ -214,3 +214,16 @@ registered.
   `var(--cc-brand)` — same reasoning. The CTA needs a tap-busy state (`.is-busy`): label fades, a
   white spinner shows on the green — `isLoading` used to just disable the button with no visual
   feedback.
+- **The bundled ring/checkmark assets touch their own frame edges — give them a margin, but not via
+  parent padding.** `assets/download-*.webp`/`download.webm` draw the ring edge-to-edge with ~zero
+  margin, and the three assets don't share one exact aspect ratio, so `object-fit: cover`'s
+  crop-to-fill (however small) lands on the ring itself and reads as a cut-off edge on short/odd
+  viewports. Fix is a `top`/`left`/`width`/`height` inset (~5%) on the `video`/`img` rule directly —
+  **not** `padding` on `.cc-creative__media`, because an absolutely-positioned child's inset/width/
+  height percentages resolve against the parent's *padding box*, which padding doesn't shrink; it's a
+  no-op there. Once there's a margin, `.cc-creative__media`'s own `background` must be `transparent`,
+  not the literal white from the bullet above — a separately-painted white fill was invisible only
+  while the ring covered it edge-to-edge; with a margin it reads as a bordered card against the
+  (same-colored) page, undoing the "no border" rule. Also: `justify-content` on `.cc-noncomp` must
+  stay `flex-start` (the default) — `center` clips a taller-than-viewport column symmetrically top
+  *and* bottom with no way to scroll up to the missing top half.

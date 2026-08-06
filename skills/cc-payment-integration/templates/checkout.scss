@@ -82,10 +82,24 @@
    Background is a literal white, not a themed token: the non-comp funnel reads as an OS/app
    install surface, not the branded checkout, so it stays white regardless of product theme. Same
    reason .cc-creative__media has no border. */
+/* justify-content defaults to flex-start here (not center) on purpose — centering a taller-than-
+   viewport column clips it symmetrically top AND bottom with no way to scroll up to the missing
+   top half. Top-aligned, the ring always starts visible on load and a short viewport just scrolls
+   down for the rest. Don't add justify-content: center back. */
 .cc-noncomp { min-height: 100vh; display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 0 20px 40px; background: #fff; color: #14181F; }
 .cc-creative { width: 100%; max-width: 460px; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 18px; margin-top: 4vh; }
-.cc-creative__media { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: #fff; }
-.cc-creative__media video, .cc-creative__media img { display: block; position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+/* background: transparent, not #fff, even though the surrounding .cc-noncomp is also white — see
+   the inset note below. A separately-painted white layer on this rounded-rect box is invisible only
+   as long as it's fully covered edge-to-edge; the moment there's a margin, it reads as a bordered
+   card floating on the (same-colored) page, undoing the "no border" rule above. */
+.cc-creative__media { position: relative; width: 100%; aspect-ratio: 1 / 1; border-radius: 16px; overflow: hidden; background: transparent; }
+/* The ring/checkmark in the bundled assets (assets/download-*.webp, download.webm) is drawn
+   edge-to-edge with ~zero margin, and the three assets don't share one exact aspect ratio — so
+   object-fit: cover's crop-to-fill, however small, lands right on the ring itself and reads as a cut
+   edge. A 5% inset gives the crop blank space to eat into instead of the ring. Must be set on the
+   video/img rule directly, NOT as padding on .cc-creative__media — an absolutely-positioned child's
+   inset/width/height resolve against the parent's padding box, which padding doesn't shrink. */
+.cc-creative__media video, .cc-creative__media img { display: block; position: absolute; top: 5%; left: 5%; width: 90%; height: 90%; object-fit: cover; }
 /* video → end-poster crossfade, never a hard unmount/mount (that flickers) */
 .cc-creative__video { opacity: 1; transition: opacity .5s ease; }
 .cc-creative__video.is-hidden { opacity: 0; }
