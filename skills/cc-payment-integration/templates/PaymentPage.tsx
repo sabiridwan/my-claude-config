@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import './checkout.scss';
-import { getService, getPlan, formatPrice } from './payments/paymentConfig';
+import { getService, getPlan, formatPrice, getPaymentMethods } from './payments/paymentConfig';
 import { PAYMENT_METHODS } from './payments/settings';
 import { decideComp, confirmMode } from './payments/resolveMode';
 import { tracker } from './payments/tracker';
@@ -39,7 +39,12 @@ export default function PaymentPage() {
     ? t('checkout.trialLabelDays', { days: plan.trialDays })
     : t('checkout.trialLabelGeneric');
 
-  const methods = (PAYMENT_METHODS as Method[]);
+  // Live pageConfigs.paymentMethods wins (panel-controlled); PAYMENT_METHODS (settings.ts,
+  // scaffold-time) is only the fallback for pages saved before that field existed.
+  const methods = getPaymentMethods(PAYMENT_METHODS as Method[]);
+  // Card present -> tabbed selector (reference layout). Wallet-only -> two plain buttons, no tab
+  // chrome, no card form to hide/show.
+  const hasCard = methods.includes('card');
   // Default to Card (like the reference) — wallets hide themselves when unavailable, so a
   // wallet default would show an empty body on desktop/Chrome.
   const [active, setActive] = useState<Method>(methods.includes('card') ? 'card' : methods[0] || 'card');
@@ -93,20 +98,29 @@ export default function PaymentPage() {
               />
             </p>
 
-            <h2 className="cc-pick"><FormattedMessage id="checkout.selectPaymentMethod" defaultMessage="Select a payment method" /></h2>
-            <div className="cc-methods">
-              {methods.map((m) => (
-                <div
-                  key={m}
-                  className={'cc-method' + (active === m ? ' cc-method--active' : '')}
-                  onClick={() => setActive(m)}
-                >
-                  <FormattedMessage id={LABEL[m]} />
+            {hasCard ? (
+              <>
+                <h2 className="cc-pick"><FormattedMessage id="checkout.selectPaymentMethod" defaultMessage="Select a payment method" /></h2>
+                <div className="cc-methods">
+                  {methods.map((m) => (
+                    <div
+                      key={m}
+                      className={'cc-method' + (active === m ? ' cc-method--active' : '')}
+                      onClick={() => setActive(m)}
+                    >
+                      <FormattedMessage id={LABEL[m]} />
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-
-            <div className="cc-form">{methodBody}</div>
+                <div className="cc-form">{methodBody}</div>
+              </>
+            ) : (
+              // Wallet-only (no card enabled) — two plain buttons, no tab chrome.
+              <div className="cc-wallet-buttons">
+                {methods.includes('applePay') && <ApplePayButton />}
+                {methods.includes('googlePay') && <GooglePayButton />}
+              </div>
+            )}
 
             <p className="cc-valueprop">
               <FormattedMessage

@@ -321,6 +321,12 @@ if (cfg.devFallbackPlan) {
           ...(cfg.googlePay || {})
         }
       },
+      // Lowercase, 'ccsubmit' not 'card' — matches the live panel field exactly (confirmed from
+      // the /dynamic-page-realtime-preview payload). Dev fallback only; real pages get this
+      // injected by the backend from the panel's Payment Methods checkboxes.
+      paymentMethods: (cfg.paymentMethods || ['applePay', 'googlePay', 'card']).map((m) =>
+        m === 'card' ? 'ccsubmit' : m.toLowerCase()
+      ),
       flags: { forceComp: false }
     }
   };

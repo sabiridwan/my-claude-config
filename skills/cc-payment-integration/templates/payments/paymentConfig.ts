@@ -24,6 +24,28 @@ export function getGateway(): string {
   return snapshot.gateway || '';
 }
 
+// Panel's live field is lowercase, no camelCase, and calls card 'ccsubmit' not 'card'
+// (confirmed from the /dynamic-page-realtime-preview payload — not a guess). Map it to this
+// module's internal 'applePay' | 'googlePay' | 'card' names. Falls back to the scaffold-time
+// PAYMENT_METHODS constant (settings.ts) for pages saved before this field existed, or if the
+// panel ever sends an empty/unrecognized list.
+const METHOD_MAP: Record<string, 'applePay' | 'googlePay' | 'card'> = {
+  applepay: 'applePay',
+  googlepay: 'googlePay',
+  ccsubmit: 'card'
+};
+
+export function getPaymentMethods(fallback: Array<'applePay' | 'googlePay' | 'card'>): Array<'applePay' | 'googlePay' | 'card'> {
+  const raw = snapshot.paymentMethods;
+  if (Array.isArray(raw) && raw.length) {
+    const mapped = raw
+      .map((m) => METHOD_MAP[String(m).toLowerCase()])
+      .filter((m): m is 'applePay' | 'googlePay' | 'card' => Boolean(m));
+    if (mapped.length) return mapped;
+  }
+  return fallback;
+}
+
 // Card shares the product bankId with the wallets; there is no card-specific bankId.
 export function getBankId(method: 'card' | 'applePay' | 'googlePay'): string | number | undefined {
   const p = snapshot.payments || {};

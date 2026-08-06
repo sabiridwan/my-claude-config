@@ -33,6 +33,11 @@
 .cc-method svg { height: 20px; }
 
 .cc-form { margin-top: 20px; }
+
+/* Wallet-only layout (no card enabled in pageConfigs.paymentMethods) — plain stacked buttons,
+   no tab chrome, no method-selector heading. */
+.cc-wallet-buttons { display: flex; flex-direction: column; gap: 12px; margin-top: 36px; }
+.cc-wallet-buttons > * { width: 100%; }
 .cc-field { margin-bottom: 14px; }
 .cc-field label { display: block; font-size: 12px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--cc-muted); margin-bottom: 6px; }
 .cc-field input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--cc-line); border-radius: 10px; font-size: 15px; font-family: var(--cc-body); background: var(--cc-card-2); color: var(--cc-ink); }

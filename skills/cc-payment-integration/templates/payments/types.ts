@@ -44,6 +44,10 @@ export interface PageConfigs {
     applePay?: ApplePayConfig;
     googlePay?: GooglePayConfig;
   };
+  // Panel-controlled enabled methods, lowercase, no camelCase: 'applepay' | 'googlepay' | 'ccsubmit'.
+  // Absent on pages saved before this field existed — callers must fall back to the scaffold-time
+  // PAYMENT_METHODS constant (see getPaymentMethods() in paymentConfig.ts).
+  paymentMethods?: string[];
   flags?: { forceComp?: boolean };
   cardMccInformation?: { mcc?: string };
   env?: { page?: string };
