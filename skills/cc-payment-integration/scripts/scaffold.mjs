@@ -152,6 +152,10 @@ for (const m of methods) {
 // Non-comp creative funnel (always emitted; the page decides comp vs non-comp at runtime).
 copyTpl('components/Creative.tsx', `${PREFIX}/components/Creative.tsx`);
 copyTpl('components/NonComp.tsx', `${PREFIX}/components/NonComp.tsx`);
+// Never-rendered i18n registry — keeps `checkout.*` ids that are only read via useTranslate()
+// (attributes, alert() text, dynamic ids) visible to `yarn extract-messages`/`compile`, which
+// otherwise silently drop anything it can't statically see as a literal <FormattedMessage>.
+copyTpl('i18nDefaults.tsx', `${PREFIX}/i18nDefaults.tsx`);
 // Bundled creative assets — copied into the project so the checkout is self-contained (no dependency
 // on the base template's assets).
 {

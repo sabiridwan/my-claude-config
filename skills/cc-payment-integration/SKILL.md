@@ -132,6 +132,29 @@ no matter what the visitor's browser reports. So every string this skill generat
   optional per key — a missing key falls back to the English `defaultMessage`, same as the rest of the
   page's copy. `templates/checkout-i18n.translations.json` has ready-made es/fr/de/it/pt/nl versions of
   all 58 ids to merge in too; other locales fall back to English until someone translates them.
+- **`<FormattedMessage>` needs a literal `defaultMessage` prop, always** — `yarn dev` runs
+  `manage:translations` first (`extract-messages && compile`), and `formatjs compile` **wholesale
+  regenerates `translations/en.json` from what it can statically extract**, discarding anything it
+  can't see. A `<FormattedMessage id="checkout.x" />` with no `defaultMessage` doesn't just fall back
+  silently — `compile` tries to ICU-parse `undefined` and **crashes the whole `yarn dev`/`build`**.
+  Every `<FormattedMessage id="checkout.*">` this skill emits must carry a matching `defaultMessage`
+  (see `templates/checkout-i18n.en.json` for the exact strings — keep them byte-identical, since
+  reusing an id with a *different* defaultMessage elsewhere logs a "duplicate message id" warning and
+  makes the compiled value ambiguous).
+- **`useTranslate()`-only ids are invisible to extraction** — `formatjs extract` only picks up a
+  literal `id`/`defaultMessage` pair on JSX `<FormattedMessage>`; it does not recognize the custom
+  `useTranslate()` hook (`t('checkout.x')`), and it cannot follow a dynamic `id={LABEL[m]}` expression
+  either. Any id used *only* that way (every `placeholder`, `aria-label`, `alert()` string, the wallet
+  button labels, the non-comp creative's status messages, and the two payment-method-tab/trial-label
+  ids driven by a variable) would get silently dropped by the next `compile` run — breaking the
+  `TranslationKeys` type and blanking that copy at runtime. `templates/i18nDefaults.tsx` is a
+  never-rendered component that exists purely to keep those ids visible to the extractor; scaffold.mjs
+  always copies it to `${PREFIX}/i18nDefaults.tsx`. If you add a new `useTranslate()`-only id, add a
+  matching `<FormattedMessage id defaultMessage>` line there too, or it will vanish on the next
+  `yarn dev`.
+- Verify the whole pipeline before handing off: `cd <project-dir> && yarn manage:translations` should
+  exit clean with no `[WARN]`/crash, and re-running it should be a no-op (same `en.json` byte-for-byte)
+  — that's the actual signal this is wired correctly, not just that `tsc` is happy.
 
 ### 4. Verify
 
