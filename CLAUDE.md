@@ -361,6 +361,13 @@ One-off bootstrap scripts in `src/scripts/`. Run via `npm run seed` using `ts-no
 3. Scaffold following the module file layout for that standard.
 4. Run `/init` once there's code, to generate a project-specific CLAUDE.md that inherits from and extends the standard. Reference the canonical repo in the new CLAUDE.md rather than duplicating rules.
 5. If the new project genuinely needs to deviate from the standard, document the deviation and the reason in its CLAUDE.md — don't silently diverge.
+
+## Browser automation preference
+
+Default to the **chrome-devtools** MCP server (`mcp__chrome-devtools__*` tools) for any browser automation task — navigating, clicking, screenshots, console/network inspection, etc. It attaches to a real Chrome instance via `--remote-debugging-port=9222` (alias `chrome-debug` in `~/.zshrc`; launch it first if the port isn't up — check with `curl -s http://localhost:9222/json/version`).
+
+Do not use `claude-in-chrome` or `playwright` tools for browser tasks unless the user explicitly asks for one of those by name.
+
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
