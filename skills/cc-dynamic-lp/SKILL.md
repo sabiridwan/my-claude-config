@@ -377,6 +377,41 @@ animation, drop replacement files into the skill's `templates/assets/` (or the p
 `src/checkout/assets/`). Apple Pay in non-comp uses the same SDK (QR on desktop). Test non-comp
 locally with `?non-comp=true`.
 
+### Some legacy `gcomp` templates aren't "always comp" — verify before patching
+
+The pre-paint fix above assumes SSR always renders the comp landing. That's true for templates
+built around `cc-payment-integration`'s `CheckoutSection`/`PaymentPage`, but some older
+`cc-dynamic-*-gcomp` templates gate the **entire** `Root.tsx` render behind
+`window.ApplePaySession && (...)` — a device check, not a comp/non-comp check. Under jsdom SSR
+there's no `window.ApplePaySession`, so the whole condition is falsy and `#root` renders **nothing
+at all**, comp or non-comp — confirmed by actually building one (`grep -o 'id="root">.\{0,300\}'`
+on the real `staging.html` showed `<!--$--><!--/$-->`, no markup). This is a different failure mode
+than the documented one (blank-for-everyone vs. wrong-content-for-non-comp), and the
+`patch-package`/pre-paint-class fix above doesn't apply to it — there's no comp markup to hide, and
+adding the fix would be solving a problem that doesn't exist on that template.
+
+On that same template family, the `window.ApplePaySession` gate is also usually deliberate, not a
+bug: check the panel's Campaign Tags on pages built from the template (`cc-ouisys-panel` → template
+details → Campaigns tab) — if every campaign is tagged "Apple Pay", traffic is pre-qualified by the
+ad network to Safari/iOS/macOS before it ever reaches the page, and the gate is a (fragile but
+intentional and revenue-tested) safety net, not something to "fix" under "keep the design."
+
+**Don't guess which shape a given template has — build it and look.** This needs no AWS
+credentials, only the local build steps (see "Build → upload → create page" above, steps 1-3, but
+stop after step 3's `build:ssr:server` — don't run the upload):
+
+```bash
+nvm use 20.12.2   # or: source ~/.nvm/nvm.sh && nvm use 20.12.2
+expect prebuild.expect   # drives the 4 pre:build prompts, see the expect script above
+NODE_ENV=production npx webpack --config ./node_modules/ouisys-clients/webpack/webpack.config.prod.babel.js
+NODE_ENV=production npx webpack --config ./node_modules/ouisys-clients/webpack/webpack.config.ssr.babel.js
+NODE_ENV=production node ./ssr-dynamic.js
+grep -o 'id="root">.\{0,300\}' dist/static/<page>/html/staging.html
+```
+
+Empty (`<!--$--><!--/$-->`) → the whole-Root-gate shape, the pre-paint fix doesn't apply. Comp
+markup present → the documented "always comp" shape, apply the fix as written.
+
 ### The creative's completion must be driven by the video, not a timer
 
 The reference `Creative` advances its status copy on a fixed `STEP_DURATION_MS = 1200` and, on the

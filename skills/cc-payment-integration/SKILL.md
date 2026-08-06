@@ -52,7 +52,11 @@ Collect these (ask only for what you can't infer; a `product.json` may already h
   card / applePay / googlePay; Apple `merchantIdentifier`; Google `gatewayMerchantId`.
 - Plan: leave prices to runtime `pageConfigs` (preferred). Only put plan values in `product.json`
   for a local-dev fallback config — never as the source of truth on a live page.
-- Payment methods + order (subset of `['applePay','googlePay','card']`).
+- Payment methods + order (subset of `['applePay','googlePay','card']`) — this is only the
+  scaffold-time **default/dev-fallback**. The live source of truth is the panel's per-page
+  `pageConfigs.paymentMethods` field, read at runtime — see "Payment methods are panel-controlled
+  at runtime" below. Don't treat `product.json`'s value as fixed; the generated code must still
+  respect whatever the panel sends.
 - Consent: `requireConsent`, `walletRequireConsent`, `checkConsentByDefault`.
 - Branding: `primaryColor`, `primaryDark`, `font`, `logo`.
 - Creative: `none` | `download` | `video`.
@@ -156,6 +160,50 @@ no matter what the visitor's browser reports. So every string this skill generat
   exit clean with no `[WARN]`/crash, and re-running it should be a no-op (same `en.json` byte-for-byte)
   — that's the actual signal this is wired correctly, not just that `tsc` is happy.
 
+### 3c. Payment methods are panel-controlled at runtime — 2 buttons vs. tabs
+
+The panel's Card Create/Update wizard has a **Payment Methods** checkbox group (Apple Pay / Google
+Pay / Card Submit) that is saved into `pageConfigs.paymentMethods` and served to the live page.
+Confirmed from the real `POST https://staging.mouisys.com/dynamic-page-realtime-preview` response
+payload (not guessed): the field is **lowercase, and card is `"ccsubmit"`, not `"card"`** —
+`["applepay","googlepay","ccsubmit"]`. Map it to this module's internal `applePay`/`googlePay`/
+`card` names before comparing.
+
+`paymentConfig.ts`'s `getPaymentMethods(fallback)` does this mapping and reads the live field,
+falling back to `settings.ts`'s `PAYMENT_METHODS` (the scaffold-time default) only for pages saved
+before this panel field existed, or if the panel ever sends an empty/unrecognized list. Because the
+live value can change after the page ships, `scaffold.mjs` generates **all three** method
+components (CardForm, ApplePayButton, GooglePayButton) unconditionally — gating file generation on
+`product.json`'s `paymentMethods` would leave a page whose panel config later enables card with no
+component to render.
+
+The UI itself branches on whether card is enabled, not just on how many methods there are:
+
+- Card enabled → the tabbed selector (reference layout: 3-up method pills, active tab shows the
+  method body below).
+- Wallet-only (Apple Pay/Google Pay, no card) → a plain 2-button stack, **no tab chrome at all** —
+  a 2-item tab strip for two wallet buttons reads as broken UI, not a real choice.
+
+See `PaymentPage.tsx`'s `hasCard` branch and the `.cc-wallet-buttons` rule in `checkout.scss` for
+the reference implementation. If you're integrating into a project that already has its own
+Hero/marketing layout rather than the full-page checkout shell (see "Reuse orphaned card-entry code"
+below), replicate this same `hasCard` split there — don't force the full-page checkout's tab styling
+onto a different layout.
+
+**Reuse orphaned card-entry code before generating a fresh CardForm.** Some `cc-dynamic-*-gcomp`
+templates predate this skill and already ship a full card-entry component
+(`UserDetailsEntryStep` + `CreditCardStep`, using `react-credit-card-input` + the `payment` npm
+package + the project's own `FormInput`/`useFormData`) that is simply **dead code** — it only ever
+rendered via `ouisys-engine/creditCardFlow`'s redux dispatch, and the `Root.tsx` `renderStrategy()`
+call that would trigger that flow is itself never invoked in JSX. Check for this before scaffolding
+a brand-new `CardForm.tsx` from the generic template: if it exists, it already matches the project's
+real design system (fonts, spacing, validation copy) far better than the generic template would.
+Revive it instead — strip the `RDS`/`ouisys-engine/creditCardFlow` coupling (replace `rds`
+prop/`onEnd(userDetails)` redux dispatch with local `isSubmitting`/`error` state and a direct call
+to a `cardService.submitCard()`), keep everything else (field validation, `payment` lib checks, the
+per-field tracker events — see the tracking rule below). Grep the target repo for
+`react-credit-card-input` before deciding which path to take.
+
 ### 4. Verify
 
 Run the verify script. It type-checks the generated payment core and runs the guardrail checklist:
@@ -227,3 +275,17 @@ registered.
   (same-colored) page, undoing the "no border" rule. Also: `justify-content` on `.cc-noncomp` must
   stay `flex-start` (the default) — `center` clips a taller-than-viewport column symmetrically top
   *and* bottom with no way to scroll up to the missing top half.
+- **Never swap `ouisys-engine/utilities/tracker` for the generated `tracker.ts`.** Some target
+  repos already import `ouisys-engine/utilities/tracker` in the files you're touching (services,
+  `RootContext`, hooks) — that is the *real* Pacman analytics client (`window.pac_analytics`),
+  wired into GTM and feeding Tau. It looks like an `ouisys-engine` import to strip during a
+  "no-ouisys-engine" pass, but it isn't a widget or a redux flow — it's production analytics
+  infrastructure with no equivalent in this skill's own `tracker.ts` (which posts to a *different*,
+  generic `/api/v1/frontend/track` endpoint and is missing the `advancedInFlow`/`recedeInFlow`
+  methods real usage relies on). Leave every `ouisys-engine/utilities/tracker` import alone; only
+  remove `ouisys-engine/utilities/searchToObject` / `getConfig` / `strategy` / `creditCardFlow`
+  imports, which are the actual widget/engine surface this skill replaces.
+- **`axios` in an old `applePayService.ts`/`googlePayService.ts` is often an undeclared transitive
+  dependency**, not a real `package.json` entry — check before assuming it's safe to keep using.
+  Swap to native `fetch` when you touch these files; it matches this skill's own templates and
+  removes the silent dependency on whatever else happens to hoist `axios` into `node_modules`.
