@@ -3,12 +3,14 @@ import { googlePaymentRequestBase, processGooglePayment } from '../payments/goog
 import { getPageConfigs, googlePayEnvironment } from '../payments/paymentConfig';
 import { walletCurrencyCode, walletCountryCode, walletAmount } from '../payments/pricing';
 import { LOCALE } from '../payments/settings';
+import { useTranslate } from '../../localization';
 
 // Uses the OFFICIAL Google Pay button via client.createButton() (store-standard styling) instead of
 // a custom <button>. Loads pay.js, probes isReadyToPay, then injects the real button into a host div.
 const GPAY_SDK = 'https://pay.google.com/gp/p/js/pay.js';
 
 export default function GooglePayButton() {
+  const t = useTranslate();
   const [state, setState] = useState<'loading' | 'ready' | 'unavailable'>('loading');
   const clientRef = useRef<any>(null);
   const hostRef = useRef<HTMLDivElement>(null);
@@ -79,7 +81,7 @@ export default function GooglePayButton() {
     }
   }, [state]);
 
-  if (state === 'loading') return <p className="cc-wallet-note">Loading Google Pay…</p>;
-  if (state === 'unavailable') return <p className="cc-wallet-note">Google Pay isn't available in this browser.</p>;
+  if (state === 'loading') return <p className="cc-wallet-note">{t('checkout.googlePayLoading')}</p>;
+  if (state === 'unavailable') return <p className="cc-wallet-note">{t('checkout.googlePayUnavailable')}</p>;
   return <div ref={hostRef} className="cc-gpay-host" />;
 }

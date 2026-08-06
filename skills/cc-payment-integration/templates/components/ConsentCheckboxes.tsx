@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { CHECK_CONSENT_BY_DEFAULT } from '../payments/settings';
+import { FormattedMessage } from '../../localization';
 
 interface Props {
   onChange: (checked: boolean) => void;
@@ -20,8 +21,12 @@ export default function ConsentCheckboxes({ onChange, label }: Props) {
         }}
       />
       <span>
-        {label ||
-          'I agree to the Terms & Conditions and authorize the recurring subscription described above.'}
+        {label || (
+          <>
+            <FormattedMessage id="checkout.consentPrefix" /> <a href="#"><FormattedMessage id="terms-conditions" /></a>{' '}
+            <FormattedMessage id="checkout.consentSuffix" />
+          </>
+        )}
       </span>
     </label>
   );

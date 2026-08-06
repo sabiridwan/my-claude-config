@@ -3,6 +3,7 @@ import { submitCard, handleCardResult } from '../payments/cardService';
 import { getService } from '../payments/paymentConfig';
 import { REQUIRE_CONSENT, CHECK_CONSENT_BY_DEFAULT } from '../payments/settings';
 import type { CardUserDetails, PaymentResult } from '../payments/types';
+import { FormattedMessage, useTranslate } from '../../localization';
 
 interface Props {
   onSuccess?: (r: PaymentResult) => void;
@@ -12,6 +13,7 @@ interface Props {
 // Self-contained card form styled to the reference /xhosp layout (cc- classes).
 // Posts via the direct card service; handles success/redirect + inline 3-DS.
 export default function CardForm({ onSuccess, onError }: Props) {
+  const t = useTranslate();
   const [consent, setConsent] = useState(!REQUIRE_CONSENT || CHECK_CONSENT_BY_DEFAULT);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -30,7 +32,7 @@ export default function CardForm({ onSuccess, onError }: Props) {
 
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    if (REQUIRE_CONSENT && !consent) { setError('Please accept the terms to continue.'); return; }
+    if (REQUIRE_CONSENT && !consent) { setError(t('checkout.consentRequiredError')); return; }
     setSubmitting(true);
     setError(null);
     const form = new FormData(e.currentTarget);
@@ -45,11 +47,11 @@ export default function CardForm({ onSuccess, onError }: Props) {
       const result = await submitCard(userDetails, { serviceId: service.id });
       handleCardResult(result, {
         onSuccess: (r) => onSuccess?.(r),
-        onError: (r) => { setError(r.message || 'Payment failed'); onError?.(r); },
+        onError: (r) => { setError(r.message || t('checkout.paymentFailedDefault')); onError?.(r); },
         onHtml: (html) => setThreeDsHtml(html)
       });
     } catch {
-      setError('Network error, please try again.');
+      setError(t('checkout.networkError'));
     } finally {
       setSubmitting(false);
     }
@@ -60,26 +62,26 @@ export default function CardForm({ onSuccess, onError }: Props) {
   return (
     <form onSubmit={onSubmit}>
       <div className="cc-field">
-        <label>Cardholder name</label>
-        <input name="name" type="text" placeholder="Name on card" autoComplete="cc-name" required />
+        <label><FormattedMessage id="checkout.cardholderNameLabel" /></label>
+        <input name="name" type="text" placeholder={t('checkout.cardholderNamePlaceholder')} autoComplete="cc-name" required />
       </div>
       <div className="cc-field">
-        <label>Card number</label>
-        <input name="number" inputMode="numeric" placeholder="1234 1234 1234 1234" autoComplete="cc-number" maxLength={19} onInput={fmtNumber} required />
+        <label><FormattedMessage id="cardNumberLabel" /></label>
+        <input name="number" inputMode="numeric" placeholder={t('checkout.cardNumberPlaceholder')} autoComplete="cc-number" maxLength={19} onInput={fmtNumber} required />
       </div>
       <div className="cc-two">
-        <div className="cc-field"><label>Expiry</label><input name="exp" inputMode="numeric" placeholder="MM / YY" autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
-        <div className="cc-field"><label>CVC</label><input name="cvc" inputMode="numeric" placeholder="CVC" autoComplete="cc-csc" maxLength={4} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="expDate" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="cvvLabel" /></label><input name="cvc" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
       </div>
-      <div className="cc-field"><label>Email address</label><input name="email" type="email" placeholder="you@example.com" autoComplete="email" required /></div>
+      <div className="cc-field"><label><FormattedMessage id="checkout.emailLabel" /></label><input name="email" type="email" placeholder={t('checkout.emailPlaceholder')} autoComplete="email" required /></div>
       {REQUIRE_CONSENT && (
         <label className="cc-consent">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-          <span>I agree to the <a href="#">Terms &amp; Conditions</a> and authorise the recurring subscription described above.</span>
+          <span><FormattedMessage id="checkout.consentPrefix" /> <a href="#"><FormattedMessage id="terms-conditions" /></a> <FormattedMessage id="checkout.consentSuffix" /></span>
         </label>
       )}
       {error && <p className="cc-form-error">{error}</p>}
-      <button className="cc-pay-btn" type="submit" disabled={submitting}>{submitting ? 'Processing…' : 'Start my trial'}</button>
+      <button className="cc-pay-btn" type="submit" disabled={submitting}>{submitting ? t('checkout.processing') : t('checkout.startTrial')}</button>
     </form>
   );
 }

@@ -93,6 +93,46 @@ config.json
 If the project is greenfield, also emit `bootstrap.tsx` as the entry. If integrating into an existing
 `cc-dynamic-*` project, mount `PaymentPage` where the old `#cc-pay-widget` target was.
 
+### 3b. Wire the checkout into auto language detection — every page needs this
+
+The `cc-dynamic-*` base template already **auto-detects the visitor's browser language**:
+`src/providers/RootContext.tsx`'s `langDetection()` reads `window.navigator.language`, sets `locale`
+on mount, and `?locale=` overrides it for QA. That mechanism does nothing for the generated checkout
+unless the checkout's copy actually renders through it — a plain hardcoded string in JSX stays English
+no matter what the visitor's browser reports. So every string this skill generates must go through
+`src/localization`:
+
+- `<FormattedMessage id="..." />` for JSX text content (renders through
+  `ouisys-component-library`'s `IntlProvider`, already wrapping the checkout — see
+  `src/providers/ProvidersWrapper.tsx`).
+- `useTranslate()` for anything that needs a **plain string** — `placeholder`, `aria-label`, `alt`,
+  values passed into `alert()`. `ouisys-component-library`'s `injectIntl`/`IntlProvider` only expose a
+  formatMessage HOC, no hook, so `src/localization/index.tsx` needs a small hand-added hook:
+  ```ts
+  export const useTranslate = () => {
+    const { locale } = useRootContext();
+    const messages = translations[locale] || translations.en;
+    return (id: TranslationKeys, values?: Record<string, string | number>, defaultMessage?: string) => {
+      let msg = messages[id] ?? defaultMessage ?? translations.en[id] ?? id;
+      if (values) Object.keys(values).forEach((k) => { msg = msg.replace(new RegExp(`\\{${k}\\}`, 'g'), String(values[k])); });
+      return msg;
+    };
+  };
+  ```
+  Add this export to the target project's `src/localization/index.tsx` if it isn't already there
+  (the default base, `cc-dynamic-template-download-nid-gcomp`, already has it — check before adding,
+  don't duplicate the export).
+- All `templates/*.tsx` and `templates/components/*.tsx` in this skill already do this — they import
+  `FormattedMessage`/`useTranslate` from `'../localization'` / `'../../localization'`. Preserve that
+  wiring; don't reintroduce literal English strings when customizing a component.
+- New ids must exist in `src/localization/translations/en.json` first — `TranslationKeys` is a type
+  derived from that file, so an id missing there is a compile error. `templates/checkout-i18n.en.json`
+  is the source-of-truth English set this skill's templates already reference (58 ids); merge it into
+  the target's `en.json` if scaffolding onto a base that doesn't have them yet. Other locale files are
+  optional per key — a missing key falls back to the English `defaultMessage`, same as the rest of the
+  page's copy. `templates/checkout-i18n.translations.json` has ready-made es/fr/de/it/pt/nl versions of
+  all 58 ids to merge in too; other locales fall back to English until someone translates them.
+
 ### 4. Verify
 
 Run the verify script. It type-checks the generated payment core and runs the guardrail checklist:
@@ -115,6 +155,11 @@ registered.
 
 ## Non-negotiables (why they matter)
 
+- **Never hardcode checkout copy in English.** Every string renders through
+  `<FormattedMessage>`/`useTranslate()` off `src/localization`, keyed to the same `locale` that
+  `RootContext.langDetection()` already auto-detects from the browser. A literal string bypasses
+  detection entirely — the visitor's browser can report `es` and the checkout still renders English.
+  See "Wire the checkout into auto language detection" above.
 - **Never hardcode prices.** They live in `pageConfigs.plan` and change per campaign; a hardcoded
   value silently ships a wrong price. Always read the snapshot taken at first render.
 - **Relative URLs only.** The page must stay on the product domain; an absolute CDN/API URL breaks

@@ -5,12 +5,14 @@ import React, { useEffect, useRef, useState } from 'react';
 import posterStart from '../assets/download-start.webp';
 import posterEnd from '../assets/download-end.webp';
 import videoWebm from '../assets/download.webm';
+import { useTranslate } from '../../localization';
+import type { TranslationKeys } from '../../localization';
 
-const MESSAGES = [
-  'Preparing your access…',
-  'Verifying availability…',
-  'Securing your connection…',
-  'Almost there…'
+const MESSAGE_IDS: TranslationKeys[] = [
+  'checkout.creativeMsg1',
+  'checkout.creativeMsg2',
+  'checkout.creativeMsg3',
+  'checkout.creativeMsg4'
 ];
 const STEP_MS = 1200;
 
@@ -21,6 +23,7 @@ const STEP_MS = 1200;
 // and is driven by the video's real `onEnded` event, not the message timer (which only paces the
 // status text). The end poster is preloaded on mount so the crossfade never blocks on a cold fetch.
 export default function Creative({ onContinue, isLoading }: { onContinue: () => void; isLoading?: boolean }) {
+  const t = useTranslate();
   const [msg, setMsg] = useState(0);
   const [ready, setReady] = useState(false);
   const [ended, setEnded] = useState(false);
@@ -41,12 +44,12 @@ export default function Creative({ onContinue, isLoading }: { onContinue: () => 
   }, []);
 
   useEffect(() => {
-    if (msg >= MESSAGES.length - 1) {
+    if (msg >= MESSAGE_IDS.length - 1) {
       setReady(true);
       return;
     }
-    const t = setTimeout(() => setMsg((m) => m + 1), STEP_MS);
-    return () => clearTimeout(t);
+    const timer = setTimeout(() => setMsg((m) => m + 1), STEP_MS);
+    return () => clearTimeout(timer);
   }, [msg]);
 
   return (
@@ -65,7 +68,7 @@ export default function Creative({ onContinue, isLoading }: { onContinue: () => 
         </video>
         <img src={posterEnd} alt="" className={'cc-creative__endshot' + (ended ? ' is-shown' : '')} />
       </div>
-      <div className="cc-creative__status">{MESSAGES[msg]}</div>
+      <div className="cc-creative__status">{t(MESSAGE_IDS[msg])}</div>
       <button
         type="button"
         className={'cc-creative__cta' + (ready ? ' is-ready' : '') + (isLoading ? ' is-busy' : '')}
@@ -75,7 +78,7 @@ export default function Creative({ onContinue, isLoading }: { onContinue: () => 
           onContinue();
         }}
       >
-        <span className="cc-creative__cta-label">Get access now</span>
+        <span className="cc-creative__cta-label">{t('checkout.creativeCta')}</span>
         <span className="cc-creative__spinner" />
       </button>
     </div>

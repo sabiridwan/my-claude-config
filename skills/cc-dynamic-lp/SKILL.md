@@ -159,6 +159,19 @@ template rendered `<FLOWS.CreditCardFlow/>` / the comp payment card. Keep the co
 loader from the template — cc-payment-integration's page already honors the same rules, so mount it
 inside the existing comp branch.
 
+### 3b. Auto language detection — every page gets this by default, verify it isn't dead
+
+The base template's `src/providers/RootContext.tsx` already **auto-detects the visitor's browser
+language** (`langDetection()` reads `window.navigator.language`, falls back to `en`, and `?locale=`
+overrides for QA) — you don't need to add this. What you must check is that it isn't wired to a
+no-op: `CheckoutSection` is the page's primary view (see "Two things that bite" below), so if its
+checkout copy is hardcoded English instead of rendering through `src/localization`
+(`<FormattedMessage>` / `useTranslate()`), the detector fires but nothing on screen changes. This is
+cc-payment-integration's responsibility — its templates already wire every string this way and ship
+the `checkout.*` translation keys (see its "Wire the checkout into auto language detection" section)
+— but if you hand-edit generated checkout copy, keep it going through `src/localization` rather than
+reverting to a literal string.
+
 ### 4. Verify
 
 ```bash
@@ -396,6 +409,12 @@ locales fall back to the English default until translated.
 
 Reusing an existing id to avoid this is a trap — the ids are shared across components, so retargeting
 one relabels every other button using it.
+
+This applies inside `src/checkout/` too, not just the marketing template — `FormattedMessage` only
+covers JSX text content; a `placeholder`/`aria-label`/`alt`/`alert()` string needs the plain-string
+`useTranslate()` hook instead (add it to `localization/index.tsx` if the base doesn't have it yet —
+`ouisys-component-library`'s `injectIntl` only exposes a formatMessage HOC, no hook). See
+cc-payment-integration's `checkout.*` id set for the pattern.
 
 ## Two things that bite in this template (and how the scaffold handles them)
 
