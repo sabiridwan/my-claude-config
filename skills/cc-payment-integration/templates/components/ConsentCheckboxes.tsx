@@ -23,8 +23,8 @@ export default function ConsentCheckboxes({ onChange, label }: Props) {
       <span>
         {label || (
           <>
-            <FormattedMessage id="checkout.consentPrefix" /> <a href="#"><FormattedMessage id="terms-conditions" /></a>{' '}
-            <FormattedMessage id="checkout.consentSuffix" />
+            <FormattedMessage id="checkout.consentPrefix" defaultMessage="I agree to the" /> <a href="#"><FormattedMessage id="terms-conditions" defaultMessage="Terms & Conditions" /></a>{' '}
+            <FormattedMessage id="checkout.consentSuffix" defaultMessage="and authorise the recurring subscription described above." />
           </>
         )}
       </span>

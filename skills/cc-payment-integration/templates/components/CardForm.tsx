@@ -62,22 +62,22 @@ export default function CardForm({ onSuccess, onError }: Props) {
   return (
     <form onSubmit={onSubmit}>
       <div className="cc-field">
-        <label><FormattedMessage id="checkout.cardholderNameLabel" /></label>
+        <label><FormattedMessage id="checkout.cardholderNameLabel" defaultMessage="Cardholder name" /></label>
         <input name="name" type="text" placeholder={t('checkout.cardholderNamePlaceholder')} autoComplete="cc-name" required />
       </div>
       <div className="cc-field">
-        <label><FormattedMessage id="cardNumberLabel" /></label>
+        <label><FormattedMessage id="cardNumberLabel" defaultMessage="Card Number" /></label>
         <input name="number" inputMode="numeric" placeholder={t('checkout.cardNumberPlaceholder')} autoComplete="cc-number" maxLength={19} onInput={fmtNumber} required />
       </div>
       <div className="cc-two">
-        <div className="cc-field"><label><FormattedMessage id="expDate" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
-        <div className="cc-field"><label><FormattedMessage id="cvvLabel" /></label><input name="cvc" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="expDate" defaultMessage="Expiry Date" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="cvvLabel" defaultMessage="Cvv Code" /></label><input name="cvc" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
       </div>
-      <div className="cc-field"><label><FormattedMessage id="checkout.emailLabel" /></label><input name="email" type="email" placeholder={t('checkout.emailPlaceholder')} autoComplete="email" required /></div>
+      <div className="cc-field"><label><FormattedMessage id="checkout.emailLabel" defaultMessage="Email address" /></label><input name="email" type="email" placeholder={t('checkout.emailPlaceholder')} autoComplete="email" required /></div>
       {REQUIRE_CONSENT && (
         <label className="cc-consent">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-          <span><FormattedMessage id="checkout.consentPrefix" /> <a href="#"><FormattedMessage id="terms-conditions" /></a> <FormattedMessage id="checkout.consentSuffix" /></span>
+          <span><FormattedMessage id="checkout.consentPrefix" defaultMessage="I agree to the" /> <a href="#"><FormattedMessage id="terms-conditions" defaultMessage="Terms & Conditions" /></a> <FormattedMessage id="checkout.consentSuffix" defaultMessage="and authorise the recurring subscription described above." /></span>
         </label>
       )}
       {error && <p className="cc-form-error">{error}</p>}
