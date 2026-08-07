@@ -172,6 +172,7 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
+  "model": "sonnet",
   "hooks": {
     "Stop": [
       {
@@ -248,9 +249,8 @@
   "skipDangerousModePermissionPrompt": true,
   "autoCompactEnabled": true,
   "switchModelsOnFlag": true,
+  "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true,
-  "model": "sonnet",
-  "remoteControlAtStartup": true
+  "voiceEnabled": true
 }
