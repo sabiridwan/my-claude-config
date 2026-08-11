@@ -112,6 +112,7 @@ After a sweep, report: resolvers covered this run, resolvers skipped and why (e.
 - **Asserting on GraphQL wiring** (`@Query(() => X, { name: 'y' })` metadata) — that's compile-time schema generation (`schema.gql`), already covered by `src/schema.spec.ts`-style checks. Test behavior, not decorators.
 - **Skipping `ResolveField` methods** because they "just format data" — these are exactly where silent breaking changes (renamed field, null-unsafe access) slip through; they need the same coverage as `Query`/`Mutation`.
 - **Real DB/network calls** in a resolver spec — if a mock is missing and a method throws `Cannot read property of undefined` on a real service call, that's a sign a provider wasn't mocked, not a reason to reach for `MongoMemoryServer`.
+- **(msgld-be specific) `@whiskeysockets/baileys` import chain crash** — any resolver that transitively imports `UserService`/`OTPService` pulls in `WhatsappService` (`src/libs/whatsapp`), which imports `@whiskeysockets/baileys`, an ESM-only package Jest's CJS transform can't parse (`SyntaxError: Unexpected token 'export'` or similar). Fix per-spec with `jest.mock('@whiskeysockets/baileys', () => ({}))` (virtual mock, don't touch app code) rather than trying to import the real module. Worth fixing once at the root (`transformIgnorePatterns` or lazy-loading baileys inside `WhatsappService`) instead of repeating the per-spec workaround — flag to the user if it keeps recurring.
 
 ---
 
