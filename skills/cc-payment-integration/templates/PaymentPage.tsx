@@ -140,7 +140,7 @@ export default function PaymentPage() {
               <p><FormattedMessage id="checkout.infoCancelDesc" defaultMessage="You can cancel your membership at any time by contacting our Customer Care Department free of charge." /></p>
               <p className="cc-terms">
                 <FormattedMessage id="checkout.infoCancelStatement" defaultMessage="The charge for your subscription to {name} will appear on your credit card statement as {descriptor}" values={{ name, descriptor: META.chargeDescriptor }} />{' '}
-                <a href={`tel:${META.supportPhone}`}>{META.supportPhone}</a>
+                <a href={`tel:${META.supportPhone.replace(/[^+\d]/g, '')}`}>{META.supportPhone}</a>
               </p>
             </div>
           </div>
@@ -187,7 +187,7 @@ export default function PaymentPage() {
           <div className="cc-foot__cols">
             <div>
               <h6><FormattedMessage id="checkout.customerCareHeading" defaultMessage="Customer Care" /></h6>
-              <p><a href={`tel:${META.supportPhone}`}>{META.supportPhone}</a></p>
+              <p><a href={`tel:${META.supportPhone.replace(/[^+\d]/g, '')}`}>{META.supportPhone}</a></p>
               <p><a href={`mailto:${META.supportEmail}`}>{META.supportEmail}</a></p>
             </div>
             <div>
@@ -214,8 +214,12 @@ export default function PaymentPage() {
   );
 }
 
+// Scheme badges as vector marks. The Apple badge previously used the "" character — an
+// Apple-only private-use codepoint that renders as a blank/box on every non-Apple device, so the
+// badge read just "Pay". Both wallet marks are now real paths, and Visa/Mastercard match their
+// actual brand treatment (italic wordmark; interlocking circles with the orange intersection).
 const CARD_BADGES = `
-<svg viewBox="0 0 48 30" width="46"><rect width="48" height="30" rx="4" fill="#1A1F71"/><text x="24" y="20" fill="#fff" font-size="11" font-weight="700" text-anchor="middle" font-family="Arial">VISA</text></svg>
-<svg viewBox="0 0 48 30" width="46"><rect width="48" height="30" rx="4" fill="#fff"/><circle cx="20" cy="15" r="9" fill="#EB001B"/><circle cx="28" cy="15" r="9" fill="#F79E1B" fill-opacity=".85"/></svg>
-<svg viewBox="0 0 48 30" width="46"><rect width="48" height="30" rx="4" fill="#000"/><text x="24" y="19" fill="#fff" font-size="8" font-weight="600" text-anchor="middle" font-family="Arial"> Pay</text></svg>
-<svg viewBox="0 0 48 30" width="46"><rect width="48" height="30" rx="4" fill="#fff"/><text x="24" y="19" fill="#5F6368" font-size="8" font-weight="600" text-anchor="middle" font-family="Arial">G Pay</text></svg>`;
+<svg viewBox="0 0 48 30" width="46" role="img" aria-label="Visa"><rect width="48" height="30" rx="4" fill="#1A1F71"/><text x="24" y="20.5" fill="#fff" font-size="12" font-weight="700" font-style="italic" text-anchor="middle" font-family="Helvetica, Arial, sans-serif" letter-spacing=".5">VISA</text></svg>
+<svg viewBox="0 0 48 30" width="46" role="img" aria-label="Mastercard"><rect width="48" height="30" rx="4" fill="#fff"/><circle cx="19.5" cy="15" r="8.5" fill="#EB001B"/><circle cx="28.5" cy="15" r="8.5" fill="#F79E1B"/><path d="M24 8.2a8.5 8.5 0 0 0 0 13.6 8.5 8.5 0 0 0 0-13.6z" fill="#FF5F00"/></svg>
+<svg viewBox="0 0 48 30" width="46" role="img" aria-label="Apple Pay"><rect width="48" height="30" rx="4" fill="#000"/><g fill="#fff" transform="translate(5.4 6.9) scale(.62)"><path d="M16.5 12.8c0-2.4 1.9-3.5 2-3.6-1.1-1.6-2.8-1.8-3.4-1.8-1.5-.1-2.8.8-3.6.8-.8 0-1.9-.8-3.1-.8-1.6 0-3 .9-3.8 2.4-1.7 2.8-.4 7 1.1 9.4.8 1.1 1.7 2.4 2.9 2.4 1.1 0 1.6-.8 3-.8 1.4 0 1.8.7 3 .7 1.2 0 2-1.1 2.8-2.2.9-1.4 1.2-2.6 1.2-2.7-.1-.1-2.1-.9-2.1-3.8z"/><path d="M14.1 5.6c.7-.8 1.1-1.8 1-2.9-1 .1-2.1.7-2.8 1.5-.6.7-1.1 1.8-1 2.8 1.1.1 2.1-.6 2.8-1.4z"/></g><text x="21" y="20" fill="#fff" font-size="11" font-weight="500" font-family="Helvetica, Arial, sans-serif">Pay</text></svg>
+<svg viewBox="0 0 48 30" width="46" role="img" aria-label="Google Pay"><rect width="48" height="30" rx="4" fill="#fff"/><g transform="translate(7.5 8.5) scale(.55)"><path d="M12.2 9.5v3.3h4.7c-.2 1.1-.8 2-1.6 2.6-.8.6-1.9.9-3.1.9-2.5 0-4.6-1.7-5.4-4a5.9 5.9 0 0 1 0-3.7c.8-2.3 2.9-4 5.4-4 1.4 0 2.7.5 3.7 1.5l2.5-2.5A9 9 0 0 0 12.2 0 9.1 9.1 0 0 0 4 5a9.2 9.2 0 0 0 0 8.2 9.1 9.1 0 0 0 8.2 5c2.5 0 4.6-.8 6.1-2.2 1.7-1.6 2.7-4 2.7-6.8 0-.7-.1-1.3-.2-1.9h-8.6z" fill="#4285F4"/></g><text x="22.5" y="20" fill="#3C4043" font-size="11" font-weight="500" font-family="Helvetica, Arial, sans-serif">Pay</text></svg>`;
