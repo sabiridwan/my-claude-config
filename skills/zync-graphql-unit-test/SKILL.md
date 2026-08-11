@@ -1,23 +1,35 @@
 ---
 name: zync-graphql-unit-test
-description: Use when a zync-nestjs GraphQL resolver (Resolver/ResolveField/Query/Mutation) is added or changed and lacks Jest coverage, when auditing a NestJS + Apollo GraphQL backend for resolvers missing *.resolver.spec.ts, or when the user asks to "test all resolvers", "add resolver unit tests", "cover the GraphQL layer", or catch resolver-breaking changes before deploy instead of after.
+description: Use when a zync-nestjs GraphQL resolver (Resolver/ResolveField/Query/Mutation) is added or changed and lacks Jest coverage, when a zync-nextjs or zync-expo Context provider (context.tsx wrapping GraphQL queries/mutations) is added or changed and lacks coverage, when auditing a project for missing *.resolver.spec.ts / context.spec.tsx files, or when the user asks to "test all resolvers", "add unit tests", "cover the GraphQL layer", or catch GraphQL-wiring breaking changes before deploy instead of after.
 ---
 
 # Zync GraphQL Unit Test
 
 ## Overview
 
-Generates and maintains Jest unit tests for every resolver class in a **zync-nestjs** backend (NestJS 9 + Apollo GraphQL code-first + Mongoose). Closes the gap where resolver logic changes (wrong service call, dropped arg, broken field resolution) only surface after deploy because no test exercised the resolver layer.
+Generates and maintains Jest unit tests for the GraphQL entry-point layer across the Zync stack:
 
-Core principle: **one spec file per `*.resolver.ts` file, one `describe` block per exported resolver class, one test group per `@Query`/`@Mutation`/`@ResolveField` method** — mock every injected service, assert the resolver calls the right service method with the right args and returns what the service returns.
+- **Backend (zync-nestjs):** every resolver class in `*.resolver.ts` (NestJS 9 + Apollo GraphQL code-first + Mongoose).
+- **Frontend (zync-nextjs / zync-nextjs-standalone / zync-expo):** every `context.tsx` that owns GraphQL calls via a `use<Feature>Query()` hook.
+
+Both are "thin wiring" layers with the same failure mode: a changed arg, a renamed field, a flipped condition slips through because nothing exercises the call. Closes that gap by testing the layer directly, not the transport underneath it (no real Mongo, no real Apollo network calls).
+
+Backend and frontend need genuinely different harnesses (NestJS DI vs React hooks) — see the two workflows below. Pick the one matching the file that changed.
+
+Core principle, same on both sides: **mock the layer directly below the one under test** (the injected service for a resolver; the `gql/query.ts` hook for a context) — assert the right call happened with the right args, and that the response is threaded through correctly.
 
 ## When to Use
 
 - Resolver file created or edited (`*.resolver.ts`) and no matching `*.resolver.spec.ts` exists, or the spec is stale relative to the resolver.
-- User asks to sweep a whole project for resolver coverage ("test all resolvers", "cover graphql layer").
-- Setting this up as a pre-deploy / CI gate so a broken resolver fails `npm test`, not production.
+- Frontend `context.tsx` created or edited (zync-nextjs / zync-nextjs-standalone / zync-expo) and no matching `context.spec.tsx` exists.
+- User asks to sweep a whole project for coverage ("test all resolvers", "cover graphql layer", "add unit tests to the admin/app").
+- Setting this up as a pre-deploy / CI gate so a broken resolver or context fails `npm test`, not production.
 
-**Not for:** service/repository unit tests (different layer, different mock shape — services mock repositories, not the other way around), e2e/integration tests that hit a real DB (`test/*.e2e.ts` — separate concern), or DTO/schema validation tests.
+**Not for:** service/repository unit tests on the backend (different layer, different mock shape — services mock repositories, not the other way around), component/UI rendering tests on the frontend (this skill stops at the Context layer — no `screen.getByText`, no user-interaction simulation), e2e/integration tests that hit a real DB or real network (`test/*.e2e.ts` — separate concern), or DTO/schema validation tests.
+
+---
+
+# Backend: NestJS Resolvers
 
 ## Core Pattern
 
@@ -38,7 +50,7 @@ resolver = module.get(EmployeeResolver);
 
 Then per method: `it('calls <service>.<method> with resolver args and returns its result', ...)`.
 
-## Workflow
+## Backend Workflow
 
 ### 1. Discover resolvers needing coverage
 
@@ -91,7 +103,7 @@ Fix compile errors (usually a missing mock method or wrong import path) before m
 
 After a sweep, report: resolvers covered this run, resolvers skipped and why (e.g. trivial pure-logic resolver intentionally left thin), and the resulting `find src/modules -name "*.resolver.ts" | wc -l` vs `*.resolver.spec.ts` count so coverage gap is visible.
 
-## Common Mistakes
+## Backend Common Mistakes
 
 - **Skipping `.overrideGuard(GqlRolesGuard)`** on any `@ApGqlAuthorize()` resolver — `.compile()` looks like it succeeded, then every single test fails with a DI-resolution error that has nothing to do with your mocks. This is the single most common first-run failure; see the table above.
 - **Assuming sibling ResolveFields share the same true/false polarity.** `EmployeeProfileResolver` has both `branchTabEnabled` (SALESMAN/SHOP_MANAGER → `false`, others → `true`) and `branches`/`branchIds` (SALESMAN/SHOP_MANAGER → real value, others → `[]`) guarded by the identical-looking `if (!this.groups.includes(employee.group)) { ... }` condition, but with opposite bodies. Trace each method's actual `if`/`return` literally — don't pattern-match on the neighboring method's expected values.
@@ -100,3 +112,123 @@ After a sweep, report: resolvers covered this run, resolvers skipped and why (e.
 - **Asserting on GraphQL wiring** (`@Query(() => X, { name: 'y' })` metadata) — that's compile-time schema generation (`schema.gql`), already covered by `src/schema.spec.ts`-style checks. Test behavior, not decorators.
 - **Skipping `ResolveField` methods** because they "just format data" — these are exactly where silent breaking changes (renamed field, null-unsafe access) slip through; they need the same coverage as `Query`/`Mutation`.
 - **Real DB/network calls** in a resolver spec — if a mock is missing and a method throws `Cannot read property of undefined` on a real service call, that's a sign a provider wasn't mocked, not a reason to reach for `MongoMemoryServer`.
+
+---
+
+# Frontend: Context Layer (zync-nextjs / zync-nextjs-standalone / zync-expo)
+
+Per the zync-nextjs/zync-expo standard, `context.tsx` is the *only* file that calls `use<Feature>Query()` (which wraps Apollo's `useQuery`/`useLazyQuery`/`useMutation`); components only ever consume `use<Feature>State()`. That makes the Context provider's exposed methods the frontend equivalent of a resolver — the layer where a wrong variable name, dropped arg, or broken state update silently breaks a screen. Test that layer, mocking the `gql/query.ts` hook underneath it.
+
+Most zync-nextjs/zync-nextjs-standalone/zync-expo projects have **zero Jest setup** — check before assuming infra exists.
+
+## Step 0 — Scaffold Jest if missing
+
+Check for a `"test"` script and a `jest` config (`jest.config.js` or a `"jest"` key in `package.json`) before anything else. If absent, this is a new dependency addition — flag it, don't add it silently.
+
+**Next.js (13+, App or Pages router):**
+```bash
+pnpm add -D jest jest-environment-jsdom @testing-library/react @types/jest
+```
+```js
+// jest.config.js — next/jest handles the SWC/TS transform, no babel config needed
+const nextJest = require('next/jest');
+const createJestConfig = nextJest({ dir: './' });
+module.exports = createJestConfig({
+  testEnvironment: 'jest-environment-jsdom',
+  testMatch: ['**/*.spec.ts', '**/*.spec.tsx'],
+  moduleNameMapper: {
+    // Only add this if tsconfig.json has a "@/*" (or similar) path alias — next/jest
+    // does NOT read tsconfig `paths` automatically. Match it exactly (check baseUrl).
+    '^@/(.*)$': '<rootDir>/src/$1',
+  },
+});
+```
+Add `"test": "jest"` to `package.json` scripts.
+
+**Expo (zync-expo):**
+```bash
+npx expo install jest-expo --dev   # resolves the version matching this project's SDK — don't hand-pick a version
+pnpm add -D @testing-library/react-native @types/jest
+```
+```jsonc
+// package.json
+"jest": {
+  "preset": "jest-expo",
+  "testMatch": ["**/*.spec.ts", "**/*.spec.tsx"],
+  "moduleNameMapper": { "^@/(.*)$": "<rootDir>/$1" } // match this project's tsconfig path alias
+}
+```
+Add `"test": "jest"` to `package.json` scripts.
+
+## Frontend Core Pattern
+
+```tsx
+// Minimal shape — see templates/frontend-context.spec.template.tsx for the full worked example.
+// ALWAYS use a factory mock, never bare jest.mock(path) automock — see Common Mistakes.
+jest.mock('./gql/query', () => ({ useEmployeeQuery: jest.fn() }));
+jest.mock('../../services', () => ({ toastSvc: { success: jest.fn(), graphQlError: jest.fn() } }));
+
+const mockFetchEmployee = jest.fn();
+(useEmployeeQuery as jest.Mock).mockReturnValue({ fetchEmployee: mockFetchEmployee /* ... */ });
+
+const { result } = await renderHook(() => useEmployeeState(), { wrapper: EmployeeContextProvider });
+// Next.js: renderHook from '@testing-library/react' is SYNC — no await.
+// Expo: renderHook from '@testing-library/react-native' v13+ is ASYNC — must await.
+
+await act(async () => {
+  await result.current.fetchEmployeePage({ page: 1, pageSize: 20 });
+});
+
+expect(mockFetchEmployee).toHaveBeenCalledWith(/* ... */);
+expect(result.current.employee).toEqual(/* ... */);
+```
+
+## Frontend Workflow
+
+### 1. Discover contexts needing coverage
+```bash
+find src/modules -name "context.tsx"
+```
+Check for a sibling `context.spec.tsx`. Same staleness signal as the backend (missing, or resolver changed but spec didn't).
+
+### 2. Read the context file, then its `gql/query.ts`
+
+- **State shape** → the `I<Feature>State` interface lists every method the context exposes; each one is a test target.
+- **The `use<Feature>Query()` hook** (usually in `./gql/query.ts`, sometimes inlined directly in `context.tsx`) → open it and check **how each operation is returned**, because it varies per module:
+  - Named-object shape: `return { fetchEmployee: fetchEmployee[0], createEmployee: createEmployee[0] }` → mock as `{ fetchEmployee: jest.fn(), createEmployee: jest.fn() }`, called as `employeeQ.fetchEmployee(...)`.
+  - Raw tuple passthrough: `useLazyQuery(...)` returned as-is (e.g. `useItemGroupFilterOptions` in msgld-fe) → mock as `[jest.fn(), {}]`, called as `queryResult[0]()`.
+  Mismatching this shape produces `TypeError: ... is not a function`, not a helpful message — check the real file, don't assume the common case.
+- **Every method on the context** → note what it calls, what it does with the response (`setX`, `toastSvc.success`, merge into existing list vs replace, `finally` clearing loading), and whether a sibling method with a similar name does something subtly different (e.g. `fetchItemGroup` only calls `setItemGroup`, while `loadMoreItemGroup` calls both `setItemGroup` and `setTotalRecords` — verified in msgld-fe's `itemGroup` module). Don't assume symmetry; read each method.
+
+### 3. Generate the spec
+
+Follow `templates/frontend-context.spec.template.tsx`. Rules:
+
+| Situation | Rule |
+|---|---|
+| Mocking `gql/query.ts` or the services/toast module | **Always use a factory mock**: `jest.mock('./gql/query', () => ({ useXQuery: jest.fn() }))`. Never bare `jest.mock('./gql/query')` (automock) — automock still loads the real module to infer its shape, and on Expo that import chain reaches `@react-native-async-storage/async-storage`, which throws `NativeModule is null` outside a real device/simulator. Factory mocks never touch the real implementation. |
+| Rendering the context | `renderHook(() => use<Feature>State(), { wrapper: <Feature>ContextProvider })`. On Expo (`@testing-library/react-native` v13+) this is **async** — `await renderHook(...)`, or destructuring `result` off it comes back `undefined` and every later `result.current.x` throws `Cannot read properties of undefined (reading 'current')`. On Next.js (`@testing-library/react`) it's sync. |
+| Calling a context method | Wrap in `act(async () => { await result.current.methodName(...) })` — state updates from async setState calls outside `act()` produce "not wrapped in act" warnings and can read stale state. |
+| Path alias imports (`@/...`) in the spec or in files it pulls in | Jest does not read `tsconfig.json` `paths` automatically (even under `next/jest`) — add the matching entry to `jest.config.js`'s (or `package.json`'s) `moduleNameMapper`, or the import throws `Cannot find module '@/...'`. |
+| Context method that just triggers a query with no response handling | One happy-path test asserting the call args is enough |
+| Context method with conditional branching (e.g. merge vs replace list, only toast when `data` is truthy) | Test each branch — the "no data returned" branch is exactly where a null-check regresses silently |
+| `useEffect` that auto-fetches on mount | Expect the mocked query fn to already have been called once after `renderHook` resolves; use `waitFor(() => expect(mockFn).toHaveBeenCalled())` from the same testing-library package rather than asserting synchronously |
+
+### 4. Verify
+
+```bash
+npx jest <path-to-spec>
+npx tsc --noEmit
+```
+
+### 5. Report
+
+Same as backend: contexts covered this run, `find src/modules -name "context.tsx" | wc -l` vs `context.spec.tsx` count, and whether Jest infra was newly scaffolded (flag as a new devDependency addition).
+
+## Frontend Common Mistakes
+
+- **Bare `jest.mock(path)` automock on a module that (transitively) imports a native module** — works fine on Next.js (jsdom tolerates most browser-safe imports), crashes on Expo the moment the chain reaches `AsyncStorage` or any other native binding. Use factory mocks always; it's a stack-agnostic habit that costs nothing on Next.js and saves the Expo crash.
+- **Forgetting `await` on `renderHook` for React Native** — silently gives you `result === undefined`, and the resulting error message ("reading 'current'") doesn't mention `renderHook` at all, making it look like a wrapper/provider problem instead of a missing `await`.
+- **Assuming every `use<Feature>Query()` hook returns the same shape.** Some return a named object of trigger functions (most common), some return the raw Apollo tuple untouched. Copying the mock from one module to the next without opening `gql/query.ts` first produces confusing "not a function" errors.
+- **Testing component rendering** (`render()`, `screen.getByText`, `fireEvent`) when the task is context coverage — out of scope for this skill; a heavier, separate effort with its own tradeoffs (see "Not for" above).
+- **Not mocking `toastSvc`/`ToastService`** — real toast libraries can run fine under jsdom (side effect noise, not a crash) but throw under Expo/jsdom-less native-module chains; mock it every time regardless of stack, for the same reason as the gql hook.
