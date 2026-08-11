@@ -94,17 +94,35 @@ value (`AGDS0000000001`, `BCR2DN0EXAMPLE00`); those are *not* values and must be
 | Required Shipping Contact Fields | `email` | Usually keep. |
 
 ### Plan — the pricing source of truth
-| Field | Default |
-| --- | --- |
-| Full Price * | `49.99` |
-| Trial Price * | `0.01` |
-| Currency * | `EUR` |
-| Trial Days * | `1` |
-| Billing Cycle (days) * | `28` |
-| Is Local Currency | **on** |
+| Field | Default | Notes |
+| --- | --- | --- |
+| **Plan Type *** | `Trial, then subscription` | `subscription` · `trial-then-subscription` · `one-off`. **Decides which fields below render, and the billing copy on the page.** |
+| Full Price * | `49.99` | Labelled **`Price`** when Plan Type is One Off. |
+| Currency * | `EUR` | |
+| Trial Price * | `0.01` | Only shown for `trial-then-subscription`. |
+| Trial Days * | `1` | Only shown for `trial-then-subscription`. |
+| Billing Cycle (days) * | `28` | Hidden for `one-off` — a one-off never renews. |
+| Is Local Currency | **on** | |
 
 These defaults match the common 0.01-trial EUR page, so often nothing to change — but read them back
 to the user explicitly rather than assuming, because they are the live prices.
+
+**Pick Plan Type before the prices.** It controls which fields exist, and the saved payload zeroes
+`trialDays` / `billingCycleDays` for the shapes they do not apply to — so a one-off saves with no
+trial and no renewal period rather than inheriting them from whatever it was cloned from.
+
+**A one-off is not "a subscription with no trial".** `subscription` still renews every
+`billingCycleDays`; `one-off` charges once and never renews. Choosing `subscription` for a
+single-charge product makes the page advertise auto-renewal for something that does not renew —
+a compliance problem, not a wording preference. If the ticket says *One Off = Yes*, the answer is
+`one-off`.
+
+`trialPrice` is **never** derived from `fullPrice`; it saves exactly as entered. Landing pages read
+`plan.trialPrice` for the no-trial charge amount, so do not assume the two are interchangeable.
+
+Pages created before Plan Type existed have no `type`. The panel infers one on load — `trialDays > 0`
+→ `trial-then-subscription`, otherwise `subscription` — so opening and re-saving an old page keeps its
+behaviour. Nothing is ever inferred as `one-off`; that can only be chosen deliberately.
 
 ### There is NO Card section
 The wizard exposes **only** Google Pay and Apple Pay. The saved payload's `payments` therefore

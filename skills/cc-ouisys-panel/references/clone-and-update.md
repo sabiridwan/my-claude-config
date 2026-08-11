@@ -55,6 +55,9 @@ pane. Same field map as `create-page.md` — including the traps:
   your unsaved edits). Click to pick.
 - Prefilled `celerispay` / `4` in the wallet blocks are *real values*; grey text is a placeholder.
 - The `Plan` block is live pricing — read it back before saving.
+- **`Plan Type` is part of that block.** Changing a price does not change how the page bills. If the
+  variant is a single charge rather than a subscription, switch Plan Type to `one-off` too, or the
+  page keeps advertising auto-renewal at the new price.
 
 Common edits: pricing/plan, gateway, titles, images, and **bumping the Template Version** to a newer
 build. Version bumps do not happen automatically; a page keeps the version it was created with.
@@ -71,6 +74,16 @@ After cloning, `Edit` the draft and change at minimum:
 - **Page Name** — must follow the naming convention and stay unique; a clone's default name will not.
 - Country / slug / service / plan / wallet ids — whatever actually differs for the variant.
 - **Template Version** if the variant should run a different build.
+
+**Clone-and-change-pricing is the normal shape of a multi-product ticket.** When a ticket's table
+lists several slugs against one design, that is one page built once and cloned per row — the rows are
+page *configuration*, not separate builds.
+
+When you do that, `Plan Type` is a per-row decision, not something inherited. A ticket table with a
+`One Off` column is telling you the type per slug: `Yes` → `one-off`, `No — subscription (trial X → Y)`
+→ `trial-then-subscription`. Clone carries the source page's Plan Type, so a one-off cloned from a
+trial page stays a trial page until you change it — and then advertises a renewal that will never
+happen. Read the type back per clone alongside the price.
 
 Cloning creates a new object rather than touching the source page, which makes it the safe way to
 derive a variant. Still confirm before clicking `Clone`, and never clone *from* a page the user did
