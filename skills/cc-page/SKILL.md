@@ -101,6 +101,7 @@ Edit **`src/config/brand.config.json`** with your product details:
     { "icon": "icon-name", "title": "Feature 2", "desc": "Description" }
   ],
   "pricing": {
+    "planType": "trial-then-subscription",
     "trialPrice": "0.01",
     "subscriptionPrice": 49.99,
     "billingCycle": "28 days"
@@ -113,7 +114,8 @@ Edit **`src/config/brand.config.json`** with your product details:
 - `brandColor` — primary accent color (hex)
 - `serviceLinks.*` — external URLs (home, terms, privacy)
 - `features[]` — 4-6 feature cards (icon name + title + description)
-- `pricing` — trial price + recurring price + billing cycle
+- `pricing` — plan type + trial price + recurring price + billing cycle. Copy branches on
+  `planType`, never on "is there a trial" — "no trial" and "no renewal" are different claims.
 
 ### Phase 3: Add Assets (10 minutes)
 
@@ -237,7 +239,7 @@ Check that `dist/` directory is created and contains the built assets.
 | `languages` | Language support | `{ supported: ["en", "es", "fr"], switcher: ["en", "es"] }` |
 | `serviceLinks` | External URLs | `{ home: "...", terms: "...", privacy: "..." }` |
 | `features` | Feature cards (4-6) | `[{ icon: "...", title: "...", desc: "..." }]` |
-| `pricing` | Trial + subscription | `{ trialPrice: "0.01", subscriptionPrice: 49.99, billingCycle: "28 days" }` |
+| `pricing` | Billing shape + amounts | `{ planType: "trial-then-subscription", trialPrice: "0.01", subscriptionPrice: 49.99, billingCycle: "28 days" }`. `planType` is `subscription` \| `trial-then-subscription` \| `one-off` and decides the billing copy — a `one-off` never renews, so it must not say "auto-renewal", "subscription" or "/ N days". |
 | `contentGrid` | Showcase sections | Array of { title, subtitle, images } |
 | `milestones` | Optional stats/numbers | `[{ label: "...", value: "..." }]` |
 

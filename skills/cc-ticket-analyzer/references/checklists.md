@@ -42,8 +42,9 @@ panel's Card Create wizard need.
 | `bankId` | **Per method** — card, Apple Pay, Google Pay may differ. One shared id is common but must be stated, not assumed |
 | `merchantIdentifier` | Apple Pay only |
 | `gatewayMerchantId` | Google Pay only |
-| payment methods + order | Which tabs render, in what order |
+| payment methods + order | Which tabs render, in what order. The panel writes this as `paymentMethods`; a page is expected to gate wallet buttons on it. |
 | consent flags | Whether a consent tick is required |
+| plan type | `subscription` / `trial-then-subscription` / `one-off` — see the pricing note below |
 
 ### Presentation
 
@@ -58,14 +59,26 @@ the MID registry section of `references/notion-queries.md`. A ticket that links 
 supplied these, one hop away. Read each MID's `Status` too: `In Approval` or `Proposed` blocks the
 ticket on approval regardless of field completeness.
 
-### Pricing is deliberately NOT on this list
+### Pricing amounts are deliberately NOT on this list — but the plan TYPE is
 
 Prices come from the panel config **at runtime** and are never hardcoded in the page
 (`devFallbackPlan` is dev-only). An absent price in a ticket is therefore **not a gap** — do not
 report it as one.
 
-Flag pricing in exactly one case: the ticket **asserts** a price that contradicts what the panel
+Flag a price in exactly one case: the ticket **asserts** a price that contradicts what the panel
 holds. That is a real conflict and belongs in the report as **Unclear**, naming both values.
+
+**The plan type is a different matter and IS a checklist field.** `plan.type` is
+`subscription` | `trial-then-subscription` | `one-off`, and it decides the billing copy — a `one-off`
+charges once and must never advertise renewal. Unlike the amounts, it cannot be deferred to runtime,
+because the panel operator has to choose it per page.
+
+Read it off the ticket table when present: a `One Off` column saying `Yes` → `one-off`; `No —
+subscription (trial €0.01 / 1 day → €29.99 / 28 days)` → `trial-then-subscription`. If the table has
+several rows with different answers, that is **one design cloned per row**, and each clone needs its
+own type — say so in the report rather than treating the ticket as one page.
+
+Report the type **Missing** when the ticket asks for a page and says nothing about how it bills.
 
 ### Fields the panel does not have
 

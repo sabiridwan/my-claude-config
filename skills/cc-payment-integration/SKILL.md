@@ -233,6 +233,19 @@ registered.
   See "Wire the checkout into auto language detection" above.
 - **Never hardcode prices.** They live in `pageConfigs.plan` and change per campaign; a hardcoded
   value silently ships a wrong price. Always read the snapshot taken at first render.
+- **Never hardcode the billing period or the billing *shape*.** The period is
+  `pageConfigs.plan.billingCycleDays`, not a literal `28`. The shape is `pageConfigs.plan.type` —
+  `subscription` | `trial-then-subscription` | `one-off` — and copy must branch on it. A `one-off`
+  charges once and never renews: "/ N days", "auto-renewal" and "subscription" are all wrong for it.
+  Do not infer the shape from `trialDays`; "no trial" and "no renewal" are different claims, and
+  getting it wrong misstates what the customer is charged. A config without `type` predates the field
+  — read it as `trialDays > 0 ? 'trial-then-subscription' : 'subscription'`, never `one-off`.
+  Note this needs **three** copy variants: an existing `*NoTrial` key means *no trial, still
+  recurring*, so it cannot be reused for a one-off.
+- **A hardcoded price in a non-`en` locale is the same bug as hardcoding it in code.** The usual shape
+  is `en.json` interpolating `{fullPrice}` while every other locale carries a literal — so a price
+  change in the panel updates one language and leaves the rest advertising the old amount. Every
+  pricing key must be interpolated in **every** locale the page ships.
 - **Relative URLs only.** The page must stay on the product domain; an absolute CDN/API URL breaks
   domain preservation and can leak the visitor off-domain mid-flow. This includes the **footer legal
   links** — write them as `/faq`, `/legal/<uuid>`, `/login`, not full URLs. The page is proxied onto

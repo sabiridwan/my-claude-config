@@ -155,8 +155,10 @@ Navigate and fill the form:
 | Gateway | `config.json → strategyConfigs.default.flowConfig.service` |
 | Apple Pay Merchant Identifier | From `pageConfigs.payments.applePay.merchantIdentifier` |
 | Google Pay Gateway Merchant ID | From `pageConfigs.payments.googlePay.gatewayMerchantId` |
-| Trial Price | `brand.config.json → pricing.trialPrice` |
+| Plan Type | **ASK** — `subscription` / `trial-then-subscription` / `one-off`. A ticket's `One Off` column states it per slug. Controls which of the fields below the wizard shows. |
+| Trial Price | `brand.config.json → pricing.trialPrice` (only for `trial-then-subscription`) |
 | Full Price | `brand.config.json → pricing.subscriptionPrice` |
+| Billing Cycle (days) | `brand.config.json → pricing.billingCycle` (hidden for `one-off`) |
 
 **Payment fields with no source yet — ASK, do not copy the wizard's placeholders.**
 
@@ -258,6 +260,7 @@ browser_network_request(index, part="response-body")     → { page_config_id, v
       }
     },
     "plan": {
+      "type": "trial-then-subscription",
       "fullPrice": "49.99",
       "trialPrice": "0.01",
       "currency": "EUR",
