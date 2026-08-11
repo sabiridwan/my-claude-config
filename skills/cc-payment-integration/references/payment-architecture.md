@@ -14,6 +14,7 @@ match these exactly; the backend does not change.
 7. Antifraud (Kount)
 8. Tracking
 9. Redirect + domain preservation
+10. `aci-pxp` gateway (LC2 API) — architecturally different from the rest
 
 ---
 
@@ -171,3 +172,32 @@ All asset + API URLs are **relative** (same origin) so the page never leaves the
 during the experience. The **only** off-domain navigation is the final gateway redirect
 (`gateway_url`) after a successful payment call — expected and correct. See
 `domain-preservation.md`.
+
+## 10. `aci-pxp` gateway (LC2 API) — architecturally different from the rest
+
+`aci-pxp` (seen in the wild as slug prefix `cc_acipxp-...`) does not use `initiate-payment-generic` /
+`ap-validate` / `ap-payment` / `gp-payment`, and does not dispatch on `bankId`. Branch on
+`pageConfigs.gateway === 'aci-pxp'` alongside the existing celeris/maxpay/acquired branches; do not
+replace them.
+
+- **Dispatch key:** a numeric `serviceId` per payment method, read at runtime from
+  `pageConfigs.payments.<card|applePay|googlePay>.serviceId` — never hardcoded (backend/panel is
+  responsible for injecting it; treat a missing value as a coordination dependency, not a bug in
+  the generated code).
+- **Apple Pay merchant validation:** `POST /api/apple-pay/validate-merchant` —
+  `{ serviceId, rockmanId, validationUrl }`.
+- **Card and Apple Pay payment submission (same endpoint):** `POST /api/subscriptions` —
+  `{ payment, serviceId, rockmanId, locale, email, browserFingerprint }`. `browserFingerprint` is
+  the iovation/IGLOO blackbox (`window.fpGetBlackbox ? window.fpGetBlackbox() : { blackbox: '',
+  finished: false }`), not the Kount `antifraud_session_id`.
+- **Antifraud:** a second vendor, iovation/IGLOO (`https://first.iovation.com/latest/static_wdp.js`),
+  additive to and independent of Kount. Load it gated on `pageConfigs.gateway === 'aci-pxp'`, the
+  same pattern as the existing Kount hook — not unconditionally (it would fire uselessly on other
+  gateways' pages if this project also serves them).
+- **Response handling:** reuse the `celeris` branch — `result.html` → `document.write` into the
+  page (3-DS style), not a `gateway_url` redirect.
+- **Google Pay:** not implemented as of this writing — the one integration seen paused it
+  deliberately ("others don't work because of error on ACI-PXP side" — Slack, source ticket). Don't
+  assume the Apple Pay shape carries over; confirm with backend first.
+- Do not copy specific `serviceId` / `bankId` numeric literals from any one project's dev fallback
+  config into new code — they are per-page values injected by the panel/backend at runtime.
