@@ -124,7 +124,12 @@ Apple Pay payment also sends: `split` (from URL param), `is_preauth` (when `?pre
   slug: string,                        // plan slug
   service: { id: string, displayName: string },
   cardMccInformation: { mcc: string }, // entityName
-  plan: { trialPrice: string, isLocalCurrency: boolean },
+  plan: {
+    type: 'subscription' | 'trial-then-subscription' | 'one-off',  // billing shape
+    trialPrice: string, trialDays: number,
+    fullPrice: string, billingCycleDays: number,
+    currency: string, isLocalCurrency: boolean
+  },
   gateway: 'celeris' | 'maxpay' | 'acquired',
   flags: { forceComp: boolean },
   payments: {
@@ -133,6 +138,13 @@ Apple Pay payment also sends: `split` (from URL param), `is_preauth` (when `?pre
   }
 }
 ```
+
+**`plan.type` decides billing copy.** `one-off` charges once and never renews, so `billingCycleDays`
+is `0` and any "/ N days", "auto-renewal" or "subscription" wording is wrong. `subscription` renews
+with no trial (`trialDays` 0, `trialPrice` carries the amount). Never infer the shape from
+`trialDays` alone — "no trial" and "no renewal" are different things. Pages predating the field have
+no `type`; read a missing value as `trialDays > 0 ? 'trial-then-subscription' : 'subscription'`, never
+as `one-off`.
 
 ---
 

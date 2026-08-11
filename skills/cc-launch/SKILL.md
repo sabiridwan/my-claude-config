@@ -49,6 +49,13 @@ Collect the union of what the downstream skills need, so the user answers once:
 - Payment methods + order; consent flags; branding (colors, font, logo).
 - Ticket: the Notion ticket URL/id for this page (so cc-tester can post the QA report there).
 - Prices come from the panel config at runtime — never hardcode; `devFallbackPlan` is dev-only.
+- **Plan type per page**: `subscription` | `trial-then-subscription` | `one-off`. A ticket table with
+  a `One Off` column is stating this per slug (`Yes` → `one-off`). It is a panel field *and* a page-code
+  branch, so capture it up front — the page must not advertise renewal for a single charge.
+- **One design, many configs.** When a ticket lists several slugs against one design, that is one
+  build cloned per row in the panel (step 6), not one project per slug. Scaffold once; the per-row
+  differences (slug, prices, plan type) are page configuration. Confirm this reading with the user
+  before scaffolding N projects.
 
 If a `product.json` already exists, read it and only ask for gaps.
 

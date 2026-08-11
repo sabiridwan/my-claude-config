@@ -26,7 +26,16 @@ widget could overwrite `window.configJson`; snapshot defends against that). Shap
 pageConfigs {
   slug, gateway,
   service:  { id, displayName },
-  plan:     { trialPrice, trialDays, fullPrice, billingCycleDays, isLocalCurrency, currency },
+  plan:     { type, trialPrice, trialDays, fullPrice, billingCycleDays, isLocalCurrency, currency },
+            // type: 'subscription' | 'trial-then-subscription' | 'one-off'
+            // Billing COPY must branch on `type`, never on trialDays alone:
+            //   one-off  -> charged once, never renews. billingCycleDays is 0.
+            //              Any "/ N days", "auto-renewal" or "subscription" wording is WRONG.
+            //   subscription -> renews every billingCycleDays, no trial. trialDays is 0,
+            //              and trialPrice carries the charge amount.
+            //   trial-then-subscription -> trialPrice for trialDays, then fullPrice per cycle.
+            // Older pages predate `type`; treat a missing value as
+            //   trialDays > 0 ? 'trial-then-subscription' : 'subscription'  (never 'one-off').
   payments: {
     card:      { bankId },
     applePay:  { bankId, merchantIdentifier, supportedNetworks, merchantCapabilities,

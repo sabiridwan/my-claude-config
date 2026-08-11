@@ -86,7 +86,7 @@ JSON.stringify(window.configJson.pageConfigs)
 ```
 
 Shape (fields you'll check against): `slug`, `gateway`, `service.{id,displayName}`,
-`plan.{trialPrice,trialDays,fullPrice,billingCycleDays,isLocalCurrency,currency}`,
+`plan.{type,trialPrice,trialDays,fullPrice,billingCycleDays,isLocalCurrency,currency}`,
 `payments.card.bankId`, `payments.applePay.{bankId,merchantIdentifier,supportedNetworks,...}`,
 `payments.googlePay.{bankId,gateway,gatewayMerchantId,allowedCardNetworks,allowedAuthMethods,...}`,
 `flags.forceComp`, `env.page`. Snapshot it once at the start and compare everything against it.
@@ -249,6 +249,38 @@ Extract every visible price / trial-day / billing-cycle string; assert each equa
 `pageConfigs.plan` field. **FAIL** on any mismatch, and **FAIL** on any hardcoded price in the
 DOM/source that doesn't come from the snapshot — the primary risk this check exists for. Note
 cosmetic decimal-separator inconsistencies (e.g. `49,99` vs `49.99`) as observations, not fails.
+
+#### 5b. Billing wording matches `plan.type` — FAIL, not an observation
+
+`plan.type` is `subscription` | `trial-then-subscription` | `one-off`. The page must describe the
+billing shape it is actually configured for. Getting this wrong misstates what the customer is
+charged, so it is a hard FAIL even when every number on the page is correct.
+
+| `plan.type` | Page MUST say | Page MUST NOT say |
+| --- | --- | --- |
+| `one-off` | a single charge of `fullPrice` | "auto-renewal", "/ N days", "subscription", "trial", any renewal period |
+| `subscription` | `trialPrice` every `billingCycleDays`, renewing | anything implying a trial |
+| `trial-then-subscription` | `trialPrice` for `trialDays`, then `fullPrice` every `billingCycleDays` | a bare price with no trial |
+
+Three specific traps, each seen in the wild:
+
+- **Hardcoded billing period.** Grep the built output for a literal `28` (and the localized forms —
+  `28 Tage`, `28 días`, `28 jours`). It must come from `plan.billingCycleDays`. A page cloned to a
+  different cycle otherwise keeps advertising 28 days.
+- **Hardcoded prices in non-`en` locales.** English often interpolates `{fullPrice}` while the other
+  locale files carry a literal `49,99` — so changing the price in the panel updates one language and
+  silently leaves the rest wrong. **Check every locale the page ships, not just `en`.**
+- **Missing no-trial strings falling back to English.** If the `*NoTrial` keys exist only in `en`, a
+  no-trial page renders English pricing copy on a non-English page. Load each locale and confirm the
+  billing sentence is actually in that language.
+
+Also check the consent/registration checkbox text, not just the hero — it usually restates the
+billing terms and is the copy most often left describing a subscription.
+
+A config with no `plan.type` predates the field: read it as
+`trialDays > 0 ? 'trial-then-subscription' : 'subscription'`, never as `one-off`. If the ticket says
+the product is One Off but the config has no `type` or says otherwise, that is a **config** finding
+to report, not a page defect to fix.
 
 **Wallet amounts differ by country by design** — don't FAIL them for not equalling `plan.trialPrice`.
 When `plan.isLocalCurrency`, the Apple/Google Pay request `total.amount` uses the per-country override

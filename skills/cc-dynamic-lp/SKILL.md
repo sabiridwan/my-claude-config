@@ -475,6 +475,20 @@ cc-payment-integration's `checkout.*` id set for the pattern.
 - **`page` (.env) must equal the git repo name** — otherwise `pre:build` aborts the upload.
 - **Prices come from the panel config at runtime** (`window.configJson.pageConfigs.plan`); the
   `devFallbackPlan` is dev-only. Never hardcode prices in copy (cc-payment-integration enforces this).
+- **Billing copy branches on `pageConfigs.plan.type`, never on `trialDays`.** The type is
+  `subscription` | `trial-then-subscription` | `one-off`. A `one-off` charges once and never renews —
+  no "/ N days", no "auto-renewal", no "subscription". Treating "no trial" as "no renewal" (or the
+  reverse) misstates what the customer is charged. Missing `type` on an older page reads as
+  `trialDays > 0 ? 'trial-then-subscription' : 'subscription'`, never `one-off`.
+  This needs **three** copy variants, not two: the pre-existing `*NoTrial` keys mean *no trial, still
+  recurring*, so a one-off needs its own key set rather than reusing them.
+- **The billing period is `plan.billingCycleDays`, not the literal `28`.** A page cloned to a
+  different cycle otherwise keeps advertising 28 days in every language.
+- **Every locale interpolates prices — no literals.** The classic failure is `en.json` using
+  `{fullPrice}`/`{trialPrice}` while the other locales carry a hardcoded `49,99`: change the price in
+  the panel and one language updates while the rest silently lie. Whenever you add a pricing key, add
+  it to **every** locale the page ships, interpolated. A page that ships `-de` slugs is read in
+  German, so German is exactly where the stale price will show.
 - **Same-origin, relative URLs**; the page stays on the product domain (domain preservation) — the
   only off-domain step is the final gateway redirect after payment.
 - **Keep the template's SSR loader + comp/non-comp gate.** They prevent a blank server render and
