@@ -111,7 +111,7 @@ name**, so getting it right matters for the build to attach.
 | cc | Vertical = credit card | fixed |
 | domain | Portfolio / MCC brand the page runs under | `pdfbrain`, `xracademy` |
 | product | The service being sold | `streamtrainfit`, `omnilearnhub`, `xrlab360`, `docpilotai` |
-| plan | Plan variant | `zerotrial` for the zero-trial page; **omit entirely** for the 0.01 page |
+| plan | Plan variant | `zerotrial` for the zero-trial page; **omit entirely** for the 0.01 page. **One-off (`plan.type: 'one-off'`) pages have no observed token yet** — no shipped page name in any harvested repo uses one. Don't invent a token (e.g. `oneoff`); ask the user for a sibling one-off page name, or flag it as an open question in the ticket-analysis report rather than guessing. |
 | wallets | Enabled wallets | usually `applepay-googlepay` (or `applepay` / `googlepay`) |
 | audience | Traffic type | `acquired` |
 | currency | Currency mode | `lc` = local currency |
@@ -123,6 +123,12 @@ name**, so getting it right matters for the build to attach.
 `cc_{acquirer}-{product}portal{price}_{code}-`, e.g. `cc_acquired-xrlab360portal5999_000-`.
 (The `portal` segment is not universal — a real live slug is `cc_acquired-streamtrainfit5999_000-`.
 Take the slug from the ticket or a sibling page; don't synthesise it.)
+
+The trailing `_{code}-` (e.g. `_000-`, `_001-`) is not documented anywhere and is not universal —
+some older slugs have no trailing code at all (`cc_maxpay-entertainu50-` before a 2026-07-23 fix
+added `_001-`). Treat it as a per-page/MID sequence number, not a constant: **when a ticket lists
+several MIDs for one product, expect a distinct slug (and likely a distinct code) per MID** — ask
+for or confirm the exact slug per row rather than reusing one slug's code across all of them.
 
 **Page names are globally unique — check before you commit to one.** A product often already has a
 live page under the conventional name, so the name you derive can be taken. Search **Published,
