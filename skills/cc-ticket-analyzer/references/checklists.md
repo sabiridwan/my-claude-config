@@ -32,12 +32,13 @@ panel's Card Create wizard need.
 | `country` | Defaults to `xx` if genuinely generic — note the assumption, don't silently apply it |
 | `creative` | `none` / `download` / `video` |
 | `nid` | |
+| `Page Name` / `PageName` | **The Ouisys panel page name**, built from `cc-ouisys-panel` `SKILL.md` §"Page naming convention (credit-card)"'s formula (`{country}-cc-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`). It is NOT a marketing domain and NOT a route path — don't invent either. If the ticket table has this column empty, that is the gap to report; if it has a value, validate it against the formula rather than taking it as free text. |
 
 ### Checkout backend
 
 | Field | Notes |
 | --- | --- |
-| `slug` | Shape `cc_<gateway>-<product><price>-<country>` |
+| `slug` | Shape `cc_<gateway>-<product><price>-<country>`. **This is the panel's checkout `Slug` field — a different string from `Page Name` above.** Bank + MID derive from it (see `cc-ouisys-panel`); don't conflate the two when a ticket table has both columns. |
 | `gateway` | `celeris` / `maxpay` / `ecardon` / `acquired` |
 | `bankId` | **Per method** — card, Apple Pay, Google Pay may differ. One shared id is common but must be stated, not assumed |
 | `merchantIdentifier` | Apple Pay only |
@@ -168,7 +169,20 @@ Expected diff:
   the test that step 4 link-following actually ran), no-DCB-code rule
 - **Present via the MID registry**: target domain (`Descriptor`, e.g. `resumetuneai.com`), MCC
   (`MCC Code` → `7399 - Business Services (Not Elsewhere Classified)`), gateway (`Gateway` → `ACI`)
-- **Missing**: target repo
+- **Present (as of 2026-08)**: target repo — resolved to
+  `dmb-portfolios/sites/smartpdfdesk/` (built; product record shared with `pdfbrain-ai.com`,
+  matching the PDF-tool theme reference). **This field is time-sensitive** — re-verify against the
+  actual repo tree each run rather than trusting this worked example's answer going forward; only
+  the *method* (git-scan the portfolio repos for a matching product/domain) is the regression test,
+  not the specific verdict.
+- **If the ticket table has grown a `PageName` or `slug` column since this example was written**,
+  that means the ticket now also asks for a live checkout page — reclassify per
+  `classification.md`'s "ticket asking for both a portfolio page and a landing page" rule
+  (`cc-landing-page`, flag the portfolio deliverable in scope) rather than treating it as a gap in
+  this checklist, which deliberately has no `PageName`/`slug` row because a pure portfolio page has
+  no live checkout. **Confirmed true on the live ticket as of 2026-08-11:** the body table carries a
+  `PageName` column, empty on all five MID rows, and that empty column is the ticket's single
+  blocking gap.
 - **Gating fact**: the MIDs are `Approved but Not Live`. Rank the ticket **blocked on others** and
   say so, however complete the fields look.
 

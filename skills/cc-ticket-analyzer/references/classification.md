@@ -19,6 +19,9 @@ Read the title first, then the body, then the tags. Weight them in that order.
 - Title contains "landing page", "LP", "cc page", "create page", "new page"
 - Body table has columns like `Slug`, `Bank ID`, `Domain`, `payments method`, `One Off`,
   `First Billing Fee`
+- Body table has a `Page Name` / `PageName` column — only relevant to a page that's live in the
+  Ouisys panel, so this outweighs a "portfolio" title/theme reference if both are present (see
+  "Resolving conflicts" below).
 - A slug of the shape `cc_<gateway>-<product><price>-<country>`
 - Tags include a gateway (`Maxpay`, `Acquired`) or a wallet (`Apple Pay`)
 
