@@ -43,6 +43,14 @@
 .cc-field input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--cc-line); border-radius: 10px; font-size: 15px; font-family: var(--cc-body); background: var(--cc-card-2); color: var(--cc-ink); }
 .cc-field input::placeholder { color: var(--cc-placeholder); }
 .cc-field input:focus { outline: none; border-color: var(--cc-brand); box-shadow: 0 0 0 3px var(--cc-brand-ring); }
+/* The host template's Hero/Hero.scss ships an UNSCOPED `input { border: none !important;
+   border-radius: 4px !important; height: 40px }` rule. Hero never renders on a checkout page,
+   but its stylesheet still ships via Root.tsx's import chain — so that !important wins over
+   `.cc-field input` and the card fields lose their borders. Re-assert the field chrome at
+   higher specificity. Fix the leak in Hero.scss itself too if you own that file; this keeps the
+   checkout correct regardless. */
+.cc-checkout .cc-field input { border: 1.5px solid var(--cc-line) !important; border-radius: 10px !important; height: auto; }
+.cc-checkout .cc-field input:focus { border-color: var(--cc-brand) !important; }
 .cc-two { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .cc-consent { display: flex; gap: 10px; align-items: flex-start; font-size: 12px; color: var(--cc-muted); margin: 14px 0 16px; }
 .cc-consent input[type="checkbox"] { -webkit-appearance: checkbox; appearance: checkbox; width: 18px; min-width: 18px; height: 18px; margin: 1px 0 0; padding: 0; flex: 0 0 auto; accent-color: var(--cc-brand); }
