@@ -48,8 +48,11 @@ Collect these (ask only for what you can't infer; a `product.json` may already h
 `templates/product.example.json` for the exact shape.
 
 - Identity: `serviceId`, `serviceDisplayName`, `productDomain`, `pagePath` (default `/xhosp`).
-- Backend keys: `slug`, `gateway` (`celeris` | `maxpay` | `ecardon`), and `bankId` for each of
-  card / applePay / googlePay; Apple `merchantIdentifier`; Google `gatewayMerchantId`.
+- Backend keys: `slug`, `gateway` (`celeris` | `maxpay` | `ecardon` | `acquired` | `aci-pxp`), and
+  `bankId` for each of card / applePay / googlePay; Apple `merchantIdentifier`; Google
+  `gatewayMerchantId`. **`aci-pxp` is architecturally different** — it dispatches on a numeric
+  `serviceId` per payment method, not `bankId`, and posts to different endpoints entirely. See
+  `references/payment-architecture.md` §10 before generating an `aci-pxp` integration.
 - Plan: leave prices to runtime `pageConfigs` (preferred). Only put plan values in `product.json`
   for a local-dev fallback config — never as the source of truth on a live page.
 - Payment methods + order (subset of `['applePay','googlePay','card']`) — this is only the
