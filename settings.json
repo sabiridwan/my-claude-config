@@ -209,6 +209,18 @@
         ]
       }
     ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "timeout": 10,
+            "statusMessage": "Checking MCP server entries..."
+          }
+        ]
+      }
+    ],
     "SessionEnd": [
       {
         "hooks": [
@@ -217,6 +229,12 @@
             "command": "/Users/sabiridwan/.claude/scripts/playwright-reaper.sh reap-session 2>/dev/null || true",
             "timeout": 15,
             "statusMessage": "Closing Playwright browser..."
+          },
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "timeout": 10,
+            "statusMessage": "Restoring MCP server entries..."
           }
         ]
       }
