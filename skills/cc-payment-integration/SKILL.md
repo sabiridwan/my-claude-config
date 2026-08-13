@@ -31,6 +31,16 @@ backend":
 - **Still required (unchanged):** the same-origin backend endpoints under `/api/v1/frontend/*`, the
   gateway, and the `window.configJson.pageConfigs` injection. The generated code posts to these.
 
+If you're asked to fix analytics on a project that still runs the pre-migration
+`ouisys-widget-cc-pay` bundle rather than this skill's generated code: versions before `1.2.2`
+clobber a server-rendered `rockmanId` with a freshly-minted one (`resolveRockmanId` mints when the
+host passes none, then writes it back over `window.pac_analytics.visitor.rockmanId` even when the
+server got there first), splitting impression and checkout/sale events across two ids and breaking
+campaign attribution. Bumping to `1.2.2`+ fixes it inside the widget. This skill's own generated
+`getRockmanId()` (`templates/payments/paymentConfig.ts`) already reads the server-rendered value
+directly and never round-trips through a widget, so it does not have this bug — treat hitting it as
+a signal to migrate the project onto this skill rather than patch the old widget in place.
+
 ## When to use
 
 Use whenever a task involves adding or replacing subscription payments on a landing/product page:
