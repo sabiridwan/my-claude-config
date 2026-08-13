@@ -12,6 +12,8 @@ Values that are genuinely true for every page in this request.
 
 | Field | Value |
 | --- | --- |
+| Requester (who wants this, and who to go back to on a blocker) | |
+| Filed by (only if different from the requester) | |
 | Request covers (how many MIDs / pages) | |
 | Template / git repo | |
 | New build expected? | |

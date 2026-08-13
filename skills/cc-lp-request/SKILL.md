@@ -35,6 +35,11 @@ requester's head:
 `assets/quick-request.md` is this list as a paste-able form, with a worked example — hand it to
 anyone who asks what you need.
 
+Plus one thing you don't have to ask for in the normal case: **the requester's name**. Whoever is
+talking to you is the requester unless they say otherwise, so record them and only ask when they're
+relaying someone else's request. It costs nothing to capture and it's what every blocker's owner
+defaults to.
+
 Everything else you find yourself: existing pages for the product, MCC, template and its versions,
 service id and display name, and what sibling pages use for networks and bank ID all come from the
 panel and the repos. Do that lookup *before* asking anything, so your questions are only about the
@@ -105,8 +110,18 @@ amount. An unstated one-off price silently becomes one cent.
 The panel still writes a `googlePay` block into the saved config even when the checkbox is cleared,
 so "it's not in the ticket" reads as "nobody mentioned it" rather than "it's disabled".
 
-**Bank name as well as bank ID.** The numeric bank ID goes in the config; the bank *name* is a token
-in the page name. A ticket carrying only `173` cannot produce a correctly-named page.
+**Bank name as well as bank ID.** The numeric bank ID goes in the config; the bank *name* is the
+`{bank}` token in the page name, immediately after `cc`
+(`xx-cc-{bank}-{domain}-{product}-…-dyn`). A ticket carrying only `173` cannot produce a
+correctly-named page, and the name can't be fixed afterwards — pages don't get renamed, they get
+recreated. Don't accept the gateway as a substitute: `celeris` / `maxpay` / `acquired` / `aci-pxp`
+are PSPs, and one PSP fronts several acquiring banks.
+
+**Who is actually asking.** Record the requester by name, and separately whoever files the ticket if
+that's someone else. Every blocker in the list below ends with "— <who owns it>", and the default
+owner when nobody else is named is the requester; Notion's `Created by` only ever records the filer.
+A ticket filed on someone's behalf with no requester named leaves the builder chasing the wrong
+person.
 
 **Existing pages for the same product.** Ask whether a page already exists and whether it should be
 reused, replaced, or retired. Page names are globally unique, and a forgotten older page tends to
@@ -136,7 +151,8 @@ table listing payment model and price with no slugs is not yet buildable.
 
 Use `assets/ticket-template.md`. It has three levels, and the split matters:
 
-- **Block A** — the whole request: template, creative, country, publish policy. Genuinely shared.
+- **Block A** — the whole request: requester, template, creative, country, publish policy. Genuinely
+  shared.
 - **Block B** — per MID: domain, gateway, bank, MCC, wallet identity. Repeated per MID.
 - **Block C** — per page: one row per billing slug, grouped under its MID.
 

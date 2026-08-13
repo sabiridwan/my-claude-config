@@ -137,7 +137,10 @@ enabled?" is not a panel question — don't block on it here.
 - **Template name == `.env` `page` == git repo name.** This one must match exactly or the upload's
   `pre:build` aborts. Example: `cc-dynamic-<product>-template-download-nid-gcomp`.
 - **Page name** follows the credit-card naming convention in the parent SKILL.md and is its own
-  string. Example: `xx-cc-<domain>-<product>-applepay-googlepay-acquired-lc-download-gcomp-dyn`.
+  string. Example:
+  `xx-cc-<bank>-<domain>-<product>-applepay-googlepay-acquired-lc-download-gcomp-dyn`. The `<bank>`
+  token is the acquiring bank and is required on new pages — if the ticket gives only a numeric Bank
+  ID, that's a blocker to raise, not a value to derive.
 
 These are unrelated strings and the page works fine with them differing — verified. Do not try to
 force them equal.

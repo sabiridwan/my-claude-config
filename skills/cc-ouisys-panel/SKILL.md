@@ -100,15 +100,18 @@ name**, so getting it right matters for the build to attach.
 > is its own value — e.g. page
 > `xx-cc-pdfbrain-streamtrainfit-applepay-googlepay-acquired-lc-download-gcomp-dyn` on template
 > `cc-dynamic-streamtrainfit-template-download-nid-gcomp`. Verified working; don't force them equal.
+> (That live name predates the `{bank}` token — read it as an illustration of the *page ≠ template*
+> point, not as a name to copy.)
 
 **Formula**
 
-`{country}-cc-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`
+`{country}-cc-{bank}-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`
 
 | Token | Meaning | Examples / notes |
 | --- | --- | --- |
 | country | Geo | `xx` = generic; `sa`, `th`, `kw` for a specific country. **Exactly one** token. |
 | cc | Vertical = credit card | fixed |
+| bank | **Acquiring bank**, short lowercase token | Comes from the ticket's Bank name field (`cc-lp-request` A5 / Block B), *not* from the numeric Bank ID — the ID only ever lands in `payments.*.bankId`. Required on every new page; see the note below. |
 | domain | Portfolio / MCC brand the page runs under | `pdfbrain`, `xracademy` |
 | product | The service being sold | `streamtrainfit`, `omnilearnhub`, `xrlab360`, `docpilotai` |
 | plan | Plan variant | `zerotrial` for the zero-trial page; **omit entirely** for the 0.01 page. **One-off (`plan.type: 'one-off'`) pages have no observed token yet** — no shipped page name in any harvested repo uses one. Don't invent a token (e.g. `oneoff`); ask the user for a sibling one-off page name, or flag it as an open question in the ticket-analysis report rather than guessing. |
@@ -118,6 +121,25 @@ name**, so getting it right matters for the build to attach.
 | creative | Creative type | `download` (or `video`) |
 | flag | Comp flag | `gcomp` |
 | dyn | Dynamic page | fixed suffix |
+
+**The `{bank}` token is new — existing live names mostly don't have it.** The slot immediately after
+`cc` has historically been filled ad-hoc: some shipped pages put a portfolio/vertical word there
+(`xx-cc-xr-vreducationlab-xracademy-…`, `xx-cc-stream-rewatchtvplus-…`,
+`xx-cc-fitness-econtent-xracademy-…`), and the most recent ones skip it entirely
+(`xx-cc-smartpdfdesk-resumetuneai-acipxp-download-gcomp-dyn`). From now on that slot is the **bank**.
+
+Consequences worth being deliberate about:
+
+- **Never rename a live page** to add the token. Page names are the `env.page` value baked into the
+  build and are what the panel lists; renaming buys nothing and risks breaking the attach. Old names
+  stay as they are.
+- **A sibling page is no longer a naming template.** Deriving a new name by copying a sibling and
+  swapping the product will drop the bank token or inherit a stale vertical word. Build the name from
+  the formula, then check uniqueness.
+- **A missing bank name is a blocker, not a guess.** Don't infer the bank from the gateway — they are
+  different things (gateway `aci-pxp`, `celeris`, `maxpay`, `acquired` is the PSP; the bank is the
+  acquirer behind it) and one gateway serves several banks. If the ticket carries only a numeric Bank
+  ID, ask for the name rather than inventing a token from the number.
 
 **Slug** — carries the acquirer + price and is where **bank + Mid derive from**:
 `cc_{acquirer}-{product}portal{price}_{code}-`, e.g. `cc_acquired-xrlab360portal5999_000-`.
@@ -138,7 +160,11 @@ existing page.
 When the conventional `{domain}` token collides, **substitute the product for the domain token**
 rather than mangling the rest: e.g. `xx-cc-pdfbrain-omnilearnhub-…-dyn` was already live, so the new
 page became `xx-cc-omnilearnhub-applepay-googlepay-acquired-lc-download-gcomp-dyn`. Verify the
-substitute is free across all three lists, then read it back to the user before creating.
+substitute is free across all three lists, then read it back to the user before creating. (Those two
+names are pre-`{bank}`; today the same collision would be resolved between
+`xx-cc-{bank}-pdfbrain-omnilearnhub-…` and `xx-cc-{bank}-omnilearnhub-…`. Note the bank token often
+makes the collision disappear on its own — check the full new name before reaching for the
+substitution.)
 
 (Watch for the inverse too: a *live* page may carry a defective name — `xcpj0` is
 `xx-xx-cc-pdfbrain-streamtrainfit-…` with a duplicated country token — which is precisely why the
@@ -147,13 +173,15 @@ correctly-formed name was still available. Don't "fix" an existing page's name; 
 **Validation rules**
 - Lowercase, hyphen-separated, ends in `-dyn`.
 - **Exactly one country token** — a duplicated `xx-xx-` is the most common defect; flag it.
+- **Bank token present, and it is a bank** — not the gateway repeated, not the numeric Bank ID. A new
+  name without it is incomplete; an *existing* name without it is legacy and left alone.
 - A product's two pages differ **only** by the `zerotrial` token.
 - Ticket tables often omit the leading country and the `-dyn` suffix; both are added at panel
   creation, so their absence in a ticket is expected, not an error.
 
-**Example — new product "quicknote" under pdfbrain**
-- zero-trial: `xx-cc-pdfbrain-quicknote-zerotrial-applepay-googlepay-acquired-lc-download-gcomp-dyn`
-- 0.01: `xx-cc-pdfbrain-quicknote-applepay-googlepay-acquired-lc-download-gcomp-dyn`
+**Example — new product "quicknote" under pdfbrain, bank `pxp`**
+- zero-trial: `xx-cc-pxp-pdfbrain-quicknote-zerotrial-applepay-googlepay-acquired-lc-download-gcomp-dyn`
+- 0.01: `xx-cc-pxp-pdfbrain-quicknote-applepay-googlepay-acquired-lc-download-gcomp-dyn`
 
 When creating pages from a ticket, generate the name from this formula, validate it against these
 rules, and read it back to the user before creating.

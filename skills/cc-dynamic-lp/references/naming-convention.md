@@ -53,6 +53,17 @@ Override inputs in `product.json`: `productName`, `creative` (`none|download|vid
 
 Because the remote repo name equals `<name>` equals `.env page`, the upload `pre:build` check passes.
 
+## This is the repo name, not the panel page name
+
+The two are different strings and only this one is constrained by `pre:build`. The **panel page
+name** follows a separate formula that starts with a country token and now carries an acquiring-bank
+token — `{country}-cc-{bank}-{domain}-{product}-…-dyn` — documented in `cc-ouisys-panel` SKILL.md
+§"Page naming convention (credit-card)".
+
+So: **the bank never appears in the repo/template name.** One repo serves every bank the product is
+sold through; putting a bank in the folder name would force a pointless fork. If a scaffolded project
+comes out named after a bank, that's a page name that leaked into the wrong field.
+
 ## Related conventions
 
 The generic strategies repos use a different, older pattern documented in each template README —

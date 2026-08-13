@@ -18,11 +18,12 @@ breaks without it.
 
 | # | Field | Example | Panel control | Config key |
 | --- | --- | --- | --- | --- |
+| A0 | Requester (+ filer, if different) | `Rangana` | — (ticket body / Notion person property) | — |
 | A1 | Product domain | `vreducationlab.com` | — (page serves at `/lp/<xcid>`) | — |
 | A2 | Target country | `DE` | Country (locked by template) | `env.country` |
 | A3 | `d_country` default | `de` | — (runtime URL param) | — |
 | A4 | Gateway | `celeris` | Gateway | `gateway` |
-| A5 | Bank name | — | — (token in the page name) | — |
+| A5 | Bank name | `pxp` | — (the `{bank}` token in the page name, right after `cc`) | — |
 | A6 | Bank ID | `173` | Bank ID | `payments.applePay.bankId` |
 | A7 | MCC / legal entity | `Prizeflix B.V.` | MCC combobox | `cardMccInformation` |
 | A8 | Service ID | `vreducationlab` | Service ID | `service.id` |
@@ -43,7 +44,7 @@ breaks without it.
 
 | Column | Example | Panel control | Config key |
 | --- | --- | --- | --- |
-| Page name | `xx-cc-<bank>-<domain>-<product>-applepay-<gateway>-download-oneoff-gcomp-dyn` | Page Name | `env.page` |
+| Page name | `xx-cc-<bank>-<domain>-<product>-applepay-<gateway>-download-oneoff-gcomp-dyn` — canonical token order lives in `cc-ouisys-panel` SKILL.md §"Page naming convention"; `<bank>` (A5) is required on new pages | Page Name | `env.page` |
 | Slug (no country) | `cc_celerispay-docxhelp2999_001-` | Slug | `slug` |
 | Plan type | `one-off` / `trial-then-subscription` / `subscription` | Plan Type | `plan.type` |
 | Price | `19.99` | Price / Full Price | `plan.fullPrice` |
@@ -94,8 +95,13 @@ config still contains a `payments.googlePay` block with placeholder values. Page
 "does the block exist" will render a Google Pay button anyway. An explicit "Google Pay: no" in the
 ticket makes the intent checkable.
 
-**Missing bank name.** The bank ID is a number in the config; the bank name is a token in the page
-name. A ticket with only the ID produces a page that has to be renamed after review.
+**Missing bank name.** The bank ID is a number in the config (`payments.*.bankId`); the bank *name*
+is the `{bank}` token in the page name, sitting right after `cc`. A ticket with only the ID produces
+a page that has to be renamed after review — and renaming a page that has already been created is
+something `cc-ouisys-panel` refuses to do, so in practice it means creating it twice.
+
+The name does not follow from the ID and does not follow from the gateway: `celeris`, `maxpay`,
+`acquired`, `aci-pxp` are PSPs, and one of them serves several acquiring banks. Ask for the word.
 
 **Forgotten existing page.** A product already had a page nobody mentioned. A second one was created
 alongside it, leaving a dormant page on an older template with a stale slug — harmless until someone

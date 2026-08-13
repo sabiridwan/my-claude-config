@@ -32,7 +32,7 @@ panel's Card Create wizard need.
 | `country` | Defaults to `xx` if genuinely generic — note the assumption, don't silently apply it |
 | `creative` | `none` / `download` / `video` |
 | `nid` | |
-| `Page Name` / `PageName` | **The Ouisys panel page name**, built from `cc-ouisys-panel` `SKILL.md` §"Page naming convention (credit-card)"'s formula (`{country}-cc-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`). It is NOT a marketing domain and NOT a route path — don't invent either. If the ticket table has this column empty, that is the gap to report; if it has a value, validate it against the formula rather than taking it as free text. |
+| `Page Name` / `PageName` | **The Ouisys panel page name**, built from `cc-ouisys-panel` `SKILL.md` §"Page naming convention (credit-card)"'s formula (`{country}-cc-{bank}-{domain}-{product}-{plan?}-{wallets}-{audience}-{currency}-{creative}-{flag}-dyn`). It is NOT a marketing domain and NOT a route path — don't invent either. If the ticket table has this column empty, that is the gap to report; if it has a value, validate it against the formula rather than taking it as free text. A name with no `{bank}` token is a gap when the page is new (report it, and report the missing bank *name* if only a Bank ID is given); it is not a defect on a page that already exists. |
 
 ### Checkout backend
 

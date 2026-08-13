@@ -27,10 +27,14 @@ Set only these. Everything else is system-managed or deliberately unused.
 | `Priority` | select | `Low` / `Medium` / `High` — only if the requester states urgency; otherwise leave empty rather than inventing one |
 | `Tags` | multi_select | Pick from the existing options only. Useful ones here: `Apple Pay`, `Acquired`, `Maxpay`, `Compliance`, `tech`. Never create new options |
 | `Assignee` | person | Leave empty unless the requester names someone — it needs a Notion user id, and guessing assigns work to the wrong person |
+| Requester | person / text, **if the board has such a property** | Set it to the requester from Block A. Read the board's live schema before filing rather than assuming the property exists or its type; if it's a `person` you need the Notion user id, and the same rule as `Assignee` applies — never guess one. If there is no such property, or you can't resolve the id, leave it and let the Block A row in the body carry it |
 | `Project` | relation | Only if the requester gives the project page; it points at a different data source |
 
 **Do not touch:** `ID` is an auto-increment (it becomes `CC-###` by itself), and `Created by`,
-`Created time`, `Last edited time`, `Delay` are system-managed. **Do not use
+`Created time`, `Last edited time`, `Delay` are system-managed. Note `Created by` records **whoever
+filed the ticket** — which is you, or the assistant's account, not necessarily the requester. It is
+not a substitute for the requester field; that's why the requester is written into Block A of the
+body regardless of what the board's properties support. **Do not use
 `Description (don't use)`** — the property name is the instruction. The ticket body goes in the page
 content.
 

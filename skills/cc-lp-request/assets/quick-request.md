@@ -12,6 +12,9 @@ blocker with an owner — nothing gets silently guessed.
 6. Anything different from the last page for this product?
 ```
 
+You get recorded as the requester — the person the ticket goes back to when something is blocking.
+If you're sending this on someone else's behalf, say whose request it is.
+
 **If the request covers several MIDs, that's several pages** — one per MID. Link the MID pages if
 they exist and lines 3 and 4 mostly fill themselves; each MID page carries its descriptor domain,
 bank, gateway, entity and MCC. The two things no lookup can supply are the **slug and the price
