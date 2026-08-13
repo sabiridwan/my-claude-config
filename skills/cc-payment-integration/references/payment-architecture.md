@@ -166,6 +166,24 @@ Push product events keyed by `rockmanId` (→ Tau). Generated `tracker.ts` expos
 `customEvent(category, action, label, meta)` and posts to the same analytics endpoint. Safe no-op if
 `rockmanId` is absent.
 
+**Instrument WHICH comp/non-comp branch was served, and WHY — not just a bare split.** Two
+independent products added this the same week after finding an aggregate comp/non-comp count alone
+can't distinguish a misconfigured page from a correctly-cloaked one
+(`cc-dynamic-smartpdfdesk-template-download-gcomp` commits `7abfe21`/`6ac05fa`;
+`cc-dynamic-pdfbrain-template-nid-gcomp` commit `18ccc61`). Fire one event per pageview naming the
+settled branch (`comp` / `non-comp`) and the specific rule that decided it — `force-comp-flag` |
+`qa-override` | `no-wallet-enabled` | `device-not-eligible` | `non-comp-served` — alongside gateway /
+service / methods context. `decideComp()` in `resolveMode.ts` only returns a boolean today; a real
+integration needs the reason too, not just the outcome.
+
+**Fire it from wherever the decision is finalized, never from a component that is itself gated on
+the result.** Both repos independently lost data the same way: one repo's event lived in the
+component that only renders when the wallet check passes, so it structurally could never fire for
+part of the population it was meant to be counting; the other's `showComp` flips via an effect in
+the *parent* provider, and because passive effects run children-first, a same-tick (or even
+`setTimeout(0)`) send in a child still read the pre-flip value. Debounce the send on the settled
+variant itself (e.g. ~400ms) rather than firing on mount.
+
 ## 9. Redirect + domain preservation
 
 All asset + API URLs are **relative** (same origin) so the page never leaves the product domain
