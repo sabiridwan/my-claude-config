@@ -62,9 +62,14 @@ Each of these comes from a page that shipped wrong. Useful when a requester asks
 pedantic about a field they consider obvious.
 
 **Slug with a country suffix.** A request listed slugs as `cc_celerispay-cvassistant1999-de`. Those
-saved verbatim, and the country is appended again at runtime from `d_country` — four pages went live
-with a doubled country before anyone noticed. Billing systems display the country as part of the
-reference, which is why requesters copy it in good faith. The slug ends at the hyphen.
+save verbatim, and `src/providers/RootContext.tsx` then does
+`slug = ${slug}${country.toLowerCase()}` with the country from `d_country` — so the page bills
+against `cc_celerispay-cvassistant1999-dede`. Four pages went live that way before anyone noticed.
+
+The trailing hyphen is structural. One line earlier the local-currency branch builds
+`${slug.slice(0, -1)}:${currency}-${country}`, which assumes a character it can safely drop; a slug
+ending in `e` loses the `e` instead. Billing systems display the country as part of the reference,
+which is why requesters copy it in good faith.
 
 **Ambiguous gateway.** A ticket titled "Ecommpay — Create Landing Page" carried five slugs all
 prefixed `cc_celerispay`. The builder could not tell whether the title or the slugs were

@@ -44,11 +44,15 @@ These are the fields that have actually shipped wrong. Ask about them directly e
 requester seems confident.
 
 **Slug — must not end with a country code.** The slug ends at the trailing hyphen:
-`cc_celerispay-docxhelp2999_001-`. The country is appended at runtime from the `d_country` URL
-parameter. A slug written `cc_celerispay-docxhelp2999_001-de` produces a doubled country and a
-broken billing reference. Requesters copy slugs out of billing systems where the country *is*
-included, so this is the single most common defect — check it every time and confirm what
-`d_country` should default to.
+`cc_celerispay-docxhelp2999_001-`. The page appends the country itself at runtime — the template
+does `slug = ${slug}${country.toLowerCase()}` with the country read from the `d_country` URL
+parameter — so a slug supplied as `…_001-de` bills against `…_001-dede`. The trailing hyphen is
+structural, not decoration: the local-currency branch one line above builds
+`${slug.slice(0, -1)}:${currency}-${country}` and relies on it being there to slice off.
+
+Requesters copy slugs out of billing systems where the country *is* part of the displayed
+reference, so this is the single most common defect in a request. Check it every time, and confirm
+what `d_country` should default to while you're there.
 
 **Gateway — name it, don't imply it.** A ticket titled after one gateway while every slug names
 another is ambiguous and the builder cannot resolve it. Get the gateway as an explicit value
