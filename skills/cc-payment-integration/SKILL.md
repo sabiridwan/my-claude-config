@@ -259,7 +259,7 @@ registered.
   `companyAddress`, `companyRegNo`, `supportPhone`, `supportEmail`, `copyright`, `siteLabel` and
   `legalLinks` from the **live product footer** and pass them in `copy.*`.
   Do **not** lift the reference `/xhosp` page's block: it names `Sam Media B.V.` (Amsterdam,
-  `www.sam-media.com`, a `+31` number), which `cc-tester` check 6 treats as a hard FAIL *and* is the
+  `www.sam-media.com`, a `+31` number), which `cc-qa` check 6 treats as a hard FAIL *and* is the
   wrong merchant of record — the products all name **Pepperose LTD**, matching the panel MCC.
   `scaffold.mjs` therefore defaults these to **empty strings** rather than a plausible-looking
   placeholder, and `cc-dynamic-lp`'s `verify.mjs` fails a build that leaves them blank. An empty

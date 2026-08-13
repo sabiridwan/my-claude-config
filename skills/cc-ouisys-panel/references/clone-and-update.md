@@ -32,7 +32,7 @@ Works for Unpublished pages too, which is what makes pre-publish QA possible. Re
 Use it to:
 - snapshot the live config (`window.configJson.pageConfigs`),
 - confirm which payment tabs render (this is decided in code, not config),
-- run `cc-tester` before publishing.
+- run `cc-qa` before publishing.
 
 ## Publish
 

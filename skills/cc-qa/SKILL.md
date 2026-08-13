@@ -1,9 +1,9 @@
 ---
-name: "cc-tester"
-description: "QA a Sam Media / Ouisys cc-dynamic credit-card landing page end to end: dry-run card, Apple Pay and Google Pay checkout in the browser up to API submission (no real charge), exercise BOTH the comp checkout and the non-comp creative (?non-comp=true), verify page content and pricing against the pageConfigs data, cross-check the LP against the PRODUCT site for design/font/theme/content parity, scan for leaked company/internal details, walk the linked Notion ticket and post the pass/fail report back to it. Use for \"test this LP\", \"cc tester\", \"QA the checkout\", \"check card/apple pay/google pay\", \"test non-comp\", \"verify pricing matches config\", \"check for company/brand leakage\", \"does the LP match the product site\", or when a Notion ticket asks to test a credit-card page. Accepts a PRODUCT url (e.g. streamtrainfit.com) as the target, not just an Ouisys/staging url."
+name: "cc-qa"
+description: "QA a Sam Media / Ouisys cc-dynamic credit-card landing page end to end: dry-run card, Apple Pay and Google Pay checkout in the browser up to API submission (no real charge), exercise BOTH the comp checkout and the non-comp creative (?non-comp=true), verify page content and pricing against the pageConfigs data, cross-check the LP against the PRODUCT site for design/font/theme/content parity, scan for leaked company/internal details, walk the linked Notion ticket and post the pass/fail report back to it. Use for \"test this LP\", \"cc qa\", \"QA the checkout\", \"check card/apple pay/google pay\", \"test non-comp\", \"verify pricing matches config\", \"check for company/brand leakage\", \"does the LP match the product site\", or when a Notion ticket asks to test a credit-card page. Accepts a PRODUCT url (e.g. streamtrainfit.com) as the target, not just an Ouisys/staging url."
 ---
 
-# cc-tester — QA a cc-dynamic credit-card landing page
+# cc-qa — QA a cc-dynamic credit-card landing page
 
 Run the full QA checklist on a Sam Media / Ouisys cc-dynamic credit-card landing page and
 produce a **pass/fail report**. Each payment method is exercised in a real browser **as a
@@ -323,7 +323,7 @@ any requirement left unverified as an open item.
 ## Output — pass/fail report
 
 Write a Markdown report to the workspace folder named
-`cc-tester-report-<page>-<YYYY-MM-DD>.md` and present it. Structure:
+`cc-qa-report-<page>-<YYYY-MM-DD>.md` and present it. Structure:
 
 - **Header:** page/slug, **LP URL and product URL** (say which host each check ran against),
   gateway, environment (staging vs proxied-on-product-domain), payment methods present,

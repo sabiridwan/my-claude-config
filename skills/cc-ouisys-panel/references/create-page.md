@@ -193,7 +193,7 @@ credit-card pages. That is a list-rendering quirk (those columns are DCB scenari
 
 `Actions → Preview` opens **`https://staging.mouisys.com/<xcid>`** in a new tab. This serves the real
 build with the real panel config while the page is still Unpublished — so **QA here first** (run
-`cc-tester` against it) and publish only once it is clean. On that page,
+`cc-qa` against it) and publish only once it is clean. On that page,
 `window.configJson.pageConfigs` is the live config; snapshot it and compare to what you saved.
 
 ### Publishing

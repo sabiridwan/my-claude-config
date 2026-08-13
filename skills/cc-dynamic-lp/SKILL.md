@@ -112,7 +112,7 @@ checkout furniture — it must carry the product's own identity:
 | `legalLinks[]` | the product's real policy pages |
 
 **Do not copy the reference `/xhosp` page's footer.** It shows the *parent company* (`Sam Media B.V.`,
-Amsterdam, `www.sam-media.com`, a `+31` number) — which `cc-tester` check 6 treats as a hard FAIL and
+Amsterdam, `www.sam-media.com`, a `+31` number) — which `cc-qa` check 6 treats as a hard FAIL and
 which is, for these pages, simply the wrong legal entity: every product site names **Pepperose LTD**,
 matching the MCC on the panel config. Shipping the reference's block states the wrong merchant.
 
@@ -207,7 +207,7 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
    template + the new version. (`yarn pull:config id=<id>` can later sync `config.json` + `.env` back
    from a saved page config.)
 6. **QA on staging** — the new page serves at `https://staging.mouisys.com/<xcid>` while still
-   Unpublished. Run `cc-tester` there **before** publishing.
+   Unpublished. Run `cc-qa` there **before** publishing.
 7. **Publish** — panel row `Actions` → `Publish`.
 
 > **`yarn publish:page` does NOT work for a cc-dynamic page — do not run it as step 7.**

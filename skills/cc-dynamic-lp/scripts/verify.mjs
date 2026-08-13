@@ -104,7 +104,7 @@ if (exists('src/CheckoutSection.tsx')) {
 }
 
 // 6a3. White-label integrity + footer completeness. The generated checkout must not carry a
-// parent-company name, an internal host, or an absolute off-domain URL — cc-tester check 6 treats
+// parent-company name, an internal host, or an absolute off-domain URL — cc-qa check 6 treats
 // each as a hard FAIL, and THIS is the verify an embed project actually runs before shipping
 // (cc-payment-integration's own verify has a URL check but is not the documented gate here).
 // It also catches the opposite failure: a footer whose company/legal fields were left blank, which

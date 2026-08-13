@@ -196,7 +196,7 @@ write(`${PREFIX}/PaymentPage.tsx`, subst(page));
     // site. Support/company/legal details are the PRODUCT's real ones — harvest them from the live
     // product footer, never copy the reference page's. Defaults below are deliberately empty rather
     // than a plausible-looking placeholder: shipping the wrong merchant of record or an unrelated
-    // support number is a compliance problem, and `cc-tester` treats a parent-company name in the
+    // support number is a compliance problem, and `cc-qa` treats a parent-company name in the
     // footer as a hard FAIL.
     supportPhone: copy.supportPhone || '',
     supportEmail: copy.supportEmail || `help@${domain}`,

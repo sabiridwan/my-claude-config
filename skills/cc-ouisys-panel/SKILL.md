@@ -177,7 +177,7 @@ rules, and read it back to the user before creating.
   Version` is required and lists only what's been uploaded. So the real order is: create Template →
   scaffold → build+upload (`v1`) → *then* create the page. Don't start the wizard before that.
 - **QA on staging before publishing.** A newly created page serves at
-  `https://staging.mouisys.com/<xcid>` while still Unpublished. Run `cc-tester` there first; `Publish`
+  `https://staging.mouisys.com/<xcid>` while still Unpublished. Run `cc-qa` there first; `Publish`
   is the step that exposes it to real traffic.
 - **Publish via the panel** (`Actions` → `Publish`), never `yarn publish:page` — that script is DCB
   boilerplate whose S3 filenames don't match a cc-dynamic build, so it 404s instead of publishing.

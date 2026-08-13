@@ -19,7 +19,7 @@ their work.
 4. Wire checkout + verify       -> cc-dynamic-lp verify
 5. Commit -> build -> upload     -> produces template v1 + attaches it
 6. Panel: create the PAGE       -> cc-ouisys-panel   (needs v1 to exist; yields the xcid)
-7. QA on STAGING (pre-publish)  -> cc-tester          against staging.mouisys.com/<xcid>
+7. QA on STAGING (pre-publish)  -> cc-qa          against staging.mouisys.com/<xcid>
 8. Publish                      -> panel Actions -> Publish (traffic-exposing; confirm first)
 ```
 
@@ -47,7 +47,7 @@ Collect the union of what the downstream skills need, so the user answers once:
 - Checkout backend keys: `slug`, `gateway` (`celeris|maxpay|ecardon|acquired`), `bankId`
   (card/applePay/googlePay), Apple `merchantIdentifier`, Google `gatewayMerchantId`.
 - Payment methods + order; consent flags; branding (colors, font, logo).
-- Ticket: the Notion ticket URL/id for this page (so cc-tester can post the QA report there).
+- Ticket: the Notion ticket URL/id for this page (so cc-qa can post the QA report there).
 - Prices come from the panel config at runtime — never hardcode; `devFallbackPlan` is dev-only.
 - **Plan type per page**: `subscription` | `trial-then-subscription` | `one-off`. A ticket table with
   a `One Off` column is stating this per slug (`Yes` → `one-off`). It is a panel field *and* a page-code
@@ -120,7 +120,7 @@ render is decided in the page code, so don't stall asking whether to "enable car
 ## 7. QA on staging — before publishing
 
 The new page already serves at **`https://staging.mouisys.com/<xcid>`** with the real build and real
-config while still Unpublished. Invoke **cc-tester** against *that* URL with the Notion ticket. It
+config while still Unpublished. Invoke **cc-qa** against *that* URL with the Notion ticket. It
 dry-runs card / Apple Pay / Google Pay to API submission, exercises **both the comp checkout and the
 non-comp creative** (`?non-comp=true`), checks content + pricing (incl. per-country wallet amounts) vs
 config, scans for company leakage, walks the ticket, and posts the pass/fail report back. Relay the
@@ -142,7 +142,7 @@ so it 404s instead of publishing.
   posting to a ticket are actions the user should green-light.
 - **Never ask for or echo credentials.** Source the user's shell profile (`source ~/.zshrc`) rather
   than requesting keys; never print them.
-- **Stop on failure.** A red verify (step 4) or a FAIL in cc-tester (step 7) pauses the pipeline;
+- **Stop on failure.** A red verify (step 4) or a FAIL in cc-qa (step 7) pauses the pipeline;
   surface it, fix and re-upload, then resume — never publish over a FAIL.
 - **Ask, don't invent, for panel required fields.** Especially gateway keys, bank/merchant IDs, MCC,
   and the Google Pay `Merchant Name` (user-visible). The wizard's grey placeholders can belong to a

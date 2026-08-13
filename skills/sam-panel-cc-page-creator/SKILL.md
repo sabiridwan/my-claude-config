@@ -318,7 +318,7 @@ for credit-card pages. That's a list-rendering quirk, **not** an empty config.
 **The page is testable before it is public.** `Actions → Preview` opens
 **`https://staging.mouisys.com/<xcid>`**, serving the real build with the real panel config while the
 page is still Unpublished. Confirm `window.configJson.pageConfigs` matches what you saved, and run the
-`cc-tester` skill against that URL — **before** publishing.
+`cc-qa` skill against that URL — **before** publishing.
 
 Then publish: row `Actions` → **`Publish`**. This exposes the page to real traffic, so confirm with the
 user explicitly first, and verify it moved to the Published list afterwards.
