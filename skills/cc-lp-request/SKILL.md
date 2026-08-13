@@ -103,6 +103,21 @@ Blocking:
 - Bank name for bank ID 173 — billing team
 ```
 
+## Filing it into Notion
+
+The ticket's home is the **CC Tasks** board. If a Notion MCP server is connected, offer to file it
+directly rather than making the requester paste it — read `references/notion-filing.md` for the data
+source id, the exact properties to set, and the ones that are system-managed or booby-trapped
+(there is a `Description (don't use)` property that means what it says).
+
+One rule that matters more than the mechanics: **draft the ticket in the conversation, show it, and
+only create the page once the requester has said yes.** Filing is visible to the whole team and
+notifies watchers, and a half-complete ticket under a real CC number reads to a builder as though
+the gaps were considered and deliberately left — which is exactly the failure this skill exists to
+prevent. Hold it until they have seen the blockers list.
+
+If no Notion MCP is connected, hand back the markdown and say plainly that it wasn't filed.
+
 ## What this skill does not do
 
 It doesn't create the page, touch panel.ouisys.com, or scaffold a repo. If the person you're helping
