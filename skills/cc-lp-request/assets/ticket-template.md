@@ -1,46 +1,63 @@
-# <Product> — Create Landing Page
+# <Product / Bank> — Create Landing Page
 
 Paste into the CC Tasks ticket. Mark anything unknown `TBC — <owner>` rather than leaving it blank,
 so the gap and its owner are both visible.
 
-## Block A — applies to every slug in this request
+**One MID = one page.** If the request covers several MIDs, repeat Block B and Block C per MID —
+merchant identity is not shared between them.
+
+## Block A — the whole request
+
+Values that are genuinely true for every page in this request.
 
 | Field | Value |
 | --- | --- |
-| Product domain | |
-| Target country | |
-| `d_country` default | |
-| Gateway | |
-| Bank name | |
-| Bank ID | |
-| MCC / legal entity | |
-| Service ID | |
-| Service display name | |
-| Page title | |
-| Apple Pay merchant identifier | |
-| Apple Pay label | |
-| Supported card networks | |
-| Google Pay enabled? | |
-| Card Submit enabled? | |
+| Request covers (how many MIDs / pages) | |
 | Template / git repo | |
 | New build expected? | |
 | Creative | |
+| Target country | |
+| `d_country` default | |
 | Publish after creating? | |
 | Existing pages to reuse or retire | |
 
-## Block B — one row per billing slug
+## Block B — per MID
 
-| Page name | Slug (no country) | Plan type | Price | Trial price | Trial days | Billing cycle | Currency | Local currency? | Force comp |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| | | | | | | | | | |
-| | | | | | | | | | |
+Repeat this block for each MID. The MID's own page in the MIDs database carries most of it —
+`Descriptor`, `Bank`, `Gateway`, `Entity`, `MCC Code` — so link the MID page and fill from it.
+
+| Field | MID 1 | MID 2 |
+| --- | --- | --- |
+| MID name (link the MID page) | | |
+| Descriptor / domain | | |
+| Gateway | | |
+| Bank name | | |
+| Bank ID | | |
+| MCC / legal entity | | |
+| Service ID | | |
+| Service display name | | |
+| Page title | | |
+| Apple Pay merchant identifier | | |
+| Apple Pay label | | |
+| Supported card networks | | |
+| Google Pay enabled? | | |
+| Card Submit enabled? | | |
+
+## Block C — per page (one row per billing slug, grouped under its MID)
+
+| MID | Page name | Slug (no country) | Plan type | Price | Trial price | Trial days | Billing cycle | Currency | Local currency? | Force comp |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| | | | | | | | | | | |
+| | | | | | | | | | | |
 
 ## Blocking
 
 - <field> — <who owns it>
 
-## Filled in by the builder
+## Results
 
-| Slug | Live page | Panel edit link |
-| --- | --- | --- |
-| | | |
+Filled by the builder, one row per page.
+
+| MID | Slug | Live page | Panel edit link |
+| --- | --- | --- | --- |
+| | | | |

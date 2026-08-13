@@ -112,12 +112,37 @@ in the page name. A ticket carrying only `173` cannot produce a correctly-named 
 reused, replaced, or retired. Page names are globally unique, and a forgotten older page tends to
 linger with stale config, ready to confuse whoever finds it next.
 
+## One MID = one page
+
+A request that names several MIDs is several pages, not one page with several prices. This is the
+structural thing people get wrong, in both directions: a five-MID request written as one ticket row,
+or five near-identical tickets that hide what they share.
+
+It matters because **merchant identity does not travel between MIDs**. Each MID carries its own
+descriptor domain, bank, gateway, legal entity and MCC — so the Apple Pay identifier, the MCC and
+often the bank ID all differ page to page. Treating them as shared is precisely how one product's
+merchant identifier ends up serving another's domain.
+
+MIDs live in their own Notion database, and each MID page carries `Descriptor` (the domain), `Bank`,
+`Gateway`, `Entity`, `MCC Code`, `Pricing` and `Status`. When a ticket links MID pages, read them —
+most of the per-MID block fills itself from there, and a linked MID is far better evidence than a
+value retyped into a ticket table.
+
+What a multi-MID request still needs from the requester, per MID: **the slug and the price point**.
+Those are the two things no lookup can supply, and they are the two most commonly missing — a MID
+table listing payment model and price with no slugs is not yet buildable.
+
 ## Producing the ticket
 
-Use `assets/ticket-template.md`. It has two parts, and the split matters: **Block A** is the values
-shared by everything in the request, **Block B** is one row per billing slug. Most requests carry
-several slugs for one product — same domain, same merchant identity, different prices — so repeating
-Block A per slug creates noise and invites inconsistency.
+Use `assets/ticket-template.md`. It has three levels, and the split matters:
+
+- **Block A** — the whole request: template, creative, country, publish policy. Genuinely shared.
+- **Block B** — per MID: domain, gateway, bank, MCC, wallet identity. Repeated per MID.
+- **Block C** — per page: one row per billing slug, grouped under its MID.
+
+For a single-MID request Block B is one column and the thing reads like a simple two-part ticket.
+For a five-MID request the repetition is the point — it makes "these five pages have five different
+merchant identities" impossible to miss.
 
 Fill it out, then read it back as if you were the builder. Any cell you'd have to ask about is a
 cell that isn't finished.

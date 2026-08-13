@@ -4,13 +4,18 @@ Paste this, fill what you know, send it. Anything you leave blank gets looked up
 blocker with an owner — nothing gets silently guessed.
 
 ```
-1. Product + domain:
-2. Slugs, one per line, with price and one-off / trial:
-3. Gateway + bank (name and ID):
-4. Apple Pay merchant identifier + label:
+1. Product / bank, and how many MIDs:
+2. Per MID — name or link, descriptor domain, slug, price, one-off / trial:
+3. Gateway + bank (name and ID), per MID if they differ:
+4. Apple Pay merchant identifier + label, per MID:
 5. Google Pay on? Card form on?
 6. Anything different from the last page for this product?
 ```
+
+**If the request covers several MIDs, that's several pages** — one per MID. Link the MID pages if
+they exist and lines 3 and 4 mostly fill themselves; each MID page carries its descriptor domain,
+bank, gateway, entity and MCC. The two things no lookup can supply are the **slug and the price
+point per MID**, which is why line 2 asks for them together.
 
 ## What each line is for
 
