@@ -1,0 +1,13 @@
+{
+  "eval_id": 0,
+  "eval_name": "vague-minimal-request",
+  "prompt": "hey i need a landing page for docpilotai \u2014 it's 29.99 a month, apple pay only. domain is docpilotai.com. can you put together the ticket for the cc team?",
+  "assertions": [
+    "Output is structured as a ticket with a shared Block A section and a per-slug Block B section",
+    "Unknown fields are explicitly marked TBC rather than left blank or silently invented",
+    "The Apple Pay merchant identifier is flagged as a blocker and is NOT copied from another product's page",
+    "Google Pay is explicitly recorded as disabled rather than simply omitted",
+    "A blockers list names who owns each missing item",
+    "The response does not attempt to create the page or operate panel.ouisys.com"
+  ]
+}

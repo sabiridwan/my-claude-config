@@ -1,0 +1,10 @@
+{
+  "eval_id": 2,
+  "eval_name": "finished-ticket-wants-build",
+  "prompt": "the ticket for xrlab360 is signed off \u2014 slug cc_acquired-xrlab360portal5999_000-, gateway celeris, bank id 42, one-off 59.99 EUR, template cc-dynamic-xrlab360-template-gcomp v3, apple pay only. can you create the page in the panel now?",
+  "assertions": [
+    "Does not emit a blank request ticket as the primary deliverable",
+    "Explicitly points at the panel/build skills as the right path for this task",
+    "Does not claim to have created a page or invent a page id or xcid"
+  ]
+}

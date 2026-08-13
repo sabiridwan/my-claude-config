@@ -1,0 +1,45 @@
+{
+  "skill_name": "cc-lp-request",
+  "evals": [
+    {
+      "id": 0,
+      "eval_name": "vague-minimal-request",
+      "prompt": "hey i need a landing page for docpilotai \u2014 it's 29.99 a month, apple pay only. domain is docpilotai.com. can you put together the ticket for the cc team?",
+      "expected_output": "A ticket in Block A / Block B form with the four given values filled, everything else marked TBC with an owner, and a blockers list. No page built.",
+      "assertions": [
+        "Output is structured as a ticket with a shared Block A section and a per-slug Block B section",
+        "Unknown fields are explicitly marked TBC rather than left blank or silently invented",
+        "The Apple Pay merchant identifier is flagged as a blocker and is NOT copied from another product's page",
+        "Google Pay is explicitly recorded as disabled rather than simply omitted",
+        "A blockers list names who owns each missing item",
+        "The response does not attempt to create the page or operate panel.ouisys.com"
+      ]
+    },
+    {
+      "id": 1,
+      "eval_name": "multislug-oneoff-country-suffix",
+      "prompt": "adding 3 new slugs to smartpdfdesk. cc_acquired-smartpdfdesk2999_001-de (one off 29.99), cc_acquired-smartpdfdesk1999_002-de (one off 19.99), cc_acquired-smartpdfdesk999_003-de (one off 9.99). all on smartpdfdesk.com, bank id 88, apple pay and google pay both on. need the ticket for these please",
+      "expected_output": "Ticket with one Block A and three Block B rows; the -de suffix caught and corrected; one-off trial price set equal to the price on every row.",
+      "assertions": [
+        "The trailing -de country suffix is identified as wrong on all three slugs",
+        "Corrected slugs are shown ending at the hyphen with no country code",
+        "Plan type is recorded as one-off for all three rows",
+        "Trial price equals the full price on every one-off row (guarding the 0.01 default)",
+        "Billing cycle and trial days are zero for the one-off rows",
+        "Block A appears once and is not duplicated per slug",
+        "Google Pay is recorded as enabled, matching what the requester asked for"
+      ]
+    },
+    {
+      "id": 2,
+      "eval_name": "finished-ticket-wants-build",
+      "prompt": "the ticket for xrlab360 is signed off \u2014 slug cc_acquired-xrlab360portal5999_000-, gateway celeris, bank id 42, one-off 59.99 EUR, template cc-dynamic-xrlab360-template-gcomp v3, apple pay only. can you create the page in the panel now?",
+      "expected_output": "Recognises this is the builder side, not a request. Hands off to cc-ouisys-panel / cc-dynamic-lp rather than emitting a request ticket.",
+      "assertions": [
+        "Does not emit a blank request ticket as the primary deliverable",
+        "Explicitly points at the panel/build skills as the right path for this task",
+        "Does not claim to have created a page or invent a page id or xcid"
+      ]
+    }
+  ]
+}
