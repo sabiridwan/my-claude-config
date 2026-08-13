@@ -18,12 +18,39 @@ So the value you add is **completeness and precision**, not speed. A request tha
 omits the Apple Pay merchant identifier is worse than one that openly marks it as TBC, because the
 first one gets silently filled in from another product's page.
 
+## Ask for six things, derive the rest
+
+The ticket has about thirty fields, but a requester should never be asked thirty questions. Most
+values are constant per product or already sitting in the panel — asking for them is busywork that
+makes people avoid filing properly. Only six things are genuinely unknowable from outside the
+requester's head:
+
+1. Product + domain
+2. Slugs, one per line, with price and one-off / trial
+3. Gateway + bank (name and ID)
+4. Apple Pay merchant identifier + label
+5. Google Pay on? Card form on?
+6. Anything different from the last page for this product?
+
+`assets/quick-request.md` is this list as a paste-able form, with a worked example — hand it to
+anyone who asks what you need.
+
+Everything else you find yourself: existing pages for the product, MCC, template and its versions,
+service id and display name, and what sibling pages use for networks and bank ID all come from the
+panel and the repos. Do that lookup *before* asking anything, so your questions are only about the
+genuine gaps.
+
+When you fill a field yourself, say where it came from ("MCC Prizeflix B.V. — matches the other
+pages on this domain"). A derived value the requester can correct in one glance is useful; a derived
+value presented as fact is how another product's merchant identifier ends up in production.
+
 ## How to run this
 
 1. **Collect what they already have.** They usually arrive with a product name, some prices, and a
    domain. Take it all, then work out what's missing rather than making them recite fields they've
    already given you.
-2. **Interview for the gaps**, using `references/field-reference.md` as the checklist. Ask in
+2. **Look it up before asking.** Pull the product's existing pages and template from the panel, then
+   interview only for what's left, using `references/field-reference.md` as the checklist. Ask in
    batches grouped by theme, not one question at a time — people answer "what's the gateway, bank
    name and bank ID?" in one go.
 3. **Challenge the values that are usually wrong.** See "Values to interrogate" below. This is where
