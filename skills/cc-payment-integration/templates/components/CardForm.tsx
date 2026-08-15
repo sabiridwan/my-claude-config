@@ -71,7 +71,7 @@ export default function CardForm({ onSuccess, onError }: Props) {
       </div>
       <div className="cc-two">
         <div className="cc-field"><label><FormattedMessage id="expDate" defaultMessage="Expiry Date" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
-        <div className="cc-field"><label><FormattedMessage id="cvvLabel" defaultMessage="Cvv Code" /></label><input name="cvc" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="cvvLabel" defaultMessage="Cvv Code" /></label><input name="cvc" type="password" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
       </div>
       <div className="cc-field"><label><FormattedMessage id="checkout.emailLabel" defaultMessage="Email address" /></label><input name="email" type="email" placeholder={t('checkout.emailPlaceholder')} autoComplete="email" required /></div>
       {REQUIRE_CONSENT && (
