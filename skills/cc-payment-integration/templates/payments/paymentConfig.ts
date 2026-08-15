@@ -2,7 +2,13 @@
 // Every price/plan/service read goes through this snapshot — never hardcode prices.
 import type { PageConfigs } from './types';
 
-const snapshot: PageConfigs = (typeof window !== 'undefined' && window.configJson?.pageConfigs) || {};
+// Deep-clone, not a live reference or a shallow spread — a later IN-PLACE mutation of a nested
+// object (e.g. window.configJson.pageConfigs.payments.card.bankId = ...) must not change what this
+// module already read. Verified: a shallow `{ ...pageConfigs }` still leaks nested mutations
+// (cc-dynamic-xracademy-ccsubmit-template-noncomp commit ccb1aec).
+const snapshot: PageConfigs = JSON.parse(
+  JSON.stringify((typeof window !== 'undefined' && window.configJson?.pageConfigs) || {})
+);
 
 export function getPageConfigs(): PageConfigs {
   return snapshot;
