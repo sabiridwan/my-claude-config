@@ -47,6 +47,8 @@ export async function processGooglePayment(paymentData: any, locale = 'en'): Pro
       ...(sessionId ? { antifraud_session_id: sessionId } : {})
     })
   });
+  // fetch resolves on 4xx/5xx — without this, a failed payment is parsed as a success payload.
+  if (!res.ok) return { success: false, message: 'http-error' } as PaymentResult;
   const result = (await res.json()) as PaymentResult;
   redirectFromWallet(result);
   return result;

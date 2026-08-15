@@ -65,6 +65,10 @@ export async function submitCard(
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body)
   });
+  // fetch RESOLVES on 4xx/5xx (unlike axios, which rejects) — an unchecked response can be parsed
+  // as a success payload, or .json() can throw on a non-JSON error body. Verified against a real
+  // incident: cc-dynamic-xracademy-ccsubmit-template-noncomp commit 619b519.
+  if (!res.ok) return { success: false, message: 'http-error' } as PaymentResult;
   return (await res.json()) as PaymentResult;
 }
 

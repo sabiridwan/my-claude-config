@@ -17,6 +17,11 @@ export async function validateMerchant(validationURL: string, locale = 'en'): Pr
       ...(sessionId ? { antifraud_session_id: sessionId } : {})
     })
   });
+  // Same non-2xx trap as the payment calls below. This one THROWS rather than returning an error
+  // object: the caller hands the result straight to Apple's completeMerchantValidation(), which
+  // rejects an error payload in a way the session cannot recover from — the caller's catch needs to
+  // run instead.
+  if (!res.ok) throw new Error(`ap-validate failed: ${res.status}`);
   return res.json();
 }
 
@@ -39,6 +44,8 @@ export async function processApplePayment(payment: any, locale = 'en'): Promise<
       ...(sessionId ? { antifraud_session_id: sessionId } : {})
     })
   });
+  // fetch resolves on 4xx/5xx — without this, a failed payment is parsed as a success payload.
+  if (!res.ok) return { success: false, message: 'http-error' } as PaymentResult;
   const result = (await res.json()) as PaymentResult;
   redirectFromWallet(result);
   return result;
