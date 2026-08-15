@@ -123,12 +123,41 @@ every one to a result in check 7 and post back in the report.
    `slug`, `browserFingerprint`, and card `userDetails` + `bankId`. Verify:
    - `slug` matches the config slug + country/currency rule (local-currency slugs become
      `...:<currency>-<country>`; otherwise `<slug><country>`).
-   - Gateway shape: Maxpay uses `cc_number` and includes `service_id`, omits `user_agent`/`ip`;
+   - Gateway shape: Maxpay uses `cc_number` and **omits `service_id` entirely** (not a value — the
+     key itself should be absent from the request body), and omits `user_agent`/`ip`;
      others send `service_id: '2'` with `user_agent` + `ip`. `bankId` falls back
      `card ?? applePay ?? googlePay`.
 5. Read the response `{ success, message, method, gateway_url?, html? }`. Record it and
    **STOP** — do not follow `gateway_url`; do not submit the 3-DS `html`. `success:false` with a
    surfaced `message` (e.g. `ALREADY SUBSCRIBED`) still counts as a reached-API PASS.
+
+### 1b. Post-gateway return trip (`payment-status`)
+
+The gateway returns the visitor with `?payment-status=…&user-status=…`. The result screen is often
+present in `src/components/` but never imported by `Root.tsx`, in which case EVERY returning
+visitor — paid and declined alike — silently lands back on the funnel. These four loads catch that.
+
+`user-status` is matched as an exact string, so it must be `paymentSuccess` / `alreadySubscribed`,
+**not** `true`. And `payment-status` must be present on every status load — it is the gate; without
+it the page renders the funnel no matter what `user-status` says.
+
+1. `?payment-status=true&user-status=paymentSuccess&no-redirect=true` — **PASS** if a success
+   screen renders (not the funnel/creative).
+2. `?payment-status=false` — **PASS** if a decline/failure screen renders, not the funnel. A decline
+   silently falling through to the funnel is a **FAIL**: the result-screen component exists but was
+   never wired into the entry component, or the gate wrongly tests `payment-status === 'true'`.
+3. `?payment-status=true&user-status=alreadySubscribed&product-url=<host>&no-redirect=true` —
+   **PASS** if the already-subscribed screen renders with a portal link pointing at `<host>`. A link
+   reading `https://null` is a **FAIL** (missing `product-url` guard). Pass a real `product-url`
+   here — omit it and the CTA is correctly hidden, so there is nothing to check.
+4. `?payment-status=true&user-status=paymentSuccess&product-url=<host>` — note **no**
+   `no-redirect`. **PASS** if the browser lands on `https://<host>`, proving the portal redirect
+   fires. This is the one step that must NOT be run with `no-redirect=true`.
+5. Load with no params — **PASS** only if the normal funnel/creative renders (confirms the gate is
+   additive, not a regression on the common case).
+
+If the page is localised, append `&locale=<code>` and confirm the result copy is translated —
+the success strings are newer than the rest and are commonly missing from every locale but `en`.
 
 ### 2. Apple Pay (dry-run to API)
 
