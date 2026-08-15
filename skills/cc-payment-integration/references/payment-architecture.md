@@ -81,8 +81,15 @@ override in dev. Body:
 }
 ```
 
-**Gateway detection:** `isMaxPay = 'cc_number' in userDetails`. Maxpay includes `serviceId`, omits
-`user_agent`/`ip`. Other gateways use `service_id: '2'` and include them.
+**Gateway detection:** `isMaxPay = 'cc_number' in userDetails`. Maxpay/card-flow **omits
+`service_id` entirely** — nothing in `ouisys-engine` ever populates a maxpay `serviceId`, so the key
+must resolve to `undefined` and be dropped by `JSON.stringify`, never a synthesized value. Verified
+against `node_modules/ouisys-engine/dist/creditCardFlow.js`. Do not add a `service_id` lookup for
+maxpay. It also omits `user_agent`/`ip`. Other (redirect-only) gateways send `service_id: '2'` plus
+`user_agent`/`ip`.
+
+Detect the card flow with `'cc_number' in userDetails`, **not** `pageConfigs.gateway === 'maxpay'` —
+the same card-entry flow runs on non-maxpay gateways, and a gateway-name check misroutes them.
 
 ### 2.1 Local-currency slug rule (config-driven)
 
@@ -190,6 +197,32 @@ All asset + API URLs are **relative** (same origin) so the page never leaves the
 during the experience. The **only** off-domain navigation is the final gateway redirect
 (`gateway_url`) after a successful payment call — expected and correct. See
 `domain-preservation.md`.
+
+### 9.1 The return trip — rendering the post-gateway result
+
+The gateway sends the visitor back to the product URL with `?payment-status=...&user-status=...`
+(and forwards `product-url` for the portal CTA). This return leg needs its own result screen
+(success / already-subscribed / decline) — it is easy for this component to exist in the tree as
+dead code from the original template fork and never actually be wired into the entry component,
+silently dropping every returning visitor (success **and** decline) back onto the funnel/creative as
+if nothing had happened.
+
+- **Gate on the PRESENCE of `payment-status`, never on its value.** `payment-status=false` is a real
+  decline that must reach the failure screen — testing `=== 'true'` sends declines back into the
+  funnel instead.
+- **`user-status` picks the screen**, and it is matched by exact string: `paymentSuccess` →
+  success, `alreadySubscribed` → already-subscribed, **anything else (including absent) → the
+  failure screen**. There is no "true"/"false" value here; do not conflate it with `payment-status`.
+- **QA escape:** append `no-redirect=true` to preview the success / already-subscribed screens
+  without following the `product-url` portal redirect.
+- Guard the portal link on `product-url` actually being present, or the CTA renders as
+  `https://null`.
+- Suppress the funnel-entry tracking event on this return leg — firing it again double-counts
+  exactly the visitors who reached the gateway, which is what the conversion figures are measured
+  against.
+- When forking a page from an existing template, explicitly verify the result-screen component
+  (`UserPaymentStatus` or equivalent) is actually imported and branched on in the entry component
+  (`Root.tsx`) — its mere presence in `src/components/` is not evidence it is wired up.
 
 ## 10. `aci-pxp` gateway (LC2 API) — architecturally different from the rest
 
