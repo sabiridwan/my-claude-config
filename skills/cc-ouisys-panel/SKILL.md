@@ -204,11 +204,21 @@ rules, and read it back to the user before creating.
 - **A credit-card page needs a template that already has an uploaded build version.** `Template
   Version` is required and lists only what's been uploaded. So the real order is: create Template →
   scaffold → build+upload (`v1`) → *then* create the page. Don't start the wizard before that.
+- **NEVER PUBLISH TO PRODUCTION — this is a hard stop, not a preference.** Standing instruction from
+  the repo owner (2026-08-16) covering every credit-card task: do NOT click `Actions` → `Publish`,
+  do NOT promote a campaign's `staging_template_version` to `published_template_version`, and do NOT
+  run any publish command. He does that step manually. Creating/cloning/editing a page config and
+  leaving it Unpublished or in `staging` status is the deliverable — stop there, hand back the panel
+  URL, and state plainly that production still serves the old version. Never frame publishing as the
+  natural last step you can take for him; it is his decision, because these pages front live paid
+  traffic taking real card payments. If he explicitly asks for a publish in a given session, confirm
+  it back first, do only that action, and do not carry the permission forward.
 - **QA on staging before publishing.** A newly created page serves at
-  `https://staging.mouisys.com/<xcid>` while still Unpublished. Run `cc-qa` there first; `Publish`
-  is the step that exposes it to real traffic.
-- **Publish via the panel** (`Actions` → `Publish`), never `yarn publish:page` — that script is DCB
-  boilerplate whose S3 filenames don't match a cc-dynamic build, so it 404s instead of publishing.
+  `https://staging.mouisys.com/<xcid>` while still Unpublished. Run `cc-qa` there — that is where
+  your work ends. `Publish` is the step that exposes it to real traffic, and it is his to make.
+- **If a publish ever is explicitly authorized, it goes via the panel** (`Actions` → `Publish`),
+  never `yarn publish:page` — that script is DCB boilerplate whose S3 filenames don't match a
+  cc-dynamic build, so it 404s instead of publishing.
 - **Prices come from the panel plan config.** The Plan section (Full Price, Trial Price, Currency,
   Trial Days, Billing Cycle, Is Local Currency) is the source of truth for pricing. Set it
   deliberately and read it back to the user before saving.

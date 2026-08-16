@@ -208,7 +208,23 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
    from a saved page config.)
 6. **QA on staging** — the new page serves at `https://staging.mouisys.com/<xcid>` while still
    Unpublished. Run `cc-qa` there **before** publishing.
-7. **Publish** — panel row `Actions` → `Publish`.
+7. **Publish** — panel row `Actions` → `Publish`. **STOP: this step is NOT yours.** See the
+   standing rule below.
+
+> ### Never publish to production — hand step 7 back
+>
+> Standing instruction from the repo owner (2026-08-16), for **every** credit-card task:
+> **stop at staging.** Do not click `Actions → Publish`, do not promote a campaign's
+> `staging_template_version` to `published_template_version`, do not run any publish command.
+>
+> Everything up to and including step 6 is yours: build, upload the new `vN`, verify the assets,
+> and — if asked — point the **staging** config at it. Then hand back the panel URL and say plainly
+> that production still serves the old version. Publishing is a human go/no-go he makes himself,
+> because these pages sit in front of live paid traffic taking real card payments.
+>
+> Do not present publishing as "the last step I can do for you" — present it as his step. If he
+> explicitly asks for a production publish in a given session, confirm it back to him first, do only
+> that action, and do not carry the permission into later tasks.
 
 > **`yarn publish:page` does NOT work for a cc-dynamic page — do not run it as step 7.**
 > It is DCB-flow boilerplate. It derives its S3 keys as

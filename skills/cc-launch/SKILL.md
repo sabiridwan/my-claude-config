@@ -20,7 +20,8 @@ their work.
 5. Commit -> build -> upload     -> produces template v1 + attaches it
 6. Panel: create the PAGE       -> cc-ouisys-panel   (needs v1 to exist; yields the xcid)
 7. QA on STAGING (pre-publish)  -> cc-qa          against staging.mouisys.com/<xcid>
-8. Publish                      -> panel Actions -> Publish (traffic-exposing; confirm first)
+   ^^^ YOUR WORK ENDS HERE ^^^
+8. Publish                      -> NOT YOURS. The repo owner publishes to production himself.
 ```
 
 **The page is created after the build, not before.** The Card Create wizard's `Template Version` field
@@ -126,12 +127,29 @@ non-comp creative** (`?non-comp=true`), checks content + pricing (incl. per-coun
 config, scans for company leakage, walks the ticket, and posts the pass/fail report back. Relay the
 summary.
 
-Fix and re-upload (`v2`) rather than publishing over a FAIL.
+Fix and re-upload (`v2`) rather than handing over a FAIL.
 
-## 8. Publish
+**This is where the flow ends for you.** Do not continue to step 8.
 
-Panel row `Actions` → **`Publish`**. This exposes the page to real traffic — confirm explicitly first,
-then verify it moved to the Published list.
+## 8. Publish — NOT YOURS
+
+Standing instruction from the repo owner (2026-08-16), for every credit-card task: **stop at
+staging.** Do not click `Actions` → `Publish`, do not promote a campaign's
+`staging_template_version` to `published_template_version`, and do not run any publish command.
+He does this step manually.
+
+These pages front live paid traffic taking real card payments, so the go/no-go on customer-facing
+exposure is a human decision he makes — not something an agent does as a natural-looking last step
+of a build-and-upload flow.
+
+Close out instead by handing back:
+- the staging URL you QA'd (`https://staging.mouisys.com/<xcid>`)
+- the panel edit URL for the page config
+- the `cc-qa` verdict
+- a plain statement that **production still serves the previous version**, and that publishing is his
+
+If he explicitly asks for a publish in a given session, confirm it back to him first, do only that
+action, and do not carry the permission into later tasks.
 
 **Never `yarn publish:page`** — it's DCB boilerplate whose S3 filenames don't match a cc-dynamic build,
 so it 404s instead of publishing.
