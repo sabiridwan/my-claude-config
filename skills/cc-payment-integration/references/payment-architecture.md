@@ -217,6 +217,36 @@ if nothing had happened.
   without following the `product-url` portal redirect.
 - Guard the portal link on `product-url` actually being present, or the CTA renders as
   `https://null`.
+- **Presence is not enough — scheme-guard it too.** The gateway's own `product_url` is already an
+  absolute URL, so naively building the href as `` `https://${productUrl}` `` double-schemes it into
+  a dead link (`https://https//host/…`) whenever the value already carries a scheme. That breaks the
+  auto-**redirect**, not just the CTA, so successful payers are stranded rather than sent to the
+  portal. And because `product-url` is read straight off the address bar and the result is assigned
+  to `window.location.href`, the fix must **allow-list `http`/`https`** rather than merely detect a
+  scheme — otherwise `?product-url=javascript:…` is an XSS. Anything else (another scheme,
+  protocol-relative `//evil.com`, unparseable junk) must resolve to `null`: hide the CTA, skip the
+  redirect.
+
+  ```ts
+  export const toPortalHref = (raw: string | null): string | null => {
+    if (!raw) return null;
+    const value = raw.trim();
+    if (!value || value.startsWith('//')) return null;
+    const hasScheme = /^[a-z][a-z0-9+.-]*:/i.test(value);
+    try {
+      const url = new URL(hasScheme ? value : `https://${value}`);
+      return url.protocol === 'http:' || url.protocol === 'https:' ? url.href : null;
+    } catch {
+      return null;
+    }
+  };
+  ```
+
+  Put it in its own module, free of React and localization imports, so it unit-tests without Jest
+  having to transform the engine's untranspiled ESM (importing the component into a spec fails with
+  `SyntaxError: Unexpected token 'export'`). Found independently in two sibling templates:
+  `cc-dynamic-xracademy-template-gcomp` commit `9d305d3`,
+  `cc-dynamic-xracademy-ccsubmit-template-noncomp` commit `07b0c7d`.
 - Suppress the funnel-entry tracking event on this return leg — firing it again double-counts
   exactly the visitors who reached the gateway, which is what the conversion figures are measured
   against.
