@@ -227,6 +227,27 @@ and *mismatched* content, which is just as visible to a buyer:
 
 Open the product's real site alongside the page and compare the two footers directly.
 
+**The company block is often injected via CSS, so `get_page_text` shows it BLANK even when it renders
+correctly.** These templates emit the merchant details as empty spans with obfuscated class names and
+fill them from a stylesheet:
+
+```html
+© 2026 All rights reserved | <span class="cls-q7x9z9"></span><br><span class="cls-pvuyl2"></span>, …
+```
+
+`innerText` / `get_page_text` / the a11y-tree text return `"© 2026 All rights reserved | , , ,"`.
+Reporting that as "blank company block — FAIL" is wrong. Read the generated content instead:
+
+```js
+[...document.querySelectorAll('footer span[class^="cls-"], .footer-wrapper span[class^="cls-"]')]
+  .map(s => ({ cls: s.className, text: s.textContent,
+               after: getComputedStyle(s, '::after').content }))
+// -> after: '"Mobimilia B.V."', '"Van Diemenstraat 356"', '"1013 CR"', '"Amsterdam"', …
+```
+
+Only call the block blank when the `::after` content is also empty. A full-page screenshot is the
+other quick confirmation — the text is visible there even though it is absent from the DOM.
+
 ### 4b. Product ↔ LP parity (design, font, theme, content) — ALWAYS run this
 
 The LP is **proxied onto the product's own domain**: to a buyer, `product.com/xhosp` is a page *of
@@ -343,10 +364,81 @@ its exact string + source location so it can be scrubbed. Config fields embedded
 (`slug`, `bankId`, `gateway`) are source-visible by design of the payment core — note them as
 observations unless they surface in visible copy.
 
+### 6b. Shipped assets: everything emitted must belong to THIS page
+
+Every file the build emits is uploaded to S3 and served under this page's asset path. Assets from a
+different product, or assets nothing references, are dead weight on the CDN and a white-label smell —
+and nobody notices, because they are never rendered, so no visual check can catch them. This is a
+**build-output** check, not a browser check.
+
+Run it against `dist/` after a build (or against the served page when you have no repo):
+
+```bash
+# 1. What is actually emitted, and how big is it?
+du -sh dist/static/<template>/files/ && ls dist/static/<template>/files/ | wc -l
+
+# 2. Does any emitted file come from a directory named after ANOTHER product?
+#    Compare source assets to emitted ones by content hash — emitted names are hashed.
+python3 - <<'EOF'
+import os, hashlib
+src = 'src/assets'
+srcmap = {}
+for dp, _, fns in os.walk(src):
+    for fn in fns:
+        p = os.path.join(dp, fn)
+        srcmap[hashlib.md5(open(p,'rb').read()).hexdigest()] = os.path.relpath(p, src)
+d = 'dist/static/<template>/files'
+for fn in os.listdir(d):
+    p = os.path.join(d, fn)
+    if os.path.isfile(p):
+        h = hashlib.md5(open(p,'rb').read()).hexdigest()
+        print(f'{os.path.getsize(p)//1024:6d}K  {fn}  <-  {srcmap.get(h, "?")}')
+EOF
+```
+
+Then read the bundle for the asset manifest — a webpack context module lists every file it will
+emit, by original path:
+
+```bash
+grep -oE '"\./[a-zA-Z0-9_-]+/[^"]+\.(png|jpg|jpeg|svg|webp|webm|mp4)"' dist/static/<template>/js/main.*.js \
+  | sort -u | sed 's|"\./||;s|/.*||' | sort | uniq -c | sort -rn
+```
+
+**FAIL** on any emitted asset whose source path is named after a different product or brand
+(`pdfbrain-ai/`, another service id, another campaign). Record the directory, the file count and the
+megabytes.
+
+**The usual cause is a template-literal `require`.** Something like:
+
+```tsx
+<img src={require(`../../assets/imgs/${item.icon}`)} />
+```
+
+makes webpack build a context module over the **entire** `assets/imgs` tree **recursively**, so every
+file underneath is emitted whether or not any code path can reach it. One such call is enough to ship
+a whole sibling directory. Seen in the wild: 17 PNGs / 10 MB of another product's images — **10 of
+16 MB of the payload** — pulled in by a six-icon `Features` component whose icons all live at the
+directory root.
+
+So when you find orphaned assets, grep for the cause before proposing a fix:
+
+```bash
+grep -rn 'require(`' src --include="*.tsx" --include="*.ts"
+```
+
+Two sibling templates can differ here: the one WITHOUT such a component emits nothing extra even
+though the same directory sits in its repo. Check the bundle, not the repo — presence on disk is not
+evidence of shipping, and absence from the page is not evidence of not shipping.
+
+Also flag, as observations rather than FAILs:
+- emitted assets whose source is `?` (in `dist` but not traceable to `src/assets`) — usually the
+  component library, worth a note;
+- a `files/` payload much larger than the page's visible content suggests.
+
 ### 7. Walk the Notion ticket
 
 Map each ticket acceptance item to a check above (or run the extra step it asks for). Every item
-must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b), test it explicitly. Report
+must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b and 6b), test it explicitly. Report
 any requirement left unverified as an open item.
 
 ## Output — pass/fail report
@@ -358,7 +450,7 @@ Write a Markdown report to the workspace folder named
   gateway, environment (staging vs proxied-on-product-domain), payment methods present,
   run timestamp, ticket link.
 - **Summary line:** e.g. `2 PASS · 1 FAIL · 2 BLOCKED · 1 N/A`.
-- **Results table:** one row per check (1, 2, 3, 3b, 4, 4b, 5, 6, 7) with Status, expected vs observed, and evidence
+- **Results table:** one row per check (1, 1b, 2, 3, 3b, 4, 4b, 5, 5b, 6, 6b, 7) with Status, expected vs observed, and evidence
   (payload snippet, response, config-vs-rendered diff, leaked-string location, screenshot name).
 - **Observations:** non-fatal items worth review (source-visible config, cosmetic nits,
   cross-brand ids, third-party hosts).
@@ -389,5 +481,14 @@ if the user asked. If no ticket was given, just deliver the report file.
   wallet buttons with real input events, and reload between attempts.
 - Wallet SDKs load **lazily on tab select**. Probing `window.ApplePaySession` on the default Card tab
   reports `undefined` — that is not a FAIL. Select the tab first, then probe.
+- **Text extraction is not the DOM, and the DOM is not the bundle.** Three separate layers, and a
+  finding is only real at the layer it claims: footer company details are injected by CSS `::after`
+  so text extraction reads blank (check 4); unused cross-brand assets exist only in the build output
+  and never appear on the page at all (check 6b); a library can be present in the bundle, registered
+  at runtime, and still never execute. Say which layer you checked.
+- **Verify removals in the built bundle, not the version number.** A page can register a new version
+  in the panel whose assets 404, and a panel edit form can silently pre-select a STALE version — so
+  a blind Update downgrades the page. After any deploy, grep the *served* JS for the marker that
+  should be gone and diff it against the sibling template that is already correct.
 - Keep the run non-destructive: no project edits, no completed charges, no real PII, no ticket
   status change without explicit ask.
