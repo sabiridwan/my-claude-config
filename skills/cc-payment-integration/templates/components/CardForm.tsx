@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { submitCard, handleCardResult } from '../payments/cardService';
 import { getService } from '../payments/paymentConfig';
 import { REQUIRE_CONSENT, CHECK_CONSENT_BY_DEFAULT } from '../payments/settings';
@@ -18,7 +18,18 @@ export default function CardForm({ onSuccess, onError }: Props) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [threeDsHtml, setThreeDsHtml] = useState<string | null>(null);
+  const [scriptUrl, setScriptUrl] = useState<string | null>(null);
   const service = getService();
+
+  // `jslink` gateways return a SCRIPT url. It must be injected, not navigated to —
+  // assigning it to location.href downloads a file or blanks the page, which looks
+  // to the customer like the payment silently died. See handleCardResult.
+  useEffect(() => {
+    if (!scriptUrl) return;
+    const el = document.createElement('script');
+    el.src = scriptUrl;
+    document.body.appendChild(el);
+  }, [scriptUrl]);
 
   function fmtNumber(e: React.FormEvent<HTMLInputElement>) {
     const el = e.currentTarget;
@@ -48,7 +59,8 @@ export default function CardForm({ onSuccess, onError }: Props) {
       handleCardResult(result, {
         onSuccess: (r) => onSuccess?.(r),
         onError: (r) => { setError(r.message || t('checkout.paymentFailedDefault')); onError?.(r); },
-        onHtml: (html) => setThreeDsHtml(html)
+        onHtml: (html) => setThreeDsHtml(html),
+        onScript: (url) => setScriptUrl(url)
       });
     } catch {
       setError(t('checkout.networkError'));
@@ -66,18 +78,18 @@ export default function CardForm({ onSuccess, onError }: Props) {
         <input name="name" type="text" placeholder={t('checkout.cardholderNamePlaceholder')} autoComplete="cc-name" required />
       </div>
       <div className="cc-field">
-        <label><FormattedMessage id="cardNumberLabel" defaultMessage="Card Number" /></label>
+        <label><FormattedMessage id="checkout.cardNumberLabel" defaultMessage="Card Number" /></label>
         <input name="number" inputMode="numeric" placeholder={t('checkout.cardNumberPlaceholder')} autoComplete="cc-number" maxLength={19} onInput={fmtNumber} required />
       </div>
       <div className="cc-two">
-        <div className="cc-field"><label><FormattedMessage id="expDate" defaultMessage="Expiry Date" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
-        <div className="cc-field"><label><FormattedMessage id="cvvLabel" defaultMessage="Cvv Code" /></label><input name="cvc" type="password" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="checkout.expiryDateLabel" defaultMessage="Expiry Date" /></label><input name="exp" inputMode="numeric" placeholder={t('checkout.expiryPlaceholder')} autoComplete="cc-exp" maxLength={7} onInput={fmtExp} required /></div>
+        <div className="cc-field"><label><FormattedMessage id="checkout.cvvLabel" defaultMessage="Cvv Code" /></label><input name="cvc" type="password" inputMode="numeric" placeholder={t('checkout.cvcPlaceholder')} autoComplete="cc-csc" maxLength={4} required /></div>
       </div>
       <div className="cc-field"><label><FormattedMessage id="checkout.emailLabel" defaultMessage="Email address" /></label><input name="email" type="email" placeholder={t('checkout.emailPlaceholder')} autoComplete="email" required /></div>
       {REQUIRE_CONSENT && (
         <label className="cc-consent">
           <input type="checkbox" checked={consent} onChange={(e) => setConsent(e.target.checked)} />
-          <span><FormattedMessage id="checkout.consentPrefix" defaultMessage="I agree to the" /> <a href="#"><FormattedMessage id="terms-conditions" defaultMessage="Terms & Conditions" /></a> <FormattedMessage id="checkout.consentSuffix" defaultMessage="and authorise the recurring subscription described above." /></span>
+          <span><FormattedMessage id="checkout.consentPrefix" defaultMessage="I agree to the" /> <a href="#"><FormattedMessage id="checkout.termsConditionsLabel" defaultMessage="Terms & Conditions" /></a> <FormattedMessage id="checkout.consentSuffix" defaultMessage="and authorise the recurring subscription described above." /></span>
         </label>
       )}
       {error && <p className="cc-form-error">{error}</p>}

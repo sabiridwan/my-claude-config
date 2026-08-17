@@ -68,6 +68,13 @@ export interface PaymentResult {
   success?: boolean;
   message?: string;
   method?: string;
+  /**
+   * Outranks `success`. The already-subscribed outcome comes back as
+   * `success: false` + `state: 'success'` — no NEW charge was taken, but the
+   * subscription is valid and the customer still gets redirected. See the gate
+   * in handleCardResult.
+   */
+  state?: string;
   gateway_url?: string;
   redirect_url?: string;
   product_url?: string;

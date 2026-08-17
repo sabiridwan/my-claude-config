@@ -72,20 +72,47 @@ export async function submitCard(
   return (await res.json()) as PaymentResult;
 }
 
-// Resolve the outcome: fire callbacks, then redirect (unless 3-DS html is returned).
+// Resolve the outcome: fire callbacks, then redirect (unless 3-DS html or a script
+// link is returned).
 export function handleCardResult(
   result: PaymentResult,
-  cb: { onSuccess?: (r: PaymentResult) => void; onError?: (r: PaymentResult) => void; onHtml?: (html: string) => void }
+  cb: {
+    onSuccess?: (r: PaymentResult) => void;
+    onError?: (r: PaymentResult) => void;
+    onHtml?: (html: string) => void;
+    onScript?: (url: string) => void;
+  }
 ): void {
-  if (result.success === false) {
+  // `state` outranks an explicit `success: false`. The already-subscribed outcome
+  // reports `success: false` (no NEW charge) but `state: 'success'` plus a usable
+  // redirect target — gating on `success` alone shows "payment failed" to a valid
+  // customer and strands them on the form. Captured live on maxpay:
+  //   { success: false, state: 'success', method: 'redirection', product_url: 'https://…' }
+  // Only an explicit `success: false` WITHOUT a succeeding `state` is a real decline.
+  const stateSucceeded = typeof result.state === 'string' && result.state.toLowerCase() === 'success';
+  if (result.success === false && !stateSucceeded) {
     cb.onError?.(result);
     return;
   }
-  if (result.method === 'html' && result.html) {
+
+  // Engine parity: an explicit `redirect_url` overrides whatever `method` says.
+  const method = result.redirect_url ? 'redirection' : result.method;
+
+  if (method === 'html' && result.html) {
     cb.onHtml?.(result.html); // render inline 3-DS iframe; do NOT navigate away
     return;
   }
-  cb.onSuccess?.(result);
+
   const target = result.gateway_url || result.redirect_url || result.product_url;
+
+  // `jslink` hands back a SCRIPT url, not a page. Assigning it to location.href
+  // downloads a file or shows a blank page — which reads to the customer exactly
+  // like "payment succeeded but nothing happened". Inject it as a <script src>.
+  if (method === 'jslink' && target) {
+    cb.onScript?.(target);
+    return;
+  }
+
+  cb.onSuccess?.(result);
   if (target) window.location.href = target;
 }

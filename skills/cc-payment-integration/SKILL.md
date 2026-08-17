@@ -144,11 +144,11 @@ no matter what the visitor's browser reports. So every string this skill generat
   wiring; don't reintroduce literal English strings when customizing a component.
 - New ids must exist in `src/localization/translations/en.json` first — `TranslationKeys` is a type
   derived from that file, so an id missing there is a compile error. `templates/checkout-i18n.en.json`
-  is the source-of-truth English set this skill's templates already reference (58 ids); merge it into
+  is the source-of-truth English set this skill's templates already reference (62 ids); merge it into
   the target's `en.json` if scaffolding onto a base that doesn't have them yet. Other locale files are
   optional per key — a missing key falls back to the English `defaultMessage`, same as the rest of the
   page's copy. `templates/checkout-i18n.translations.json` has ready-made es/fr/de/it/pt/nl versions of
-  all 58 ids to merge in too; other locales fall back to English until someone translates them.
+  all 62 ids to merge in too; other locales fall back to English until someone translates them.
 - **`<FormattedMessage>` needs a literal `defaultMessage` prop, always** — `yarn dev` runs
   `manage:translations` first (`extract-messages && compile`), and `formatjs compile` **wholesale
   regenerates `translations/en.json` from what it can statically extract**, discarding anything it

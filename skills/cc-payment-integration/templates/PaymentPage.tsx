@@ -108,7 +108,12 @@ export default function PaymentPage() {
                       className={'cc-method' + (active === m ? ' cc-method--active' : '')}
                       onClick={() => setActive(m)}
                     >
-                      <FormattedMessage id={LABEL[m]} />
+                      {/* A dynamic id cannot carry a literal defaultMessage, and react-intl
+                          renders an EMPTY STRING for an id it has no entry for — so this must not
+                          be a <FormattedMessage>. useTranslate() falls back to English instead of
+                          blanking the tab. Shipped blank payment-method tabs on a live page once
+                          (cc-dynamic-pdfswitch-template-gcomp commit 1e65536). */}
+                      {t(LABEL[m])}
                     </div>
                   ))}
                 </div>
