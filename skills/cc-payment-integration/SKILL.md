@@ -274,6 +274,15 @@ registered.
   `scaffold.mjs` therefore defaults these to **empty strings** rather than a plausible-looking
   placeholder, and `cc-dynamic-lp`'s `verify.mjs` fails a build that leaves them blank. An empty
   footer is a loud failure; a confidently wrong one is not.
+- **Where the panel's MCC record carries them, derive the merchant details from
+  `pageConfigs.cardMccInformation` at runtime instead of baking them into `copy.*` at scaffold
+  time.** That record (`mcc`, `address`, `registration_number`, `mcc_email`,
+  `phone_numbers[]`/`mcc_phone_number`) *is* the merchant of record, and it changes per page and per
+  clone — two sibling pages for the same product were found naming two different entities. A
+  scaffold-time copy goes stale the moment the panel corrects the MCC; a runtime read through
+  `RootContext` fixes both without a rebuild. Fall back to `copy.*` only when `cardMccInformation`
+  is genuinely absent. Same reasoning for the currency symbol next to prices — derive it from
+  `plan.currency`, never a literal `'€'`, since the component gets cloned onto local-currency pages.
 - **Loader is an overlay, never an early return.** Early-returning the loader removes the mount
   target, so the page can deadlock. Always wire the 4000 ms fail-open timer too.
 - **Decide comp/non-comp synchronously** before the first paint, then confirm with the wallet probe —

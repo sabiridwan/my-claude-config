@@ -45,7 +45,12 @@ pageConfigs {
                  allowedCardNetworks, allowedAuthMethods, totalPriceStatus }
   },
   flags: { forceComp },
-  cardMccInformation: { mcc },
+  cardMccInformation: { mcc, address, registration_number, mcc_email, phone_numbers, mcc_phone_number },
+            // The merchant of record actually billing the customer — richer than just `mcc`.
+            // `address` is a flat string on some endpoints and
+            // `{ line1, postalCode, city, country }` on others; handle both shapes.
+            // Prefer deriving the footer's company block from this at RUNTIME over baking it
+            // into scaffold-time `copy.*` (see SKILL.md's footer bullet).
   env: { page }
 }
 ```
