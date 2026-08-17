@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "lastRun": "2026-08-15",
+  "lastRun": "2026-08-17",
   "repos": {
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-streamtrainfit-template-download-nid-gcomp": {
       "sha": "747c3a4a1e8900d8817ac2da85b56811055f0055",
@@ -35,8 +35,8 @@
       "harvestedAt": "2026-08-15"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-pdfswitch-template-gcomp": {
-      "sha": "ba5e2af623f40495bcb3620c376e23bfdc4e2c72",
-      "harvestedAt": "2026-08-11"
+      "sha": "52a9e9d33fbc5907baabb03d046433c690e48775",
+      "harvestedAt": "2026-08-17"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-template-demo": {
       "sha": "51dc4f0d0d5192d63d7e95fb5167459a6654cafc",
@@ -63,12 +63,12 @@
       "harvestedAt": "2026-08-11"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-xracademy-ccsubmit-template-noncomp": {
-      "sha": "0f6b7e2d8661a5f8cc006f8732c7423e83e12ee3",
-      "harvestedAt": "2026-08-15"
+      "sha": "07b0c7df7ca9a0a4a585803de8bb0178f81e088f",
+      "harvestedAt": "2026-08-17"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-xracademy-template-gcomp": {
-      "sha": "e6dbec2fbb61d246f36d6d4beccbcf4c6921526e",
-      "harvestedAt": "2026-08-15"
+      "sha": "9d305d317377ba6e9713949d2d3238e3fa113a35",
+      "harvestedAt": "2026-08-17"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-generic-bank-payment-nid": {
       "sha": "cb87f4406b39a96d3dc0589e75e9db1d8e2c184c",
@@ -87,8 +87,8 @@
       "harvestedAt": "2026-08-11"
     },
     "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-dynamic-smartpdfdesk-template-download-gcomp": {
-      "sha": "76f8daf9a10ec9848ad2696b0075582928266141",
-      "harvestedAt": "2026-08-15"
+      "sha": "1aac732a33093366d9c0983dacf6ea70e593682d",
+      "harvestedAt": "2026-08-17"
     }
   },
   "rejected": []
