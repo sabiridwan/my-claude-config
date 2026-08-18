@@ -243,6 +243,30 @@ Per-ticket entry:
 
 The report **opens with the coverage line** from step 3.
 
+### Always link. Every identifier is a link.
+
+A report the reader has to search their workspace to act on has failed at the last step. Whenever
+you name one of these, render it as a markdown link, not bare text:
+
+| Thing | Link to |
+| --- | --- |
+| Ticket (`CC-379`) | its Notion page URL |
+| Panel page id (`1056`) | `https://panel.ouisys.com/dynamic-pages/update-credit-card/<id>` |
+| Page name / xcid (`xd6b0`) | the live LP `https://<domain>/lp/<xcid>` |
+| An unpublished xcid | staging `https://staging.mouisys.com/<xcid>?d_country=nl` |
+| Transaction id (`2070215`) | `https://lc2.sam-media.com/nova/resources/lc2-transactions/<id>` |
+| Subscription / rockman id | `https://lc2.sam-media.com/nova/resources/lc2-subscriptions/<id>` |
+| Service id | `https://lc2.sam-media.com/nova/resources/lc2-services/<id>` |
+| A quoted comment | its comment permalink from `get_comments` (`?d=<discussion>`) |
+| A local file or repo path | a relative markdown link, with `:line` when you mean a line |
+
+Prefer the link the ticket itself supplies — the tables carry `Edit Page` and `LP Link` columns —
+over one you construct. Construct only when the ticket has none, and say so if you constructed it.
+
+A live page and its panel record are different destinations; when both exist, give both. For an
+unpublished page the `/lp/<xcid>` URL 404s until publish, so lead with the staging link and mark the
+live one as pending.
+
 ## Failure modes to avoid
 
 - **Reporting pricing as missing.** Prices come from panel config at runtime and are never
