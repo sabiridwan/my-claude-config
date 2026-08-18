@@ -202,6 +202,70 @@ The checkout renders one of two layouts and the tester must exercise both:
    and `INDIA` `ip_range_name` force comp; `?non-comp=true` forces non-comp; `flags.forceComp` always
    wins. Spot-check that these hold (e.g. `forceComp` config → comp even with `?non-comp=true`).
 
+### 3c. Checkout reachability — the CTA must DO something, in every browser
+
+The dry-runs above test the wallet flow on a browser that supports it. This check asks the prior
+question: **when a visitor taps the CTA, does anything happen at all?** A page can render perfectly,
+price correctly and still be worth nothing because the button is inert for most of the traffic — and
+nothing about that is visible in a screenshot.
+
+Run the comp CTA and the non-comp creative CTA in **at least two browsers**: one wallet-capable
+(Safari, or Chrome on macOS) and one without (Chrome on Android/Windows, or simulate it by removing
+`window.ApplePaySession` before the app boots via an init script). For each, record which of three
+things happened:
+
+1. a payment sheet opened (or an `ApplePaySession` / Google Pay client was constructed)
+2. a visible message explained why payment is unavailable
+3. **nothing** ← FAIL
+
+Outcome 3 is a hard FAIL. A CTA that silently no-ops burns paid traffic and leaves no trace: no
+sheet, no message, and typically no event either, so the loss is invisible in reporting too.
+
+Prove it rather than inferring it — wrap the wallet constructor before clicking and assert it fired:
+
+```js
+window.__started = false;
+const O = window.ApplePaySession;
+const W = function (...a) { window.__started = true; return new O(...a); };
+Object.assign(W, { canMakePayments: O.canMakePayments.bind(O),
+                   canMakePaymentsWithActiveCard: O.canMakePaymentsWithActiveCard.bind(O) });
+window.ApplePaySession = W;
+document.querySelector('.apple-pay-btn, .start-now-button').click();
+// then assert window.__started === true, or that an error modal is visible
+```
+
+**Three traps this check exists for, all seen live on the same page set:**
+
+- **User-agent device detection.** `isSafari() || isIOS` rejects any UA containing "Chrome" — but
+  Apple Pay on the Web works in Chrome, Edge and Firefox via a QR handoff to an iPhone, and those
+  browsers expose `ApplePaySession` normally. The page refused a wallet the browser could actually
+  present. Test the capability (`ApplePaySession.canMakePayments()`), don't trust the UA.
+- **A wallet switched off with no fallback.** Turning Google Pay off in the panel is correct when the
+  ticket says Apple Pay only — but it removes the path every non-Apple visitor was using. Whatever
+  gated on "is there a googlePay block" now leaves them with nothing.
+- **Silent `return` in the click handler.** Guards like `if (!isApplePayAvailable) return;` are
+  invisible failures. Every reachable branch must end in a sheet, a message, or a tracked event.
+
+Also check **the whole-page click target**: on non-comp creatives the click handler often sits on the
+page wrapper rather than the button, so "the CTA works" and "the page works" are different claims —
+click the button itself, and confirm exactly one payment attempt is started, not two.
+
+**Apple Pay needs HTTPS.** None of this is testable on `localhost`; run it against
+`staging.mouisys.com/<xcid>` or the live domain.
+
+#### 3d. Apple Pay `merchantIdentifier` belongs to THIS domain — FAIL
+
+Read `pageConfigs.payments.applePay.merchantIdentifier` and compare it to the domain serving the
+page. Apple validates the identifier against the serving host during merchant validation, so an
+identifier belonging to another product fails live payments while looking fine in config and in
+every screenshot.
+
+FAIL when the identifier names a different product than the page's own domain (e.g.
+`merchant.com.xracademy.online.2` on `vreducationlab.com`). This happens because a new page is
+cloned from a sibling and the identifier is inherited silently — it is one of the most common and
+most expensive defects in this family, and it is invisible unless you compare the two strings
+deliberately.
+
 ### 4. Page content mismatch
 
 `get_page_text`; compare against the config snapshot: `service.displayName`, plan/trial copy,
@@ -339,6 +403,17 @@ zero-trial (`0`/`0.0`/`0.00`) forced to 0, and `currencyCode` from `currencyMap[
 the wallet request amount/currency/country match this rule for the tested `?d_country`, not the
 displayed page price.
 
+#### 5c. Slug shape — no country suffix
+
+`pageConfigs.slug` must end at the trailing hyphen: `cc_celerispay-docxhelp2999_001-`. The page
+appends the country itself at runtime (`slug + d_country.toLowerCase()`), so a slug saved as
+`…_001-de` bills against `…_001-dede`. The trailing hyphen is structural — the local-currency branch
+builds `slug.slice(0, -1) + ':' + currency + '-' + country` and assumes a character it can drop.
+
+FAIL on any slug whose final segment is a country code. Ticket tables commonly list slugs with the
+country included, because billing systems display them that way, so the ticket is not evidence the
+slug is right — four live pages shipped this way before it was caught.
+
 ### 6. Company / internal-detail leakage (white-label integrity)
 
 Scan **the full HTML source, not just visible text** — rendered text, `<title>`/`<meta>`, HTML
@@ -450,7 +525,7 @@ Write a Markdown report to the workspace folder named
   gateway, environment (staging vs proxied-on-product-domain), payment methods present,
   run timestamp, ticket link.
 - **Summary line:** e.g. `2 PASS · 1 FAIL · 2 BLOCKED · 1 N/A`.
-- **Results table:** one row per check (1, 1b, 2, 3, 3b, 4, 4b, 5, 5b, 6, 6b, 7) with Status, expected vs observed, and evidence
+- **Results table:** one row per check (1, 1b, 2, 3, 3b, 3c, 3d, 4, 4b, 5, 5b, 5c, 6, 6b, 7) with Status, expected vs observed, and evidence
   (payload snippet, response, config-vs-rendered diff, leaked-string location, screenshot name).
 - **Observations:** non-fatal items worth review (source-visible config, cosmetic nits,
   cross-brand ids, third-party hosts).
