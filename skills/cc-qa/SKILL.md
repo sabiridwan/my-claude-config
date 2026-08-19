@@ -536,6 +536,16 @@ The contract is the **Event Glossary**
 `Flow:advance:*` is what the card dashboards read too. Events are `<Flow>:<verb>:<label>`:
 `PreFlow`/`Flow` × `advance`/`advance-auto`/`recede` × kebab-case label.
 
+**The verb encodes a step transition, and that is what you are auditing:** `advance` = the visitor
+moved forward a step, `advance-auto` = the page moved them forward without their action, `recede` =
+they moved back a step (a decline puts them back on the step they came from, so failures are
+`recede`), and `customEvent` = **no** step transition — something that happened *inside* a step.
+Field focus, validation results, autofill, paste, language autodetect and views are all
+within-step and belong on `customEvent`. So the two mis-classifications to look for are a
+within-step event promoted to `advance` (inflates that funnel stage and ruins the conversion reading
+between the real steps — report as a **FAIL**) and a real step transition demoted to `customEvent`
+(the step vanishes from the funnel — **FAIL**).
+
 Walk the funnel with **real clicks** and read GTM's dataLayer, which holds the decoded event:
 
 ```js
@@ -567,8 +577,15 @@ Expect at minimum, in this order:
 
 Record as **observations**, not fails: field-level rungs (`email-entry-started`, `cc-cvv-valid`,
 `cc-number-autofill`) riding `customEvent` on `user-details-entry-state` / `cc-form-state` rather
-than the `Flow` funnel — that matches the existing repos; and the gateway-return screens
-(`UserPaymentStatus`) firing nothing, which is a known unclosed gap across templates.
+than the `Flow` funnel; and the gateway-return screens (`UserPaymentStatus`) firing nothing, which is
+a known unclosed gap across templates.
+
+The field-level one is an observation **only because every shipped page does it that way.** The
+glossary itself puts the whole entry ladder on `advance` (`msisdn-entry-started`, `-entry-valid`), so
+the repos and the contract genuinely disagree here. Report it as a cross-page consistency note, and
+**do** FAIL a page that promotes field events to `advance` when its siblings don't — the mismatch
+makes that page's `Flow:advance` counts read as better conversion rather than as a different
+convention, which is worse than either choice made uniformly.
 
 The raw batch is `POST /analytickz/api/v2/mstore`, `content-type: text/plain`, carrying
 `{"t":"flow_event","a":{"number":N,"category":…,"action":…,"label":…}}` — `number` gives the ordering.

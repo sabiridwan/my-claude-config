@@ -191,6 +191,15 @@ Glossary** (`Event & Flow Glossary` in Notion,
 `Flow:advance:*` is read by the same dashboards a card page reports into — a page that invents its own
 vocabulary is invisible on them. Read `references/flow-events.md` before touching tracker code.
 
+**Which call to use is one question: did the visitor change step?** Forward → `advancedInFlow`
+(`advancedInPreFlow` while still before any data entry). Backward → `recedeInFlow` — and a failure
+counts, because a decline puts the visitor back on the step they came from, which is why
+`cc-form-submission-failure` is a `recede` and not a custom event. Not a step transition at all →
+`customEvent`. Field focus, validation results, autofill, paste, language autodetect and views all
+happen *inside* a step, so they must stay `customEvent`: every stray `advance` inflates a funnel
+stage and makes the conversion between the real steps unreadable. (`advance-auto` is for forward
+movement the page performed on the visitor's behalf, so it can't be mistaken for intent.)
+
 Three user actions, each an `advance`. Emit exactly these, with these labels:
 
 ```tsx

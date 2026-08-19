@@ -225,6 +225,13 @@ The house event contract is the **Event Glossary**
 its own vocabulary is invisible on them. cc-dynamic-lp owns the page-level funnel (`step1`, email);
 **this skill owns everything from the card submit onward.** Read `references/flow-events.md`.
 
+**Which call to use is one question: did the visitor change step?** Forward → `advancedInFlow`
+(`advancedInPreFlow` before any data entry). Backward → `recedeInFlow`, and a failure counts: a
+decline puts the visitor back on the step they came from, which is why `cc-form-submission-failure`
+is a `recede` rather than a custom event. Not a step transition → `customEvent` — field focus,
+validation, autofill, paste, `noncomp_view` all happen *inside* a step, so promoting them to
+`advance` inflates a funnel stage and ruins the conversion reading between the real steps.
+
 The generated templates already emit the full set. What matters is that you don't undo it:
 
 | moment | where | label |

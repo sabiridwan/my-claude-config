@@ -22,6 +22,30 @@ Flow:advance:msisdn-entry-started → entry-valid → submitted → submission-s
 Flow:recede:msisdn-submission-failure
 ```
 
+## Choosing the call: is this a step transition?
+
+That is the entire decision — not how significant the event feels:
+
+| what happened | call |
+| --- | --- |
+| visitor moved **forward** one step | `advancedInFlow` / `advancedInPreFlow` |
+| **we** moved them forward, not the user | `advancedInFlow` with an `advance-auto` label |
+| visitor moved **backward** a step | `recedeInFlow` |
+| **no step transition** — something inside a step | `customEvent` |
+
+- **A failure is a recede.** A decline returns the visitor to the step they came from, so
+  `cc-form-submission-failure` and `payment-submission-failed` are `Flow:recede:…`. Nothing has to
+  visibly navigate for that to be true — the funnel position moved back, and that's the test.
+- **`customEvent` is for activity within a step**: field focus, validation, autofill, paste, a view
+  (`noncomp_view`). Same funnel position before and after. Every stray `advance` inflates a stage and
+  ruins the step-to-step conversion between the real steps.
+- **Open inconsistency, decide deliberately:** the glossary puts the whole entry ladder on `advance`
+  (`msisdn-entry-started`, `-entry-valid`), while the cc repos keep the card equivalents
+  (`email-entry-started`, `cc-cvv-valid`, `cc-number-autofill`) as `customEvent`s. Today's shipped
+  behaviour is the `customEvent` version — **match it** and raise the question rather than promoting
+  field events on one page, because a page with two extra `advance` rungs reads as better conversion
+  than its siblings rather than as a different convention.
+
 ## What this skill's templates emit
 
 | moment | file | call |

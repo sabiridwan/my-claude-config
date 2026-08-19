@@ -36,6 +36,45 @@ Flow:recede:msisdn-submission-failure   backend rejected it
 `PreFlow:advance:step1` is defined as "When user clicks the prelander CTA and advance in flow" — the
 CTA click *before* any data entry. On a card page that is the creative's / hero's CONTINUE button.
 
+## Choosing the call: is this a step transition?
+
+This is the whole decision, and it is not about how important the event feels:
+
+| what happened | call | emits |
+| --- | --- | --- |
+| visitor moved **forward** one step | `advancedInFlow` / `advancedInPreFlow` | `advance` |
+| **we** moved them forward, not the user | `advancedInFlow` with an `advance-auto` label | `advance-auto` |
+| visitor moved **backward** a step | `recedeInFlow` | `recede` |
+| **no step transition** — something happened *inside* a step | `customEvent` | your own category/action/label |
+
+- **A failure is a recede, not a custom event.** A declined card returns the visitor to the step they
+  came from, so `cc-form-submission-failure` is `Flow:recede:…`. Don't reach for `customEvent` just
+  because nothing visibly navigates — the funnel position moved back, and that is the test.
+- **`customEvent` is for activity within a step**: field focus, validation result, autofill, paste,
+  language autodetect, a view. The visitor is in the same place before and after, so these must not
+  ride `advance` — every stray `advance` inflates a funnel stage and makes the step-to-step
+  conversion between real steps unreadable.
+- **`advance-auto` exists so automatic progress doesn't read as user intent.** DCB uses it for
+  `msisdn-detection-start` and the HE auto-submit — steps the page took on the visitor's behalf.
+
+### The one open inconsistency — decide it deliberately
+
+The glossary puts the **entire** entry ladder on `advance`, including
+`Flow:advance:msisdn-entry-started` ("when a user starts entering msisdn") and
+`…msisdn-entry-valid`. It treats each rung as a real forward step.
+
+The cc repos do **not**: the card equivalents (`email-entry-started`, `email-valid`, `cc-cvv-valid`,
+`cc-number-autofill`) are `customEvent`s on `user-details-entry-state` / `cc-form-state`. Read
+strictly, a card page following the glossary would promote at least `entry-started` and `entry-valid`
+to `Flow:advance:*`.
+
+Both conventions are defensible — the ladder gives a finer funnel, the `customEvent` version keeps
+`advance` to the four transitions a buyer actually makes. What is NOT defensible is doing it
+differently per page. Today's shipped behaviour is the `customEvent` version, so **match that** and
+raise the question rather than quietly promoting field events on one page: a page whose
+`Flow:advance` count is two rungs higher than its siblings looks like better conversion, not a
+different convention.
+
 ## The cc-submit funnel
 
 Three user actions, each an `advance`, plus the field ladder and the failure paths. Reference
