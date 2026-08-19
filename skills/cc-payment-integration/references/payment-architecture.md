@@ -272,18 +272,20 @@ replace them.
   the generated code).
 - **Apple Pay merchant validation:** `POST /api/apple-pay/validate-merchant` —
   `{ serviceId, rockmanId, validationUrl }`.
-- **Card and Apple Pay payment submission (same endpoint):** `POST /api/subscriptions` —
+- **Card, Apple Pay, and Google Pay payment submission (same endpoint):** `POST /api/orders` —
   `{ payment, serviceId, rockmanId, locale, email, browserFingerprint }`. `browserFingerprint` is
   the iovation/IGLOO blackbox (`window.fpGetBlackbox ? window.fpGetBlackbox() : { blackbox: '',
-  finished: false }`), not the Kount `antifraud_session_id`.
+  finished: false }`), not the Kount `antifraud_session_id`. Confirmed `/api/orders` (not
+  `/api/subscriptions`) byte-identical across the base template and two forks, 2026-08-17/18.
 - **Antifraud:** a second vendor, iovation/IGLOO (`https://first.iovation.com/latest/static_wdp.js`),
   additive to and independent of Kount. Load it gated on `pageConfigs.gateway === 'aci-pxp'`, the
   same pattern as the existing Kount hook — not unconditionally (it would fire uselessly on other
   gateways' pages if this project also serves them).
 - **Response handling:** reuse the `celeris` branch — `result.html` → `document.write` into the
   page (3-DS style), not a `gateway_url` redirect.
-- **Google Pay:** not implemented as of this writing — the one integration seen paused it
-  deliberately ("others don't work because of error on ACI-PXP side" — Slack, source ticket). Don't
-  assume the Apple Pay shape carries over; confirm with backend first.
+- **Google Pay:** now implemented (confirmed live 2026-08-17) — mirrors the Apple Pay submission
+  exactly (`POST /api/orders`, same envelope), only `serviceId` differs per method. The legacy
+  `/api/v1/frontend/gp-payment` (celeris shape: `slug` + `bankId`) does NOT work on this gateway —
+  do not reuse it for a new aci-pxp integration.
 - Do not copy specific `serviceId` / `bankId` numeric literals from any one project's dev fallback
   config into new code — they are per-page values injected by the panel/backend at runtime.
