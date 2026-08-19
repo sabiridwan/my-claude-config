@@ -154,10 +154,20 @@ logo placeholder at `src/assets/logos/<serviceId>.svg`; invokes `cc-payment-inte
 
 ### 3. Wire the checkout into Root
 
-Follow `PAYMENT_WIRING.md` in the generated project: import `CheckoutSection` and render it where the
-template rendered `<FLOWS.CreditCardFlow/>` / the comp payment card. Keep the comp/non-comp gate and
-loader from the template — cc-payment-integration's page already honors the same rules, so mount it
-inside the existing comp branch.
+Follow `PAYMENT_WIRING.md` in the generated project: import `CheckoutSection` and make it the FIRST
+thing `Root` returns — `return <CheckoutSection />;` in `RootWithProviders` — NOT slotted inside the
+marketing template's existing flow/comp branches. Do not "keep the comp/non-comp gate and mount
+inside the existing comp branch": the marketing template's `Root.tsx` — including the literal
+default `--base`, `cc-dynamic-template-download-nid-gcomp` — wraps its ENTIRE return in
+`window.ApplePaySession && (...)`. Mounting `CheckoutSection` anywhere inside that gate means any
+visitor without `window.ApplePaySession` (most non-Apple traffic, before the Apple SDK has loaded)
+renders NOTHING — not the checkout, not Google Pay, not even an error message. This shipped live:
+cc-qa report `xpkti` (2026-08-18) found `Root.tsx:104 returns window.ApplePaySession && (...)`
+blanking the page for Android Chrome and Firefox/Windows visitors on a page with Google Pay
+configured and otherwise working. Keep the providers (`RootContext`/`ProvidersWrapper`); mark the
+rest of the old `Root` body (Hero/ContentGrid/Features/Footer/the flow strategy) as dead code rather
+than deleting it — three independently-scaffolded GENT-7165 pages already did exactly this and
+documented it as "DEAD CODE — not rendered."
 
 ### 3b. Auto language detection — every page gets this by default, verify it isn't dead
 
