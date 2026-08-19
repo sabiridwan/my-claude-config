@@ -575,17 +575,19 @@ Expect at minimum, in this order:
   (`category: "Flow"` and `action: "advance"` are hardcoded; only the 2nd arg becomes the label), so
   the label is the event's entire identity and a duplicate label is one event, not two series.
 
-Record as **observations**, not fails: field-level rungs (`email-entry-started`, `cc-cvv-valid`,
-`cc-number-autofill`) riding `customEvent` on `user-details-entry-state` / `cc-form-state` rather
-than the `Flow` funnel; and the gateway-return screens (`UserPaymentStatus`) firing nothing, which is
-a known unclosed gap across templates.
+**Field events on `customEvent` are CORRECT on a card page — never report them as a finding.**
+`email-entry-started`, `email-valid`, `cc-cvv-valid`, `cc-card-number-valid`, `cc-number-autofill`,
+`copy-pasted` and friends belong on `user-details-entry-state` / `cc-form-state`, outside the `Flow`
+funnel. Card pages deliberately diverge from the DCB glossary here (which puts its whole entry ladder
+on `advance`); the divergence was ratified 2026-08-19, because `advance` is reserved for the
+transitions a buyer makes — CTA → email → card submit → outcome.
 
-The field-level one is an observation **only because every shipped page does it that way.** The
-glossary itself puts the whole entry ladder on `advance` (`msisdn-entry-started`, `-entry-valid`), so
-the repos and the contract genuinely disagree here. Report it as a cross-page consistency note, and
-**do** FAIL a page that promotes field events to `advance` when its siblings don't — the mismatch
-makes that page's `Flow:advance` counts read as better conversion rather than as a different
-convention, which is worse than either choice made uniformly.
+The inverse **is** a FAIL: a page that promotes a field event to `Flow:advance:*`. Its `Flow:advance`
+count then sits above its siblings' and reads as better conversion rather than a different
+convention.
+
+Record as an **observation**: the gateway-return screens (`UserPaymentStatus`) firing nothing — a
+known unclosed gap across templates, not a defect of the page under test.
 
 The raw batch is `POST /analytickz/api/v2/mstore`, `content-type: text/plain`, carrying
 `{"t":"flow_event","a":{"number":N,"category":…,"action":…,"label":…}}` — `number` gives the ordering.

@@ -232,6 +232,11 @@ is a `recede` rather than a custom event. Not a step transition → `customEvent
 validation, autofill, paste, `noncomp_view` all happen *inside* a step, so promoting them to
 `advance` inflates a funnel stage and ruins the conversion reading between the real steps.
 
+**Field events stay `customEvent` — settled, don't promote them.** The DCB glossary puts its whole
+entry ladder on `advance`; card pages deliberately don't. This matters when you revive an orphaned
+`UserDetailsEntryStep` (§3): keep its per-field events on `user-details-entry-state` / `cc-form-state`
+exactly as they are, and add only the transition events from the table below.
+
 The generated templates already emit the full set. What matters is that you don't undo it:
 
 | moment | where | label |

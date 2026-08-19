@@ -57,23 +57,25 @@ This is the whole decision, and it is not about how important the event feels:
 - **`advance-auto` exists so automatic progress doesn't read as user intent.** DCB uses it for
   `msisdn-detection-start` and the HE auto-submit — steps the page took on the visitor's behalf.
 
-### The one open inconsistency — decide it deliberately
+### Field events are `customEvent` on card pages — settled, do not promote them
 
-The glossary puts the **entire** entry ladder on `advance`, including
+The DCB glossary puts the **entire** entry ladder on `advance`, including
 `Flow:advance:msisdn-entry-started` ("when a user starts entering msisdn") and
-`…msisdn-entry-valid`. It treats each rung as a real forward step.
+`…msisdn-entry-valid`, treating each rung as a forward step. **Card pages deliberately diverge here.**
 
-The cc repos do **not**: the card equivalents (`email-entry-started`, `email-valid`, `cc-cvv-valid`,
-`cc-number-autofill`) are `customEvent`s on `user-details-entry-state` / `cc-form-state`. Read
-strictly, a card page following the glossary would promote at least `entry-started` and `entry-valid`
-to `Flow:advance:*`.
+On a cc page the field-level events — `email-entry-started`, `email-valid`, `cc-name-valid`,
+`cc-card-number-valid`, `cc-cvv-valid`, `cc-expiry-input-valid`, `cc-number-autofill`, `copy-pasted`,
+`email-autofill` — stay `customEvent`s on `user-details-entry-state` / `cc-form-state`. Ratified
+2026-08-19; it is also what every shipped cc page already does.
 
-Both conventions are defensible — the ladder gives a finer funnel, the `customEvent` version keeps
-`advance` to the four transitions a buyer actually makes. What is NOT defensible is doing it
-differently per page. Today's shipped behaviour is the `customEvent` version, so **match that** and
-raise the question rather than quietly promoting field events on one page: a page whose
-`Flow:advance` count is two rungs higher than its siblings looks like better conversion, not a
-different convention.
+Why: `advance` is reserved for the transitions a buyer actually makes — CTA → email → card submit →
+outcome. Typing into a field does not move the visitor between steps, and a funnel whose stage count
+changes as someone tabs through six card inputs cannot be read against the pages that don't do that.
+
+So: **never promote a field event to `advance`** on a card page. A page whose `Flow:advance` count
+sits two rungs above its siblings looks like better conversion rather than a different convention,
+which is the concrete harm. The finer per-field detail is still fully available — it is on
+`customEvent`, just not in the `Flow:advance` funnel, so don't go looking for it there.
 
 ## The cc-submit funnel
 

@@ -39,12 +39,14 @@ That is the entire decision — not how significant the event feels:
 - **`customEvent` is for activity within a step**: field focus, validation, autofill, paste, a view
   (`noncomp_view`). Same funnel position before and after. Every stray `advance` inflates a stage and
   ruins the step-to-step conversion between the real steps.
-- **Open inconsistency, decide deliberately:** the glossary puts the whole entry ladder on `advance`
-  (`msisdn-entry-started`, `-entry-valid`), while the cc repos keep the card equivalents
-  (`email-entry-started`, `cc-cvv-valid`, `cc-number-autofill`) as `customEvent`s. Today's shipped
-  behaviour is the `customEvent` version — **match it** and raise the question rather than promoting
-  field events on one page, because a page with two extra `advance` rungs reads as better conversion
-  than its siblings rather than as a different convention.
+- **Field events stay `customEvent` on card pages — settled, do not promote them.** The DCB glossary
+  puts its whole entry ladder on `advance` (`msisdn-entry-started`, `-entry-valid`); card pages
+  deliberately diverge. `email-entry-started`, `email-valid`, `cc-cvv-valid`,
+  `cc-card-number-valid`, `cc-number-autofill`, `copy-pasted` and friends ride `customEvent` on
+  `user-details-entry-state` / `cc-form-state`. Ratified 2026-08-19, matching every shipped cc page.
+  `advance` is reserved for the transitions a buyer makes — CTA → email → card submit → outcome — so a
+  page whose `Flow:advance` count sits two rungs above its siblings reads as better conversion rather
+  than a different convention.
 
 ## What this skill's templates emit
 

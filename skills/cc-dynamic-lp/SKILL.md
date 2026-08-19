@@ -200,6 +200,11 @@ happen *inside* a step, so they must stay `customEvent`: every stray `advance` i
 stage and makes the conversion between the real steps unreadable. (`advance-auto` is for forward
 movement the page performed on the visitor's behalf, so it can't be mistaken for intent.)
 
+**Field events stay `customEvent` — settled, don't promote them.** The DCB glossary puts its whole
+entry ladder on `advance`; card pages deliberately don't. `email-entry-started`, `cc-cvv-valid`,
+`cc-number-autofill` and the rest ride `user-details-entry-state` / `cc-form-state`, keeping
+`advance` to the four transitions a buyer actually makes.
+
 Three user actions, each an `advance`. Emit exactly these, with these labels:
 
 ```tsx
