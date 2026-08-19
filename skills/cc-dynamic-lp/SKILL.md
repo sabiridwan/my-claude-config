@@ -182,6 +182,54 @@ the `checkout.*` translation keys (see its "Wire the checkout into auto language
 — but if you hand-edit generated checkout copy, keep it going through `src/localization` rather than
 reverting to a literal string.
 
+### 3c. Wire the flow events — the page is not done until the funnel reports
+
+A page can render, price and charge correctly and still be worthless to the people who buy the
+traffic, because nobody can see where visitors drop. The house event contract is the **Event
+Glossary** (`Event & Flow Glossary` in Notion,
+<https://app.notion.com/p/sammedia/80516480e0364bd19395319804a53ab4>). It was written for DCB, but
+`Flow:advance:*` is read by the same dashboards a card page reports into — a page that invents its own
+vocabulary is invisible on them. Read `references/flow-events.md` before touching tracker code.
+
+Three user actions, each an `advance`. Emit exactly these, with these labels:
+
+```tsx
+// 1 — entry CTA (creative CONTINUE / hero "Get Started"). Put this in the funnel
+//     component's `open` handler, not in the creative: one choke point for every entry surface.
+tracker.advancedInPreFlow('step1');
+tracker.customEvent('pre-user-details-entry-state', 'continue-clicked', 'continue-button');
+
+// 2 — email submitted
+tracker.advancedInFlow('user-details-entry-state', 'user-details-submission-success', { email });
+
+// 3 — card form submitted, then one event per outcome
+tracker.advancedInFlow('tallyman.v1-credit-card', 'cc-form-submitted', { email });
+//   redirect → 'cc-form-submission-success'   3-DS → 'get-html-success'
+//   jslink   → 'load-script-start' / 'load-script-success'
+//   declined → recedeInFlow(…, 'cc-form-submission-failure', { email, errorType, errorId })
+```
+
+Four things that go wrong every time:
+
+- **`advancedInFlow`'s first argument is discarded.** pacman hardcodes
+  `category: "Flow", action: "advance"` and uses only the 2nd arg as the label. The label is the
+  entire identity of the event; two calls sharing one label are duplicates, not two series.
+- **`advancedInPreFlow(label, args)` has no flow argument** and is the only one that sets
+  `category: "Pre-Flow"`. `advancedInFlow('Pre-Flow', 'step1')` does NOT produce
+  `PreFlow:advance:step1`.
+- **Page load is not step 1.** Leave it as `sendOptInFlowEvent('Credit card')`, gated on the
+  `payment-status` check so the gateway return doesn't re-count a funnel entry.
+- **The 3-DS branch must fire something.** If `result.kind === 'html'` only sets state, every 3-DS
+  charge that reached the gateway reads as drop-off while redirects are counted.
+
+Verify by walking the funnel with real clicks on the built page or dev server and reading the
+dataLayer — never infer from source:
+
+```js
+(window.dataLayer || []).filter(x => x && x.event === 'gaEvent')
+  .map(x => `${x.category}:${x.action}:${x.label}`);
+```
+
 ### 4. Verify
 
 ```bash
@@ -521,6 +569,13 @@ cc-payment-integration's `checkout.*` id set for the pattern.
   the panel and one language updates while the rest silently lie. Whenever you add a pricing key, add
   it to **every** locale the page ships, interpolated. A page that ships `-de` slugs is read in
   German, so German is exactly where the stale price will show.
+- **The three funnel `advance` events ship with the page**, using the Event Glossary's labels:
+  `PreFlow:advance:step1` on the entry CTA, `Flow:advance:user-details-submission-success` on email
+  submit, `Flow:advance:cc-form-submitted` on card submit — plus one event per submit outcome,
+  including `get-html-success` on the 3-DS branch. A page whose funnel doesn't report is not
+  shippable: nobody can tell a dead CTA from disinterested traffic. `advancedInFlow`'s first argument
+  is discarded by pacman, so the **label** is the event's whole identity. See
+  `references/flow-events.md`.
 - **Same-origin, relative URLs**; the page stays on the product domain (domain preservation) — the
   only off-domain step is the final gateway redirect after payment.
 - **Keep the template's SSR loader + comp/non-comp gate.** They prevent a blank server render and
