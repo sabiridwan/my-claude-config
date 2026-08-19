@@ -235,3 +235,10 @@ Before telling the user you're done, confirm: the page appears in the expected l
 (Unpublished for a new/cloned draft, Published for a live edit), the key fields match what was asked
 (name, slug, service, gateway, plan/pricing, template version), and the preview renders. Report the
 page name, its xcid if shown, and the list it's in.
+
+**The read API can lag the write you just made.** `get_dynamic_page` (and equivalent panel reads)
+can return an older revision than what the form just saved — seen twice independently: once
+reporting a stale `paymentMethods` list right after a same-session edit, once reporting a page's
+config a version behind its already-served bundle. Baseline any guarded edit off the FORM you just
+submitted, not a fresh API read, and verify the actual effect off the served/staging page, not a
+second panel read.
