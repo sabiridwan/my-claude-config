@@ -289,3 +289,14 @@ replace them.
   do not reuse it for a new aci-pxp integration.
 - Do not copy specific `serviceId` / `bankId` numeric literals from any one project's dev fallback
   config into new code — they are per-page values injected by the panel/backend at runtime.
+- **Apple Pay availability must be capability-based, not UA-sniffed.** aci-pxp implementations do
+  not reuse `cc-payment-integration`'s `walletActions.ts`/`resolveMode.ts` — there is no shared
+  template for this gateway. The fork-origin template
+  (`cc-dynamic-aci-pxp-template-gcomp/src/providers/RootContext.tsx`) still ships
+  `isApplePaySupportedDevice = isSafari() || isIOS`, which hides Apple Pay on desktop
+  Chrome/Edge/Firefox even after the Apple JS SDK has loaded and exposed a working QR/cross-device
+  session — two independent downstream forks hit and fixed this the same week. Gate on the
+  capability (`window.ApplePaySession`, refreshed after loading
+  `https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js`) the same way the standard
+  scaffold's `ApplePayButton`/`walletActions.ts` already do, and make sure the click handler falls
+  through to Google Pay (or an explicit "no payment method" message) instead of returning silently.
