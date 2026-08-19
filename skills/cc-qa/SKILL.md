@@ -234,6 +234,15 @@ document.querySelector('.apple-pay-btn, .start-now-button').click();
 // then assert window.__started === true, or that an error modal is visible
 ```
 
+**Before clicking anything, confirm the page rendered at all.** A top-level `return
+window.ApplePaySession && (...)` in `Root.tsx` — present in the shipped base template — can blank
+the WHOLE tree, not just a button, on any browser without `ApplePaySession` (most non-Apple traffic,
+before the Apple SDK loads). Check `document.body.innerText.length > 0` / `#root`'s innerHTML with
+`window.ApplePaySession` deleted BEFORE looking for a button to click — if the page is blank there is
+nothing to click, and the click-handler traps below never get exercised. Seen live: cc-qa report
+`xpkti` (2026-08-18) — Android Chrome / Firefox-Windows got an empty `#root` on a page with Google
+Pay configured and otherwise working.
+
 **Three traps this check exists for, all seen live on the same page set:**
 
 - **User-agent device detection.** `isSafari() || isIOS` rejects any UA containing "Chrome" — but
