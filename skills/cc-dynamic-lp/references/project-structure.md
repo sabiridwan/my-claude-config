@@ -31,6 +31,21 @@ What the scaffold customizes vs what it copies verbatim from the reference templ
 | `localization/extractedMessages/en.json` | English source copy | **Yes** (copy) |
 | `localization/translations/*.json` | compiled locales | Generated via `manage:translations` |
 
+**Module-scope reads of `pageConfigs`/`window.configJson`-derived values are a trap, and production
+hides it.** The backend injects `window.configJson` into the HTML before the bundle runs, so a
+module-scope read works in prod and fails everywhere else (local dev, SSR, late injection). If this
+page bills more than one `service.id`/MID through one build, this has bitten twice already:
+- `Hero`/`Footer` resolving the logo with a bare ``require(`../../assets/logos/${serviceId}.svg`)``
+  at module scope throws on import for any id you haven't shipped an asset for and blanks the WHOLE
+  page before React mounts. Use a three-level fallback chain:
+  `require(svg) → catch → require(png) → catch → require(FALLBACK_SERVICE.svg)`, and read
+  `service.id` as `pageConfigs?.service?.id` (optional all the way down).
+- A Google Pay `paymentRequest` built at module scope instead of inside a per-render
+  `buildPaymentRequest()` call froze at all-`undefined`, throwing `DEVELOPER_ERROR in isReadyToPay:
+  allowedCardNetworks must be setup` and permanently hiding the button.
+Add a `console.error` naming the missing id/value so a silent fallback doesn't mask a real panel
+misconfiguration. Rule: **always read config at call time, never at module scope.**
+
 ## The checkout slot (wiring point)
 
 The reference template renders the native engine flow — roughly:
