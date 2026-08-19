@@ -21,6 +21,12 @@ export default function NonComp() {
   function onContinue() {
     if (busy) return;
     setBusy(true);
+    // Step 1 of the funnel — the glossary's `PreFlow:advance:step1`, "user clicks the
+    // prelander CTA". This is what separates "saw the creative" from "wanted to buy";
+    // without it a dead CTA and disinterested traffic look identical in reporting.
+    // Fired before the wallet call so the intent is counted even when no sheet opens.
+    tracker.advancedInPreFlow('step1');
+    tracker.customEvent('pre-user-details-entry-state', 'continue-clicked', 'continue-button');
     triggerWalletPayment({
       onSuccess: () => tracker.customEvent('checkout', 'payment_success', service.id, { flow: 'noncomp' }),
       onError: () => setBusy(false)

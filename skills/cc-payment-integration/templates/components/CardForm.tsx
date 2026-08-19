@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { submitCard, handleCardResult } from '../payments/cardService';
+import { tracker } from '../payments/tracker';
 import { getService } from '../payments/paymentConfig';
 import { REQUIRE_CONSENT, CHECK_CONSENT_BY_DEFAULT } from '../payments/settings';
 import type { CardUserDetails, PaymentResult } from '../payments/types';
@@ -26,8 +27,21 @@ export default function CardForm({ onSuccess, onError }: Props) {
   // to the customer like the payment silently died. See handleCardResult.
   useEffect(() => {
     if (!scriptUrl) return;
+    // Pairs with `load-script-start` from handleCardResult: without the success/failure
+    // side, a gateway script that 404s is indistinguishable from one that worked.
     const el = document.createElement('script');
     el.src = scriptUrl;
+    el.onload = () =>
+      tracker.advancedInFlow('tallyman.v1-credit-card', 'load-script-success', {
+        gateway_url: scriptUrl
+      });
+    el.onerror = () => {
+      tracker.recedeInFlow('tallyman.v1-credit-card', 'load-script-failure', {
+        gateway_url: scriptUrl
+      });
+      setError(t('checkout.paymentFailedDefault'));
+      setSubmitting(false);
+    };
     document.body.appendChild(el);
   }, [scriptUrl]);
 
@@ -54,6 +68,12 @@ export default function CardForm({ onSuccess, onError }: Props) {
       cvv: String(form.get('cvc') || ''),
       email: String(form.get('email') || '')
     };
+    // Step 3 of the funnel. Fired BEFORE the request, so an attempt is counted even if
+    // the network call never returns — the denominator every submit outcome is measured
+    // against. handleCardResult emits the outcome events. See references/flow-events.md.
+    tracker.advancedInFlow('tallyman.v1-credit-card', 'cc-form-submitted', {
+      email: userDetails.email
+    });
     try {
       const result = await submitCard(userDetails, { serviceId: service.id });
       handleCardResult(result, {

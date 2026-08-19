@@ -217,6 +217,49 @@ to a `cardService.submitCard()`), keep everything else (field validation, `payme
 per-field tracker events — see the tracking rule below). Grep the target repo for
 `react-credit-card-input` before deciding which path to take.
 
+### 3d. Emit the funnel's flow events — every submit outcome, not just the happy one
+
+The house event contract is the **Event Glossary**
+(<https://app.notion.com/p/sammedia/80516480e0364bd19395319804a53ab4>). It was written for DCB, but
+`Flow:advance:*` is read by the same dashboards a card page reports into — a checkout that invents
+its own vocabulary is invisible on them. cc-dynamic-lp owns the page-level funnel (`step1`, email);
+**this skill owns everything from the card submit onward.** Read `references/flow-events.md`.
+
+The generated templates already emit the full set. What matters is that you don't undo it:
+
+| moment | where | label |
+| --- | --- | --- |
+| non-comp creative tapped | `NonComp.tsx` | `advancedInPreFlow('step1')` |
+| card submitted | `CardForm.tsx` | `cc-form-submitted` |
+| → success / redirect | `cardService.ts` | `payment-submitted` + `cc-form-submission-success` |
+| → 3-DS `html` | `cardService.ts` | `get-html-success` |
+| → `jslink` | `cardService.ts` / `CardForm.tsx` | `load-script-start` → `load-script-success` / `recedeInFlow(…'load-script-failure')` |
+| → declined | `cardService.ts` | `payment-submission-failed` + `cc-form-submission-failure` |
+
+**Keep the outcome events inside `handleCardResult`.** It is the single choke point every outcome
+passes through, which makes "each branch emits exactly one event" true by construction. Move them
+into the component and the branches nobody hand-tests — 3-DS and `jslink` — end up emitting nothing,
+so a charge that reached the gateway reads as drop-off while a plain redirect is counted. That has
+shipped live more than once. `cc-form-submitted` stays in the component and fires *before* the
+request, so an attempt is counted even when the call never returns.
+
+Two API traps:
+
+- **`advancedInFlow(flow, label, args)`'s first argument is discarded.** Pacman hardcodes
+  `category: "Flow"` / `action: "advance"` and uses only the label, so the **label is the event's
+  entire identity** — two calls sharing one label are duplicates, not two series.
+- **`advancedInPreFlow(label, args)` takes no flow argument** and is the only one that sets
+  `category: "Pre-Flow"`. `advancedInFlow('Pre-Flow', 'step1')` produces `Flow:advance:step1` — the
+  wrong event.
+
+If you revive an orphaned `UserDetailsEntryStep` (§3 above) instead of generating `CardForm.tsx`,
+port these events across with the field-level ones — the dead component predates this contract and
+usually has only the per-field `customEvent`s.
+
+Verify by walking the funnel with real clicks on the built page and reading the dataLayer; to hit the
+3-DS and `jslink` branches without a charge, call `handleCardResult` directly with a stub result (see
+the reference).
+
 ### 4. Verify
 
 Run the verify script. It type-checks the generated payment core and runs the guardrail checklist:
@@ -338,6 +381,13 @@ registered.
   `pull:config` **fail the build loudly** instead of quietly reinstating the widget.
   Verify with the bundle, not the version number: `grep -c creditCardFlow` the served `main.*.js`,
   and check `Object.keys(store.getState())` on the live page.
+- **Every card-submit outcome fires exactly one flow event, and the outcome events stay in
+  `handleCardResult`.** `cc-form-submitted` on submit; then `cc-form-submission-success`,
+  `get-html-success` (3-DS), `load-script-start`/`-success`/`-failure` (jslink), or
+  `cc-form-submission-failure`. Keeping them at that choke point is what guarantees the untested
+  branches emit anything at all — a 3-DS charge that reached the gateway must not read as drop-off
+  while a redirect is counted. Labels come from the Event Glossary; `advancedInFlow`'s first argument
+  is discarded by Pacman, so the label is the whole identity. See `references/flow-events.md`.
 - **`identifyStrategy()` is not just plumbing — it fires a real analytics event.** The engine's
   `strategySlice` calls `sendOptInFlowEvent` for `strategy === 'credit-card'` on every page load, so
   simply deleting `dispatch(identifyStrategy())` silently drops funnel-entry analytics for 100% of

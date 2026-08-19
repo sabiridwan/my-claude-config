@@ -21,11 +21,30 @@ function post(payload: Record<string, unknown>): void {
   }
 }
 
+// Method names and argument order mirror `ouisys-engine/utilities/tracker` (the real
+// Pacman client) EXACTLY, so component code reads the same whichever one is wired and
+// swapping to the engine tracker is a one-line import change. Prefer the engine
+// tracker whenever the target repo already has it — see the non-negotiable about
+// never swapping it out for this shim.
+//
+// `flow` is the first argument on advancedInFlow/recedeInFlow purely for that parity:
+// Pacman ACCEPTS AND DISCARDS it, hardcoding category "Flow" and action
+// "advance"/"recede" and using only the label. Keep passing it for grep-ability; never
+// rely on it reaching a dashboard. See references/flow-events.md.
 export const tracker = {
   customEvent(category: string, action: string, label?: string, meta?: Record<string, unknown>) {
     post({ type: 'custom', category, action, label, meta });
   },
+  // -> Pre-Flow:advance:<label>   (intent shown, no data entered yet)
   advancedInPreFlow(label: string, meta?: Record<string, unknown>) {
     post({ type: 'preflow', label, meta });
+  },
+  // -> Flow:advance:<label>
+  advancedInFlow(_flow: string, label: string, meta?: Record<string, unknown>) {
+    post({ type: 'flow', verb: 'advance', label, meta });
+  },
+  // -> Flow:recede:<label>
+  recedeInFlow(_flow: string, label: string, meta?: Record<string, unknown>) {
+    post({ type: 'flow', verb: 'recede', label, meta });
   }
 };

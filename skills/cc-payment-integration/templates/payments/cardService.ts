@@ -2,7 +2,12 @@
 // POST /api/v1/frontend/initiate-payment-generic  (see references/payment-architecture.md §2)
 import { getSlug, getBankId, getRockmanId, getVisitorIp, getPlan } from './paymentConfig';
 import { searchParams } from './params';
+import { tracker } from './tracker';
 import type { CardUserDetails, PaymentResult } from './types';
+
+// The flow name every card event rides. Pacman discards it (see tracker.ts) — it is
+// here for grep-ability and parity with the sibling repos.
+const CC_FLOW = 'tallyman.v1-credit-card';
 
 // Platform-level set of currencies the gateway accepts for the local-currency slug suffix.
 // Not product-specific; the panel decides PER PAGE whether local currency applies, via
@@ -89,8 +94,18 @@ export function handleCardResult(
   // customer and strands them on the form. Captured live on maxpay:
   //   { success: false, state: 'success', method: 'redirection', product_url: 'https://…' }
   // Only an explicit `success: false` WITHOUT a succeeding `state` is a real decline.
+  // EVERY branch below emits exactly one flow event before its callback. Doing it here
+  // rather than in the caller is what makes that true by construction: when the outcome
+  // events live in the component, the branches nobody tests (3-DS, jslink) end up
+  // emitting nothing, so a charge that reached the gateway reads as drop-off while a
+  // plain redirect is counted. Seen live on more than one page.
   const stateSucceeded = typeof result.state === 'string' && result.state.toLowerCase() === 'success';
   if (result.success === false && !stateSucceeded) {
+    tracker.recedeInFlow('Flow', 'payment-submission-failed');
+    tracker.recedeInFlow(CC_FLOW, 'cc-form-submission-failure', {
+      errorType: result.errorType,
+      errorId: result.errorId || ''
+    });
     cb.onError?.(result);
     return;
   }
@@ -99,6 +114,7 @@ export function handleCardResult(
   const method = result.redirect_url ? 'redirection' : result.method;
 
   if (method === 'html' && result.html) {
+    tracker.advancedInFlow(CC_FLOW, 'get-html-success');
     cb.onHtml?.(result.html); // render inline 3-DS iframe; do NOT navigate away
     return;
   }
@@ -109,10 +125,13 @@ export function handleCardResult(
   // downloads a file or shows a blank page — which reads to the customer exactly
   // like "payment succeeded but nothing happened". Inject it as a <script src>.
   if (method === 'jslink' && target) {
+    tracker.advancedInFlow(CC_FLOW, 'load-script-start', { gateway_url: target });
     cb.onScript?.(target);
     return;
   }
 
+  tracker.advancedInFlow('Flow', 'payment-submitted');
+  tracker.advancedInFlow(CC_FLOW, 'cc-form-submission-success', { gateway_url: target });
   cb.onSuccess?.(result);
   if (target) window.location.href = target;
 }

@@ -525,10 +525,65 @@ Also flag, as observations rather than FAILs:
   component library, worth a note;
 - a `files/` payload much larger than the page's visible content suggests.
 
+### 6c. Flow events — the funnel must report, and it is invisible in every screenshot
+
+A page can render, price and charge perfectly and still be worthless to whoever bought the traffic,
+because nobody can tell a dead CTA from disinterested traffic. Nothing about this shows up in a
+screenshot, a DOM dump or a network 200, so it has to be checked deliberately.
+
+The contract is the **Event Glossary**
+(<https://app.notion.com/p/sammedia/80516480e0364bd19395319804a53ab4>) — written for DCB, but
+`Flow:advance:*` is what the card dashboards read too. Events are `<Flow>:<verb>:<label>`:
+`PreFlow`/`Flow` × `advance`/`advance-auto`/`recede` × kebab-case label.
+
+Walk the funnel with **real clicks** and read GTM's dataLayer, which holds the decoded event:
+
+```js
+(window.dataLayer || []).filter(x => x && x.event === 'gaEvent')
+  .map(x => `${x.category}:${x.action}:${x.label}`);
+```
+
+Expect at minimum, in this order:
+
+| user action | expected event |
+| --- | --- |
+| page load | `get_sub_method` only (`sendOptInFlowEvent`) — **no** `advance`; an advance here is an observation, and on a `payment-status` reload it is a **FAIL** (double-counts funnel entry) |
+| entry CTA / creative tapped | `Pre-Flow:advance:step1` |
+| email submitted | `Flow:advance:user-details-submission-success` |
+| card submitted | `Flow:advance:cc-form-submitted` |
+| submit outcome | exactly ONE of `cc-form-submission-success` · `get-html-success` (3-DS) · `load-script-start` (jslink) · `Flow:recede:cc-form-submission-failure` |
+
+**FAIL** on any of:
+
+- a funnel step that fires **nothing** — especially the entry CTA (no `step1`) and the 3-DS branch
+  (`result.kind === 'html'` that only sets state), which makes a 3-DS charge that reached the gateway
+  read as drop-off while a plain redirect is counted;
+- `advancedInFlow('Pre-Flow', 'step1')` used instead of `advancedInPreFlow('step1')` — it emits
+  `Flow:advance:step1`, the wrong event (`advancedInPreFlow` is the only call that sets
+  `category: "Pre-Flow"`);
+- two events sharing one label. Pacman **discards** `advancedInFlow`'s first argument
+  (`category: "Flow"` and `action: "advance"` are hardcoded; only the 2nd arg becomes the label), so
+  the label is the event's entire identity and a duplicate label is one event, not two series.
+
+Record as **observations**, not fails: field-level rungs (`email-entry-started`, `cc-cvv-valid`,
+`cc-number-autofill`) riding `customEvent` on `user-details-entry-state` / `cc-form-state` rather
+than the `Flow` funnel — that matches the existing repos; and the gateway-return screens
+(`UserPaymentStatus`) firing nothing, which is a known unclosed gap across templates.
+
+The raw batch is `POST /analytickz/api/v2/mstore`, `content-type: text/plain`, carrying
+`{"t":"flow_event","a":{"number":N,"category":…,"action":…,"label":…}}` — `number` gives the ordering.
+**On localhost it 404s and on an unregistered origin it 400s; the request still fires and that is the
+evidence.** Never report a non-200 there as a tracking failure.
+
+Two testing traps: a synthetic `.click()` can latch the component's `busy` flag so the next real
+click silently no-ops — drive with real input events; and if the card submit is BLOCKED for want of a
+test card, the submit-outcome row is **BLOCKED**, not FAIL — but `step1` and the email step are still
+fully testable, so they must still be reported.
+
 ### 7. Walk the Notion ticket
 
 Map each ticket acceptance item to a check above (or run the extra step it asks for). Every item
-must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b and 6b), test it explicitly. Report
+must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b, 6b and 6c), test it explicitly. Report
 any requirement left unverified as an open item.
 
 ## Output — pass/fail report
@@ -540,7 +595,7 @@ Write a Markdown report to the workspace folder named
   gateway, environment (staging vs proxied-on-product-domain), payment methods present,
   run timestamp, ticket link.
 - **Summary line:** e.g. `2 PASS · 1 FAIL · 2 BLOCKED · 1 N/A`.
-- **Results table:** one row per check (1, 1b, 2, 3, 3b, 3c, 3d, 4, 4b, 5, 5b, 5c, 6, 6b, 7) with Status, expected vs observed, and evidence
+- **Results table:** one row per check (1, 1b, 2, 3, 3b, 3c, 3d, 4, 4b, 5, 5b, 5c, 6, 6b, 6c, 7) with Status, expected vs observed, and evidence
   (payload snippet, response, config-vs-rendered diff, leaked-string location, screenshot name).
 - **Observations:** non-fatal items worth review (source-visible config, cosmetic nits,
   cross-brand ids, third-party hosts).
