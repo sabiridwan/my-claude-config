@@ -9,8 +9,10 @@ description: >-
   page", "edit/update a page config", "change pricing/plan/gateway on a live page", "make a new
   template", "publish/hide a dynamic page", or otherwise operate panel.ouisys.com — even if they only
   say "the panel", "Card Create", "cc page in the panel", or name a page/xcid. This skill owns the
-  panel UI operation; it pairs with cc-dynamic-lp (which builds & uploads the page code) but is the
-  one to use for anything done inside the panel itself.
+  panel operation; it pairs with cc-dynamic-lp (which builds & uploads the page code) but is the
+  one to use for anything done inside the panel itself. It is MCP-FIRST: use the ouisys-panel MCP
+  server for every read and every write it supports, and open the panel in the browser only for
+  operations the MCP server does not expose yet.
 ---
 
 # cc-ouisys-panel — operate panel.ouisys.com (create / clone / update)
@@ -31,6 +33,29 @@ the right template). See "Create a new page" below.
 > interviews for template + page name, fills the rest from the current repo's `config.json` /
 > `brand.config.json` / `.env`, and captures the API ids. Prefer **this** skill when the config values
 > come from a ticket or a sibling page (the common case). Don't run both.
+
+## MCP first — never open the browser for something the MCP server can do
+
+The session usually has the **`ouisys-panel` MCP server** (tools named `mcp__ouisys-panel__*`).
+It is faster, needs no Chrome login, and is RBAC-gated to the user's own panel role. **Check it
+before touching the browser, every time:**
+
+1. Call `whoami` first — it tells you the tools you can use and your role's limits.
+2. **All reads go through MCP, never the browser:** `get_dynamic_page`, `search_dynamic_pages`,
+   `list_campaigns` / `get_campaign`, `list_mccs`, `list_strategies`, `list_legals`,
+   `list_cloaking_presets`. Opening panel.ouisys.com in Chrome just to *look something up* is
+   wrong — do that only if the MCP call errors or the field isn't in its response.
+3. **Safe writes that exist as MCP tools use them:** `clone_campaign`, `create_strategy`,
+   `attach_cloaking_preset`. They are confirm-first: call once without `confirm:true` to preview,
+   show the user, then re-call with `confirm:true`.
+4. **The browser is the fallback, not the default.** Fall back to the Chrome workflows below only
+   for operations the MCP server does not expose yet — today that's the Card Create wizard
+   (create-page-config), Template create, page Edit, Publish/Hide, and MCC CRUD. The server is
+   actively growing: re-check the available `mcp__ouisys-panel__*` tools each session, and when a
+   tool now exists for the operation, use it instead of the browser section.
+5. The **read-lag caveat applies to MCP reads too** — see the verification checklist at the bottom:
+   `get_dynamic_page` can return a revision older than a write you just made. Baseline guarded
+   edits off the form/tool call you just submitted, verify off the served page.
 
 ## Prerequisites
 

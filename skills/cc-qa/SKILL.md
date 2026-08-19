@@ -75,6 +75,12 @@ Ask only for what you can't infer:
   substitute for the real checks.
 - **Notion** — `notion-fetch` the ticket + its acceptance criteria; `notion-create-comment` to
   post the report back; `notion-search` to locate the ticket if given a name not an ID.
+- **ouisys-panel MCP** (`mcp__ouisys-panel__*`) — use `get_dynamic_page` / `search_dynamic_pages`
+  to pull the page's panel-side config (pricing, paymentMethods, gateway, MCC) WITHOUT opening
+  panel.ouisys.com in the browser — never navigate to the panel just to read config. Caveat: the
+  panel read API can lag recent writes, so the SERVED page's `window.configJson.pageConfigs`
+  (below) stays the authority for what the page actually renders; use the MCP read for
+  cross-checking and for finding the xcid/row, and flag any mismatch between the two as a finding.
 - **File tools** — write the report to the workspace folder.
 
 ## The config is the source of truth

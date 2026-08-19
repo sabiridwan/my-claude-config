@@ -201,6 +201,12 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
 `Template Version`, which only exists after a build has been uploaded. So the page is created
 **after** the build, not before:
 
+> **MCP first for every panel touch.** All panel lookups and supported writes in these steps go
+> through the `ouisys-panel` MCP server (`mcp__ouisys-panel__*`) via `cc-ouisys-panel` — checking a
+> page/config/template state is `get_dynamic_page` / `search_dynamic_pages`, never a browser
+> navigation. Chrome is only for what MCP doesn't expose yet (Card Create wizard, template create,
+> publish).
+
 1. **Template exists in the panel**, named exactly the git repo name (`cc-ouisys-panel` →
    `cc-ouisys-panel/references/templates.md`). No build attached yet is fine.
 2. **Commit** — the upload refuses a dirty tree, and the repo name must equal `.env` `page`.

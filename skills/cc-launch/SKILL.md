@@ -24,6 +24,12 @@ their work.
 8. Publish                      -> NOT YOURS. The repo owner publishes to production himself.
 ```
 
+**Panel steps are MCP-first.** Every panel interaction in steps 2 and 6 goes through
+`cc-ouisys-panel`, which checks the `ouisys-panel` MCP server (`mcp__ouisys-panel__*`) before
+opening the browser — reads and supported writes via MCP, Chrome only for what the server doesn't
+expose yet (wizard/template-create/publish today). Don't navigate to panel.ouisys.com to look
+something up that `get_dynamic_page` / `search_dynamic_pages` / `list_mccs` can answer.
+
 **The page is created after the build, not before.** The Card Create wizard's `Template Version` field
 is required and only lists versions that have actually been uploaded, so an unbuilt template gives you
 nothing to select. Creating the *template* is step 2; creating the *page* is step 6. Getting this

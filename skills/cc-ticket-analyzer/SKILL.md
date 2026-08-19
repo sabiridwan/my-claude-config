@@ -66,10 +66,13 @@ stays within a **single** data source, so the multi-source Enterprise requiremen
 a run hits the limit, fall back to `query_database_view` against the "Latest Tasks" view, which is
 unmetered.
 
-Browser access for the panel step goes through **`cc-ouisys-panel`** — delegate to that skill rather
-than driving the panel directly, and inherit its tooling (`claude-in-chrome`) and its hard-won
-gotchas. Do not substitute `chrome-devtools` here; `cc-ouisys-panel` is written and proven against
-`claude-in-chrome`, and it is not always connected.
+Panel access goes through **`cc-ouisys-panel`**, which is MCP-first: the `ouisys-panel` MCP server
+(`mcp__ouisys-panel__*` — `search_dynamic_pages`, `get_dynamic_page`, `list_mccs`, `list_campaigns`)
+answers every read this skill needs WITHOUT a browser, and this skill is read-only by design — so a
+normal run should never open panel.ouisys.com at all. Fall back to the browser (via
+`cc-ouisys-panel`, inheriting its `claude-in-chrome` tooling and gotchas) only if the MCP server is
+down or missing a field. Do not substitute `chrome-devtools` for that fallback; `cc-ouisys-panel` is
+written and proven against `claude-in-chrome`.
 
 ## References
 
@@ -192,8 +195,10 @@ Read `.env` (the `page` key), `product.json`, and pageConfigs. This turns *"miss
 *"already scaffolded at `~/SamMedia/credit-card/<name>`, only bankId missing"* — a completely
 different instruction to the reader.
 
-**Panel lookup.** Delegate to `cc-ouisys-panel`. Broad-search Templates, Unpublished, and Published
-for the slug or product name; read via `Actions` → `View Details`.
+**Panel lookup.** Delegate to `cc-ouisys-panel` — MCP-first: `search_dynamic_pages` /
+`get_dynamic_page` for the slug or product name, `list_mccs` for merchant rows; no browser needed
+for a read-only lookup. Browser fallback (Templates / Unpublished / Published lists, `Actions` →
+`View Details`) only if MCP is unavailable or lacks the field.
 
 Read-only, and two specific traps from that skill:
 
