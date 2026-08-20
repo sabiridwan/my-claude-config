@@ -92,7 +92,7 @@ export function handleCardResult(
   // reports `success: false` (no NEW charge) but `state: 'success'` plus a usable
   // redirect target — gating on `success` alone shows "payment failed" to a valid
   // customer and strands them on the form. Captured live on maxpay:
-  //   { success: false, state: 'success', method: 'redirection', product_url: 'https://…' }
+  //   { success: false, state: 'success', method: 'redirection', product_url: '<absolute gateway url>' }
   // Only an explicit `success: false` WITHOUT a succeeding `state` is a real decline.
   // EVERY branch below emits exactly one flow event before its callback. Doing it here
   // rather than in the caller is what makes that true by construction: when the outcome

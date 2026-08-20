@@ -136,8 +136,11 @@ unharvested footer cannot ship silently.
 node scripts/scaffold.mjs --config <product.json>
 # optional overrides:
 #   --out <dir>              (default: <cc-template>/<derived-name>)
-#   --cc-template-dir <dir>  (default: the cc-template dir next to this skill)
-#   --base <template-dir>    (default: cc-dynamic-template-download-nid-gcomp)
+#   --cc-template-dir <dir>  (default: climbs from this skill's own dir looking for a `cc-template`
+#                             folder — works from the canonical cc-ai repo layout; pass explicitly
+#                             from an installed ~/.claude/skills copy, which has no cc-template
+#                             ancestor to find)
+#   --base <template-dir>    (default: <cc-template-dir>/cc-dynamic-template-download-nid-gcomp)
 #   --git-remote-base <base> (default: git@git.sam-media.com:ouisys/dynamic-templates/xx)
 #   --no-git                 (skip git init)
 #   --payment-skill <dir>    (default: ../cc-payment-integration)

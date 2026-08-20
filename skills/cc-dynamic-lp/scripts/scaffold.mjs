@@ -33,7 +33,29 @@ if (!configPath) {
 const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
 
 // ---- Fixed locations + conventions (overridable) ----
-const CC_TEMPLATE_DIR = path.resolve(arg('cc-template-dir', cfg.ccTemplateDir || path.join(SKILL_ROOT, '../cc-template')));
+// `SKILL_ROOT/../cc-template` only exists if this skill happens to sit directly inside a flat
+// `skills/` dir next to `cc-template` — true in neither the canonical cc-ai repo layout
+// (skills/cc-dynamic-lp is nested inside cc-template/cc-ai/skills/) nor an installed
+// ~/.claude/skills copy (no cc-template sibling at all). Confirmed broken in both by the
+// 2026-08-20 pdfbrainai E2E test — climb upward looking for a real `cc-template` dir instead of
+// guessing one fixed level, and fail loudly rather than silently scaffolding under a bogus path.
+function findCcTemplateDir(explicit) {
+  if (explicit) return path.resolve(explicit);
+  let dir = SKILL_ROOT;
+  for (let i = 0; i < 6; i++) {
+    const cand = path.join(dir, 'cc-template');
+    if (fs.existsSync(cand) && fs.statSync(cand).isDirectory()) return cand;
+    const parent = path.dirname(dir);
+    if (parent === dir) break;
+    dir = parent;
+  }
+  return null;
+}
+const CC_TEMPLATE_DIR = findCcTemplateDir(arg('cc-template-dir', cfg.ccTemplateDir));
+if (!CC_TEMPLATE_DIR) {
+  console.error('Could not find a cc-template dir above this skill. Pass --cc-template-dir <dir> explicitly.');
+  process.exit(2);
+}
 const GIT_REMOTE_BASE = arg('git-remote-base', cfg.gitRemoteBase || 'git@git.sam-media.com:ouisys/dynamic-templates/xx');
 const NO_GIT = flag('no-git') || cfg.noGit === true;
 
