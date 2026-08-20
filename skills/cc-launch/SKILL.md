@@ -26,9 +26,10 @@ their work.
 
 **Panel steps are MCP-first.** Every panel interaction in steps 2 and 6 goes through
 `cc-ouisys-panel`, which checks the `ouisys-panel` MCP server (`mcp__ouisys-panel__*`) before
-opening the browser — reads and supported writes via MCP, Chrome only for what the server doesn't
-expose yet (wizard/template-create/publish today). Don't navigate to panel.ouisys.com to look
-something up that `get_dynamic_page` / `search_dynamic_pages` / `list_mccs` can answer.
+opening the browser — reads and supported writes via MCP (including the Card Create wizard's
+`create_page_config`, page `update_page_config`, and template `create_template`), Chrome only for
+**Publish** and anything a tool call errors on. Don't navigate to panel.ouisys.com to look something
+up that `get_dynamic_page` / `search_dynamic_pages` / `list_mccs` / `list_templates` can answer.
 
 **The page is created after the build, not before.** The Card Create wizard's `Template Version` field
 is required and only lists versions that have actually been uploaded, so an unbuilt template gives you
@@ -115,11 +116,15 @@ is the `template_version_id`. Cross-check with the `Upload record saved!` output
 
 ## 6. Create the page in the panel
 
-Now that `v1` exists, invoke **cc-ouisys-panel** → `cc-ouisys-panel/references/create-page.md` and run the Card Create
-wizard, selecting this template + the new version. Read the step-2 JSON payload back to the user and
-get a yes before **Save**.
+Now that `v1` exists, invoke **cc-ouisys-panel** → `cc-ouisys-panel/references/create-page.md`.
+Primary path is the MCP `create_page_config` tool (confirm-first: preview, then `confirm:true`) with
+this template + the new version; fall back to the browser Card Create wizard only if the tool errors
+or you need the MCC combobox / live preview. Either way, read the payload back to the user and get a
+yes before committing.
 
-Capture the **xcid** from the resulting Unpublished row — you need it for the URL.
+Capture the **xcid** from the tool's response (`page_config_id` / `version_id` / `xcid`); if any of
+those is missing, fall back to `search_dynamic_pages` / `get_dynamic_page` and read it off the
+resulting Unpublished row.
 
 Note: there is **no Card section** in the wizard (only Google Pay / Apple Pay). Which payment tabs
 render is decided in the page code, so don't stall asking whether to "enable card" panel-side.
