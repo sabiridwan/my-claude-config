@@ -1,18 +1,16 @@
 ---
 name: cc-ouisys-panel
 description: >-
-  Drive the Sam Media / Ouisys panel (panel.ouisys.com) in the browser to CREATE a new dynamic page,
-  CLONE an existing page, or UPDATE/EDIT a live page's config. Covers the credit-card (Card Create /
-  create-credit-card) flow, the required "create a Template first (named the same as the git repo)"
-  step, and the row Actions menu (Clone, Edit, Hide, Delete) on the Published/Unpublished lists. Use
-  this whenever someone wants to "create a page in the panel", "clone a page", "duplicate an existing
-  page", "edit/update a page config", "change pricing/plan/gateway on a live page", "make a new
-  template", "publish/hide a dynamic page", or otherwise operate panel.ouisys.com — even if they only
-  say "the panel", "Card Create", "cc page in the panel", or name a page/xcid. This skill owns the
-  panel operation; it pairs with cc-dynamic-lp (which builds & uploads the page code) but is the
-  one to use for anything done inside the panel itself. It is MCP-FIRST: use the ouisys-panel MCP
-  server for every read and every write it supports, and open the panel in the browser only for
-  operations the MCP server does not expose yet.
+  Operate the Sam Media / Ouisys panel (panel.ouisys.com) to CREATE a new dynamic page, CLONE an
+  existing page, or UPDATE/EDIT a live page's config. MCP-FIRST: use the ouisys-panel MCP server for
+  every read and every write it supports; the browser is the fallback. Covers the credit-card (Card
+  Create) flow, the required "create a Template first (named the same as the git repo)" step, and
+  Clone/Edit/Hide/Delete on the Published/Unpublished lists. Use whenever someone wants to "create a
+  page in the panel", "clone a page", "edit/update a page config", "change pricing/plan/gateway on a
+  live page", "make a new template", "publish/hide a dynamic page", or otherwise operate
+  panel.ouisys.com — even if they only say "the panel", "Card Create", or name a page/xcid. Owns the
+  panel operation; pairs with cc-dynamic-lp (which builds & uploads the page code) but is the one for
+  anything done inside the panel itself.
 ---
 
 # cc-ouisys-panel — operate panel.ouisys.com (create / clone / update)
