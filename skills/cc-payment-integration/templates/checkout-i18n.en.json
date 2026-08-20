@@ -50,7 +50,7 @@
   "checkout.startTrial": "Start my trial",
   "checkout.subscribeWith": "Subscribe with",
   "checkout.subscribeWithApplePayAria": "Subscribe with Apple Pay",
-  "checkout.subscriptionTerms": "The subscription starts now for just {trialPrice} / {trialLabel}. It will be automatically prolonged for {fullPrice} / monthly after the first period.",
+  "checkout.subscriptionTerms": "The subscription starts now for just {trialPrice} / {trialLabel}. It will be automatically prolonged for {fullPrice} / {billing} after the first period.",
   "checkout.summaryPerMonth": "Per {billing} after {trialLabel}",
   "checkout.summaryTerms": "{trialPrice} / {trialLabel} — then {fullPrice} / {billing} after the first period.",
   "checkout.billingMonthly": "monthly",

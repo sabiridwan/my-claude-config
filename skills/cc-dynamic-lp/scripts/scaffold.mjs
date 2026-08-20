@@ -185,6 +185,36 @@ if (fs.existsSync(paymentScaffold)) {
     [paymentScaffold, '--config', payCfgPath, '--out', outDir, '--embed', '--src-prefix', 'src/checkout'],
     { stdio: 'inherit' });
   try { fs.rmSync(payCfgPath, { force: true }); } catch { /* some mounts block unlink; harmless leftover */ }
+
+  // ---- 6b². Merge the checkout's i18n keys into the host template's locale files. ----
+  // TranslationKeys derives from translations/en.json, and the runtime renders RAW IDS
+  // ("checkout.methodApplePay") for any key missing there — this shipped to staging once
+  // (pdfbrainai v1, 2026-08-20) because nothing performed this merge.
+  const payTplDir = path.join(path.dirname(paymentScaffold), '..', 'templates');
+  const locDir = path.join(outDir, 'src/localization/translations');
+  const ckEn = path.join(payTplDir, 'checkout-i18n.en.json');
+  if (fs.existsSync(ckEn) && fs.existsSync(path.join(locDir, 'en.json'))) {
+    const mergeInto = (file, add) => {
+      const d = JSON.parse(fs.readFileSync(file, 'utf8'));
+      let n = 0;
+      for (const [k, v] of Object.entries(add)) if (!(k in d)) { d[k] = v; n++; }
+      fs.writeFileSync(file, JSON.stringify(d, null, 2) + '\n');
+      return n;
+    };
+    const nEn = mergeInto(path.join(locDir, 'en.json'), JSON.parse(fs.readFileSync(ckEn, 'utf8')));
+    console.log(`  → merged ${nEn} checkout.* keys into translations/en.json`);
+    const ckTr = path.join(payTplDir, 'checkout-i18n.translations.json');
+    if (fs.existsSync(ckTr)) {
+      const tr = JSON.parse(fs.readFileSync(ckTr, 'utf8'));
+      for (const [loc, block] of Object.entries(tr)) {
+        const f = path.join(locDir, `${loc}.json`);
+        if (fs.existsSync(f)) mergeInto(f, block);
+      }
+      console.log(`  → merged checkout.* locale blocks (${Object.keys(tr).join(', ')}) where the template ships them`);
+    }
+  } else {
+    console.warn('  ! checkout-i18n templates or translations/en.json missing — checkout copy will render RAW IDS at runtime.');
+  }
 } else {
   console.warn(`  ! cc-payment-integration scaffold not found at ${paymentScaffold} — skipping payment layer.`);
   console.warn('    Pass --payment-skill <path-to-cc-payment-integration>.');

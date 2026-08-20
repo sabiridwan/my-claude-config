@@ -102,8 +102,8 @@ export default function PaymentPage() {
             <div className="cc-trial">{formatPrice(plan.trialPrice)} / {trialLabel}</div>
             <p className="cc-terms">
               <FormattedMessage
-                id="checkout.subscriptionTerms" defaultMessage="The subscription starts now for just {trialPrice} / {trialLabel}. It will be automatically prolonged for {fullPrice} / monthly after the first period."
-                values={{ trialPrice: formatPrice(plan.trialPrice), trialLabel, fullPrice: formatPrice(plan.fullPrice) }}
+                id="checkout.subscriptionTerms" defaultMessage="The subscription starts now for just {trialPrice} / {trialLabel}. It will be automatically prolonged for {fullPrice} / {billing} after the first period."
+                values={{ trialPrice: formatPrice(plan.trialPrice), trialLabel, fullPrice: formatPrice(plan.fullPrice), billing: billingLabel }}
               />
             </p>
 
