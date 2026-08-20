@@ -38,6 +38,13 @@ export default function PaymentPage() {
   const trialLabel = plan.trialDays
     ? t('checkout.trialLabelDays', { days: plan.trialDays })
     : t('checkout.trialLabelGeneric');
+  // The renewal period is plan.billingCycleDays, never a hardcoded "monthly" — a page cloned to a
+  // different cycle must not keep advertising the old one. 30 days reads as monthly. Plain t()
+  // string, not a <FormattedMessage> element: this localization layer stringifies `values`, so a
+  // React element passed through `values` renders as "[object Object]".
+  const billingDays = Number(plan.billingCycleDays) || 30;
+  const billingLabel =
+    billingDays === 30 ? t('checkout.billingMonthly') : t('checkout.billingEveryDays', { days: billingDays });
 
   // Live pageConfigs.paymentMethods wins (panel-controlled); PAYMENT_METHODS (settings.ts,
   // scaffold-time) is only the fallback for pages saved before that field existed.
@@ -77,7 +84,9 @@ export default function PaymentPage() {
     <div className="cc-checkout">
       <header className="cc-head">
         <div className="cc-head__in">
-          <div className="cc-logo" dangerouslySetInnerHTML={{ __html: META.logoSvg + name }} />
+          {/* Proxied onto the product's own domain, so a relative "/" is the product homepage
+              (domain preservation — never an absolute URL). */}
+          <a href="/" className="cc-logo" aria-label={`${name} — home`} dangerouslySetInnerHTML={{ __html: META.logoSvg + name }} />
           <div className="cc-secure">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="3" y="11" width="18" height="11" rx="2" /><path d="M7 11V7a5 5 0 0110 0v4" /></svg>
             <FormattedMessage id="checkout.secureCheckout" defaultMessage="Secure Checkout" />
@@ -157,14 +166,14 @@ export default function PaymentPage() {
             <h3><FormattedMessage id="checkout.finishRegistration" defaultMessage="Finish your Registration" /></h3>
             <p className="cc-terms">
               <FormattedMessage
-                id="checkout.summaryTerms" defaultMessage="{trialPrice} / {trialLabel} — then {fullPrice} / monthly after the first period."
-                values={{ trialPrice: formatPrice(plan.trialPrice), trialLabel, fullPrice: formatPrice(plan.fullPrice) }}
+                id="checkout.summaryTerms" defaultMessage="{trialPrice} / {trialLabel} — then {fullPrice} / {billing} after the first period."
+                values={{ trialPrice: formatPrice(plan.trialPrice), trialLabel, fullPrice: formatPrice(plan.fullPrice), billing: billingLabel }}
               />
             </p>
             <div className="cc-sum__row" style={{ marginTop: 10 }}>
               <div>
                 <div className="cc-sum__name">{name}</div>
-                <div className="cc-sum__permo"><FormattedMessage id="checkout.summaryPerMonth" defaultMessage="Per monthly after {trialLabel}" values={{ trialLabel }} /></div>
+                <div className="cc-sum__permo"><FormattedMessage id="checkout.summaryPerMonth" defaultMessage="Per {billing} after {trialLabel}" values={{ trialLabel, billing: billingLabel }} /></div>
               </div>
               <div className="cc-sum__price">{formatPrice(plan.fullPrice)}</div>
             </div>

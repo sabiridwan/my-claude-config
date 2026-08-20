@@ -13,6 +13,10 @@
 .cc-head__in { max-width: 1080px; margin: 0 auto; padding: 20px 20px; display: flex; align-items: center; justify-content: space-between; }
 .cc-logo { display: flex; align-items: center; gap: 10px; font-family: var(--cc-display); font-weight: 700; font-size: 27px; text-transform: uppercase; letter-spacing: .02em; color: var(--cc-ink); }
 .cc-logo svg, .cc-logo img { height: 38px; }
+// The lockup is now an anchor to the product home ("/") — keep it looking like the logo, not a
+// link. Without this it inherits the generic `.cc-checkout a` brand-color + underline rule above.
+.cc-checkout a.cc-logo { color: var(--cc-ink); text-decoration: none; }
+.cc-checkout a.cc-logo:hover { text-decoration: none; }
 .cc-secure { display: flex; align-items: center; gap: 6px; font-size: 12.5px; color: var(--cc-muted); font-weight: 600; }
 .cc-secure svg { width: 14px; height: 14px; }
 
