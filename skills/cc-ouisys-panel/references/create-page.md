@@ -1,12 +1,37 @@
-# Create a new credit-card page (Card Create wizard)
+# Create a new credit-card page
+
+Primary path is the MCP tool `create_page_config`. The browser Card Create wizard
+(`/dynamic-pages/create-credit-card`) is the fallback — use it only if the tool errors, or for the
+MCC combobox / live preview pane the tool has no equivalent for.
+
+## Primary path — MCP `create_page_config`
+
+The tool takes the same payload shape Step 2 of the wizard renders — see "Step 2 — review the
+payload" below for the full shape and field map; it applies to both paths. Confirm-first:
+
+1. Call `create_page_config` **without** `confirm:true` to preview the payload it would send. Read
+   it back to the user field by field (same fields as the Step 1/2 map below), get a yes.
+2. Re-call with `confirm:true` to commit.
+3. On success it returns `page_config_id`, `version_id`, and `xcid`. If any of those three is
+   missing from the response, don't guess it — fall back to `search_dynamic_pages` /
+   `get_dynamic_page` and read it off the new Unpublished row, same as "After saving" below
+   describes for the browser path.
+4. Look up `template_id` / `template_version_id` via `get_template` / `list_template_versions`
+   first (see `templates.md`) rather than the browser's Template Versions tab.
+5. Look up the MCC via `list_mccs` / `get_card_mcc` and pass its fields directly in the payload —
+   this sidesteps the MCC combobox crash below entirely (no browser typing, so
+   `m.toLowerCase is not a function` can't fire).
+
+Field map below is from a real wizard run (2026-07-31), verified working, and doubles as the
+`create_page_config` payload reference. **Every identifier shown is a placeholder** —
+gateway/merchant IDs, slugs, template ids and xcids are per-page and must come from the ticket or a
+live sibling's config, never copied from here.
+
+## Browser fallback (wizard)
 
 Route: `/dynamic-pages/create-credit-card`. Two steps: **1 Page Information** → **2 Confirm & Save**.
 Step 1 is safe to fill and re-fill. Step 2 shows the raw JSON payload and its **Save** button is the
 committing action — read the payload back to the user and get a yes before clicking it.
-
-Field map below is from a real run (2026-07-31), verified working. **Every identifier shown is a
-placeholder** — gateway/merchant IDs, slugs, template ids and xcids are per-page and must come from
-the ticket or a live sibling's config, never copied from here.
 
 ## Prerequisites — both must already be true
 
