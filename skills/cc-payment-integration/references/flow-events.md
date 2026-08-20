@@ -101,8 +101,10 @@ var advancedInPreFlow = function (label, args) {     // no flow argument at all
 Prefer `ouisys-engine/utilities/tracker` — the real Pacman client, wired to GTM and Tau — whenever the
 target repo has it. See the non-negotiable about never swapping it out.
 
-This skill's own `payments/tracker.ts` posts to a different, generic `/api/v1/frontend/track`
-endpoint. Its method names and argument order now mirror the engine tracker exactly
+This skill's own `payments/tracker.ts` posts directly to the mstore endpoint above (not through the
+engine tracker) — an earlier version posted to `/api/v1/frontend/track`, confirmed **404 on staging
+AND production** across three independently-shipped pages, silently dropping every event. Its
+method names and argument order still mirror the engine tracker exactly
 (`customEvent` / `advancedInPreFlow` / `advancedInFlow` / `recedeInFlow`, flow-first), so component
 code reads identically either way and switching is a one-line import change. The `_flow` parameters
 are underscore-prefixed there to document that they are intentionally unused.

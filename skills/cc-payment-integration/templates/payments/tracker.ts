@@ -1,19 +1,41 @@
-// Lightweight host tracker — pushes product events keyed by rockmanId (→ Tau).
-// Safe no-op when rockmanId is absent (mirrors the widget's pre-mount behavior).
+// Lightweight host tracker — pushes product events keyed by rockmanId (→ Tau), via the same
+// mstore wire contract the real Pacman client uses (see references/flow-events.md). Safe no-op
+// when rockmanId is absent (mirrors the widget's pre-mount behavior).
+//
+// CONFIRMED BROKEN, don't reintroduce: `/api/v1/frontend/track` (this file's previous transport)
+// does not exist — 404s on staging AND production, so three independently-shipped pages silently
+// dropped every funnel event before anyone noticed. mstore is the only transport that reaches Tau.
 import { getRockmanId, getSlug } from './paymentConfig';
 
-function post(payload: Record<string, unknown>): void {
+const MSTORE_URL = '/analytickz/api/v2/mstore';
+const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
+let batch = 0;
+let eventNumber = 0;
+
+function post(category: string, action: string, label = '', meta?: Record<string, unknown>): void {
   const rockmanId = getRockmanId();
   if (!rockmanId) {
     // eslint-disable-next-line no-console
-    console.warn('[payments] tracker no-op (no rockmanId yet):', payload);
+    console.warn('[payments] tracker no-op (no rockmanId yet):', { category, action, label });
     return;
   }
+  const seconds =
+    typeof performance !== 'undefined' ? Math.round((performance.now() - t0) / 100) / 10 : 0;
+  const body = JSON.stringify({
+    r: rockmanId,
+    m: (window as any).pac_analytics?.visitor?.impressionNumber ?? 1,
+    b: batch++,
+    d: [{ t: 'flow_event', a: { number: eventNumber++, category, action, label, slug: getSlug(), ...meta }, s: seconds }]
+  });
   try {
-    fetch('/api/v1/frontend/track', {
+    if (typeof navigator !== 'undefined' && typeof navigator.sendBeacon === 'function') {
+      const blob = new Blob([body], { type: 'text/plain;charset=UTF-8' });
+      if (navigator.sendBeacon(MSTORE_URL, blob)) return;
+    }
+    fetch(MSTORE_URL, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ rockmanId, slug: getSlug(), ...payload }),
+      headers: { accept: '*/*', 'content-type': 'text/plain;charset=UTF-8' },
+      body,
       keepalive: true
     }).catch(() => {});
   } catch {
@@ -33,18 +55,18 @@ function post(payload: Record<string, unknown>): void {
 // rely on it reaching a dashboard. See references/flow-events.md.
 export const tracker = {
   customEvent(category: string, action: string, label?: string, meta?: Record<string, unknown>) {
-    post({ type: 'custom', category, action, label, meta });
+    post(category, action, label, meta);
   },
   // -> Pre-Flow:advance:<label>   (intent shown, no data entered yet)
   advancedInPreFlow(label: string, meta?: Record<string, unknown>) {
-    post({ type: 'preflow', label, meta });
+    post('Pre-Flow', 'advance', label, meta);
   },
   // -> Flow:advance:<label>
   advancedInFlow(_flow: string, label: string, meta?: Record<string, unknown>) {
-    post({ type: 'flow', verb: 'advance', label, meta });
+    post('Flow', 'advance', label, meta);
   },
   // -> Flow:recede:<label>
   recedeInFlow(_flow: string, label: string, meta?: Record<string, unknown>) {
-    post({ type: 'flow', verb: 'recede', label, meta });
+    post('Flow', 'recede', label, meta);
   }
 };

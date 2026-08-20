@@ -370,9 +370,9 @@ registered.
   `RootContext`, hooks) — that is the *real* Pacman analytics client (`window.pac_analytics`),
   wired into GTM and feeding Tau. It looks like an `ouisys-engine` import to strip during a
   "no-ouisys-engine" pass, but it isn't a widget or a redux flow — it's production analytics
-  infrastructure with no equivalent in this skill's own `tracker.ts` (which posts to a *different*,
-  generic `/api/v1/frontend/track` endpoint and is missing the `advancedInFlow`/`recedeInFlow`
-  methods real usage relies on). Leave every `ouisys-engine/utilities/tracker` import alone; only
+  infrastructure with no equivalent in this skill's own `tracker.ts` (which posts the same events
+  directly to the mstore endpoint — see flow-events.md's "Which tracker" section). Leave
+  every `ouisys-engine/utilities/tracker` import alone; only
   remove `ouisys-engine/utilities/searchToObject` / `getConfig` / `strategy` / `creditCardFlow`
   imports, which are the actual widget/engine surface this skill replaces.
 - **Fully removing the widget means clearing the generator's redux registration too, and deleting —
