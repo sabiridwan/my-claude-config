@@ -17,9 +17,10 @@ This is *not* the same string as the page name — see `create-page.md`.
 
 ## Create a template
 
-Templates list → `Create`. You need the **Country** (e.g. `XX`) and the **Template Name** (= repo
-name). Creating a template is cheap and non-traffic-affecting, but it is still a write — confirm the
-name with the user first, because a typo means re-uploading under a new template later.
+Primary path: `create_template` (confirm-first — preview without `confirm:true`, read the Country +
+Template Name back to the user, then re-call with `confirm:true`). Browser fallback: Templates list
+→ `Create`. Either way you need the **Country** (e.g. `XX`) and the **Template Name** (= repo name)
+— a typo means re-uploading under a new template later, so confirm it before committing either path.
 
 A freshly created template has **no versions attached**. That is expected: the build+upload step
 (`cc-dynamic-lp`) creates `v1`.
@@ -32,6 +33,15 @@ find one by name. Clicking the template name opens
 that appears in a page's create payload.
 
 ## Details page
+
+**Look up a template — MCP first.** `list_templates` / `get_template` return Country / Template
+Name / id; `list_template_versions` returns one template's `ID` / `Version` / `Version Url` /
+`Reason` / `Created By` / `Date Created`; `get_template_locales` returns its locale set. Use these
+instead of opening `/dynamic-pages/templates/details/<id>` in the browser — fall back to the
+browser only if a tool errors. `clear_template_cache` invalidates the panel's cached template list
+after a create/update if a fresh read still shows stale data.
+
+### Browser fallback
 
 Header shows Country / Template Name / Date Created, with `Preview` · `Edit` · `Delete` buttons.
 Left panel: `Related` (screenshot) and `Details` tabs. Right panel tabs:
