@@ -265,9 +265,10 @@ type-checks, and the checkout is wired (no leftover unmounted marker). See
 
 > **MCP first for every panel touch.** All panel lookups and supported writes in these steps go
 > through the `ouisys-panel` MCP server (`mcp__ouisys-panel__*`) via `cc-ouisys-panel` — checking a
-> page/config/template state is `get_dynamic_page` / `search_dynamic_pages`, never a browser
-> navigation. Chrome is only for what MCP doesn't expose yet (Card Create wizard, template create,
-> publish).
+> page/config/template state is `get_dynamic_page` / `search_dynamic_pages` / `list_templates`,
+> never a browser navigation, and creating/editing the template or page config is
+> `create_template` / `create_page_config` / `update_page_config`, never the wizard. Chrome is only
+> for **Publish** and anything a tool call errors on.
 
 1. **Template exists in the panel**, named exactly the git repo name (`cc-ouisys-panel` →
    `cc-ouisys-panel/references/templates.md`). No build attached yet is fine.
