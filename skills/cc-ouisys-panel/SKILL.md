@@ -43,17 +43,27 @@ before touching the browser, every time:**
 1. Call `whoami` first — it tells you the tools you can use and your role's limits.
 2. **All reads go through MCP, never the browser:** `get_dynamic_page`, `search_dynamic_pages`,
    `list_campaigns` / `get_campaign`, `list_mccs`, `list_strategies`, `list_legals`,
-   `list_cloaking_presets`. Opening panel.ouisys.com in Chrome just to *look something up* is
-   wrong — do that only if the MCP call errors or the field isn't in its response.
+   `list_cloaking_presets`, `list_templates` / `get_template` / `list_template_versions` /
+   `get_template_locales`, `check_page_name`, `get_card_mcc`. Opening panel.ouisys.com in Chrome
+   just to *look something up* is wrong — do that only if the MCP call errors or the field isn't
+   in its response.
 3. **Safe writes that exist as MCP tools use them:** `clone_campaign`, `create_strategy`,
-   `attach_cloaking_preset`. They are confirm-first: call once without `confirm:true` to preview,
-   show the user, then re-call with `confirm:true`.
+   `attach_cloaking_preset`, `create_page_config`, `update_page_config`, `create_template`,
+   `create_card_mcc`, `update_card_mcc`, `soft_delete_page`, `restore_page`,
+   `clear_template_cache`. They are confirm-first: call once without `confirm:true` to preview,
+   show the user, then re-call with `confirm:true`. This now covers the Card Create wizard, page
+   Edit, Template create, MCC CRUD, and Hide/Restore — drive all of these through the tool, not the
+   browser wizard/Actions menu.
 4. **The browser is the fallback, not the default.** Fall back to the Chrome workflows below only
-   for operations the MCP server does not expose yet — today that's the Card Create wizard
-   (create-page-config), Template create, page Edit, Publish/Hide, and MCC CRUD. The server is
-   actively growing: re-check the available `mcp__ouisys-panel__*` tools each session, and when a
-   tool now exists for the operation, use it instead of the browser section.
-5. The **read-lag caveat applies to MCP reads too** — see the verification checklist at the bottom:
+   for **Publish** (there is no publish tool — deliberate, see the never-publish-to-production rule
+   below) and for anything a tool call errors on or a field its response doesn't cover. The server
+   is actively growing: re-check the available `mcp__ouisys-panel__*` tools each session, and when
+   a tool now exists for an operation still documented here as browser-only, use it instead.
+5. `create_page_config` returns `page_config_id`, `version_id`, and `xcid` on success. If any of
+   those is missing from the response in practice, don't guess it — fall back to
+   `search_dynamic_pages` / `get_dynamic_page` and read it off the Unpublished row, the same as the
+   browser workflow already does.
+6. The **read-lag caveat applies to MCP reads too** — see the verification checklist at the bottom:
    `get_dynamic_page` can return a revision older than a write you just made. Baseline guarded
    edits off the form/tool call you just submitted, verify off the served page.
 
