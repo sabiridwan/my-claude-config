@@ -39,6 +39,10 @@ Use it to:
 `Actions` → **`Publish`** moves the page from Unpublished to Published — i.e. exposes it to real
 traffic. This is the correct publish path for a cc-dynamic credit-card page.
 
+There is no MCP publish tool, and none should be added or wired in for this — Publish is
+deliberately human/browser-only, per the never-publish-to-production rule (`cc-ouisys-panel/SKILL.md`
+and `cc-launch` step 8).
+
 **Do not use the repo's `yarn publish:page`.** It is DCB-flow boilerplate: it builds its S3 keys as
 `{country}-{slugify(scenario || strategy_scenariosConfig)}-staging.html` → `-production.html`, but a
 cc-dynamic `.env` has no `scenario` and the build uploads `html/staging.html`, `html/index.html`,
@@ -48,8 +52,11 @@ Confirm before clicking, then verify the page now appears in the Published list.
 
 ## Edit (update a live config)
 
+Primary path: `update_page_config`, confirm-first (preview without `confirm:true`, read the
+field-by-field diff back to the user, then re-call with `confirm:true`). Browser fallback —
 `Actions` → `Edit` opens `/dynamic-pages/update/{id}` with the config prefilled and a live preview
-pane. Same field map as `create-page.md` — including the traps:
+pane, useful if you need the visual preview pane itself. Same field map as `create-page.md` either
+way — including the traps:
 
 - **Never type in the MCC combobox** (`m.toLowerCase is not a function` crashes the panel and drops
   your unsaved edits). Click to pick.
@@ -66,8 +73,12 @@ The committing button is **`Update`**. Confirm the field-by-field diff in chat f
 
 ## Clone
 
-`Actions` → `Clone` duplicates a page's config into a new **Unpublished** draft. Use it for "same as
-X but for country/product Y".
+There is no dedicated MCP clone tool for a *page* (that's different from the existing
+`clone_campaign`, which clones a Campaign object, not a Dynamic Page). Primary path: read the
+source page's full config with `get_dynamic_page`, then call `create_page_config` (confirm-first)
+with that config as the base and the fields below changed. Browser fallback — `Actions` → `Clone`
+duplicates a page's config into a new **Unpublished** draft directly. Use either for "same as X but
+for country/product Y".
 
 After cloning, `Edit` the draft and change at minimum:
 
@@ -89,13 +100,16 @@ Cloning creates a new object rather than touching the source page, which makes i
 derive a variant. Still confirm before clicking `Clone`, and never clone *from* a page the user did
 not name.
 
-## Hide / Delete
+## Hide / Restore / Delete
 
-- `Hide` → moves to the Hidden list (`/dynamic-pages/deleted/list`), pulling it from traffic.
-- `Delete` → removes it.
+- **Hide** — primary path `soft_delete_page` (confirm-first); moves the page to the Hidden list
+  (`/dynamic-pages/deleted/list`), pulling it from traffic. Browser fallback: `Actions` → `Hide`.
+- **Restore** — primary path `restore_page` (confirm-first); moves it back out of Hidden.
+- **Delete** (hard delete) — no MCP tool exposes this yet; browser only: `Actions` → `Delete`.
 
-Both are destructive and traffic-affecting. State exactly which page (name + xcid) and what happens,
-get an explicit yes, and prefer `Hide` over `Delete` when the user's intent is "take it down".
+Hide and Delete are both destructive/traffic-affecting. State exactly which page (name + xcid) and
+what happens, get an explicit yes, and prefer `Hide`/`soft_delete_page` over a hard `Delete` when
+the user's intent is "take it down" — it's reversible via `restore_page`.
 
 ## Pulling a panel config back into the repo
 
