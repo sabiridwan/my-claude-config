@@ -115,22 +115,22 @@ path. Answer with `file:line`, not with an assumption.
 
 ## Phase 4 — Tenancy, authorization, audit trail
 
-```bash
-HR=src/modules/hr
-# repository queries with no company scoping in the same file
-for f in $(find "$HR" -name "*.repository.ts"); do
-  grep -qi "companyId" "$f" || echo "NO companyId: $f"
-done
-# mutations missing an audit trail
-grep -rn "@Mutation" "$HR" --include="*.resolver.ts" -A3 | grep -B2 -L "AuditMeta" | head
-# HR authorization actually applied?
-grep -rln "hr-authorize\|ApGqlAuthorize" "$HR" --include="*.resolver.ts" | wc -l
-find "$HR" -name "*.resolver.ts" | wc -l
-```
+`scripts/hr_audit.sh` prints this section. Read it as **candidates, not findings**.
 
-Any HR repository with no `companyId` filter is **Critical**. Any compensation-bearing
-resolver without authorization is **Critical**. Mutations without `@AuditMeta()` are High for
-approval/payroll transitions, Medium elsewhere.
+Scoping is legitimately applied at any of three layers — repository `buildQuery()`, the
+service (reading `contextSvc.companyId`), or the schema — and some entities are scoped
+indirectly through `employeeId` or `branchId`. In `zyncg-server`, for example,
+`payroll.repository.ts` has no `companyId` because `payroll.service.ts` carries 14 references
+to it. A grep on the repository file alone therefore produces false positives.
+
+The real check, per candidate sub-module: **trace one read path end to end** from resolver to
+Mongo query and confirm a tenant predicate is present. Only then call it.
+
+- Genuinely unscoped HR entity holding compensation or personal data → **Critical**.
+- Unscoped reference/config entity (shift, timetable, item group) → decide whether it is
+  intentionally global master data; if it is, say so and move on.
+- Compensation-bearing resolver with no authorization decorator → **Critical**.
+- Mutations without `@AuditMeta()` → High for approval and payroll transitions, Medium elsewhere.
 
 ---
 
