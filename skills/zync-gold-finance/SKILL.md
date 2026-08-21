@@ -171,6 +171,7 @@ this skill read-only — it reports and never edits.
 | `references/audit-checklist.md` | running any audit — the 12 dimensions with their exact greps |
 | `references/zyncg-finance-map.md` | working inside zyncg-server specifically — what exists, where |
 | `references/baseline-findings.md` | starting a recurring run; last known state and sha |
+| `references/metal-ledger-plan.md` | anything touching gram balances, metal position, rate effective-dating or unfixed exposure — the agreed build order, and why step 4 must not come first |
 | `scripts/audit_finance.sh` | always, first, before reading source |
 
 ## Hand-offs
