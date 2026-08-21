@@ -1,0 +1,120 @@
+# One file per camera. Thresholds here are STARTING POINTS to be tuned on this shop's
+# own peak-hour footage — see references/gold-shop-recipes.md "Choosing thresholds".
+
+camera_id: cam-03-counter          # must match the Device.deviceId in zyncg-server
+branch: KL-Main
+
+source:
+  kind: rtsp                       # rtsp | video
+  # Hikvision substream = channel 102, Dahua = subtype=1. NEVER the main stream.
+  url: rtsp://viewer:pass@192.168.1.64:554/Streaming/Channels/102
+  # kind: video
+  # path: ./footage/peak-hour.mp4
+
+detector:
+  kind: inference                  # inference | ultralytics | stub
+  model_id: rfdetr-medium
+  confidence: 0.35
+
+tracker:
+  kind: bytetrack                  # bytetrack | botsort (shaky/PTZ) | ocsort | sort | cbiou
+
+classes: [0]                       # COCO person only; add your custom tray class id here
+class_aliases:                     # rule expressions see <zone_key>_<alias>, e.g. counter_bridal_tray
+  person: 0
+  # tray: 1
+  # helmet: 2
+
+analyse_every: 2                   # detect every 2nd frame, tracker fills the gaps
+line_flush_interval: 900           # emit LINE_CROSS deltas every 15 min
+
+erp:
+  base_url: https://api.zyncgold.example/api
+  device_key_env: ZYNC_VISION_DEVICE_KEY   # key comes from the environment, never this file
+  buffer_path: ./data/events.jsonl
+
+business_hours:                    # local time, 24h. Missing day = closed.
+  mon: [10, 20]
+  tue: [10, 20]
+  wed: [10, 20]
+  thu: [10, 20]
+  fri: [10, 20]
+  sat: [10, 21]
+  sun: [11, 19]
+
+zones:
+  - key: counter_bridal            # recipe 2 — CUSTOMER side of the counter only
+    anchor: center                 # overhead camera; use bottom_center on a corner camera
+    min_dwell_s: 5
+    polygon: [[420, 330], [980, 330], [1010, 620], [400, 620]]
+
+  - key: counter_bridal_staff      # recipe 5 — staff side, geometric staff detection
+    anchor: center
+    emit_dwell: false
+    polygon: [[420, 180], [980, 180], [980, 320], [420, 320]]
+
+  - key: till                      # recipe 4
+    anchor: bottom_center
+    min_dwell_s: 10
+    polygon: [[1100, 400], [1500, 400], [1500, 760], [1080, 760]]
+
+lines:
+  - key: entrance                  # recipe 1 — INSIDE the shop, past the mat
+    anchor: bottom_center
+    minimum_crossing_threshold: 2
+    start: [300, 700]
+    end: [1000, 700]
+
+rules:
+  # recipe 5 — counter left unmanned with a customer waiting
+  - key: counter_unattended
+    type: COUNTER_UNATTENDED
+    zone_key: counter_bridal
+    when: "counter_bridal >= 1 and counter_bridal_staff == 0"
+    severity: MEDIUM
+    min_duration: 60
+    cooldown: 900
+    hours: business
+    message: "Bridal counter unattended with a customer present"
+
+  # recipe 6 — needs the custom `tray` class; highest-value rule in the shop
+  # - key: tray_unattended
+  #   type: TRAY_UNATTENDED
+  #   zone_key: counter_bridal
+  #   when: "counter_bridal_tray >= 1 and counter_bridal_staff_person == 0"
+  #   severity: CRITICAL
+  #   min_duration: 20
+  #   cooldown: 300
+  #   hours: any
+  #   message: "Tray out on the counter with no staff present"
+
+  # - key: tray_policy_breach
+  #   type: TRAY_POLICY_BREACH
+  #   zone_key: counter_bridal
+  #   when: "counter_bridal_tray > 2"
+  #   severity: HIGH
+  #   min_duration: 30
+  #   cooldown: 600
+  #   hours: business
+
+  # recipe 4 — queue
+  - key: till_queue
+    type: QUEUE_OCCUPANCY
+    zone_key: till
+    when: "till >= 4"
+    severity: LOW
+    min_duration: 90
+    cooldown: 600
+    hours: business
+    message: "4+ customers waiting at the till"
+
+  # recipe 8 — after hours
+  - key: after_hours
+    type: AFTER_HOURS_MOTION
+    zone_key: counter_bridal
+    when: "counter_bridal >= 1"
+    severity: CRITICAL
+    min_duration: 3
+    cooldown: 300
+    hours: after
+    message: "Movement in the shop outside business hours"

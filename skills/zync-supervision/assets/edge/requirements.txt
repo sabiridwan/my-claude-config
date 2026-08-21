@@ -1,0 +1,11 @@
+# python >= 3.10
+supervision>=0.30
+trackers>=2.6            # ByteTrackTracker — sv.ByteTrack is removed in supervision 0.31
+opencv-python-headless>=4.9   # NOT a supervision dependency
+numpy>=1.26
+pyyaml>=6
+requests>=2.31
+
+# pick ONE detector runtime:
+# inference>=0.30        # Roboflow: rfdetr-medium + your custom tray model
+# ultralytics>=8.2       # YOLO
