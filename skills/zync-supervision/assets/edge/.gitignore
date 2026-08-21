@@ -1,0 +1,6 @@
+__pycache__/
+data/
+zones.json
+config.yaml
+venv/
+footage/
