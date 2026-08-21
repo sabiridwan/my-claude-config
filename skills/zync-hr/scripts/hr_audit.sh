@@ -63,12 +63,22 @@ hr "PRORATION BASES IN USE (should be exactly one)"
 grep -rnoE "(/ ?26|/ ?30|daysInMonth|workingDays|calendarDays|prorat[a-zA-Z]*)" \
   "$HR" --include="*.ts" 2>/dev/null | awk -F: '{print $NF}' | sort | uniq -c | sort -rn
 
-hr "TENANCY — repositories with no companyId filter (CRITICAL if any)"
+hr "TENANCY PROBE — sub-modules with no companyId anywhere (repository, service or schema)"
+echo "  NOTE: scoping is legitimately applied at any of those three layers, and some entities"
+echo "  are scoped indirectly (e.g. via employeeId). This lists candidates to READ, not findings."
 found=0
+for d in $(find "$HR" -type d -mindepth 1 | sort); do
+  ls "$d"/*.repository.ts >/dev/null 2>&1 || continue
+  if ! grep -rqi "companyId" "$d"/*.ts 2>/dev/null; then
+    echo "  no companyId in: ${d#$HR/}"
+    found=1
+  fi
+done
+[ "$found" -eq 0 ] && echo "  every HR sub-module with a repository references companyId somewhere"
+echo "-- repositories where the scoping is NOT in the repository file (confirm the service does it) --"
 while IFS= read -r f; do
-  grep -qi "companyId" "$f" || { echo "  NO companyId: $f"; found=1; }
-done < <(find "$HR" -name "*.repository.ts")
-[ "$found" -eq 0 ] && echo "  all HR repositories reference companyId"
+  grep -qi "companyId" "$f" || echo "  ${f#$HR/}"
+done < <(find "$HR" -name "*.repository.ts" | sort)
 
 hr "AUTHORIZATION COVERAGE"
 tot=$(find "$HR" -name "*.resolver.ts" | wc -l | tr -d ' ')
