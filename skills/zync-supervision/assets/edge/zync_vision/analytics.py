@@ -107,6 +107,8 @@ class LineMonitor:
         self._flushed_out = 0
 
     def update(self, detections: sv.Detections) -> None:
+        if len(detections) == 0:
+            return
         if detections.tracker_id is None:
             raise ValueError("LineZone needs tracker_id — run the tracker before the line")
         self.line.trigger(detections)

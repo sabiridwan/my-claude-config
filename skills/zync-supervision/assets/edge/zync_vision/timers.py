@@ -42,6 +42,9 @@ class FPSBasedTimer(_BaseTimer):
 
     def tick(self, detections: sv.Detections) -> np.ndarray:
         self.frame_id += 1
+        if detections.tracker_id is None or len(detections) == 0:
+            self._evict(self.tracker_id2frame_id)
+            return np.array([], dtype=float)
         times = []
         for tracker_id in detections.tracker_id:
             tracker_id = int(tracker_id)
@@ -63,6 +66,9 @@ class ClockBasedTimer(_BaseTimer):
 
     def tick(self, detections: sv.Detections) -> np.ndarray:
         now = time.time()
+        if detections.tracker_id is None or len(detections) == 0:
+            self._evict(self.tracker_id2start)
+            return np.array([], dtype=float)
         times = []
         for tracker_id in detections.tracker_id:
             tracker_id = int(tracker_id)

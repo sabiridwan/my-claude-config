@@ -27,8 +27,17 @@ class VisionEvent:
 
     @property
     def event_key(self) -> str:
-        """Idempotency key. Replay after an outage must not double the footfall."""
-        raw = f"{self.camera_id}|{self.type}|{self.zone_key or ''}|{int(self.occurred_at.timestamp())}"
+        """Idempotency key — the server upserts on it, so replay after an outage cannot
+        double the footfall. Microseconds + duration + count are in the hash because two
+        trackers can leave the same zone inside the same second and those are two events."""
+        raw = "|".join([
+            self.camera_id,
+            self.type,
+            self.zone_key or "",
+            str(int(self.occurred_at.timestamp() * 1_000_000)),
+            str(self.duration_seconds or ""),
+            str(self.count or ""),
+        ])
         return hashlib.sha1(raw.encode()).hexdigest()
 
     def to_payload(self) -> dict[str, Any]:
