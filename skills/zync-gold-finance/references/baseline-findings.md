@@ -7,7 +7,22 @@ an initial pass and an independent adversarial re-verification.
 > A recurring run must **re-verify** each finding before repeating it, and report **deltas
 > only**. Rewrite this file with the new sha and state at the end of every run.
 
-## State of the tree at time of writing
+## State of the tree — end of 2026-08-21 session
+
+HEAD `7ada1e7`. `tsc --noEmit` exits 0. Affected-module test run: **661 passed, 38 failed —
+all 38 proven pre-existing** by stashing every change from this session and re-running
+(31 of them are N13, upstream DI breakage in stock/transfer).
+
+Six remediation agents were killed mid-edit by a session limit. What survived is recorded
+per-finding above as **NOT STARTED / GROUNDWORK ONLY / PARTIALLY WIRED / fixed**. The
+partial work compiles and breaks no tests, but it is **inert** — do not read its presence
+in the tree as the finding being closed.
+
+Commits were made by a concurrent session using `git add -A`, so this session's work is
+spread across `24240fc`, `4c9765f` and `7ada1e7` under messages that do not describe it.
+Nothing was lost; verified by marker file and wiring checks after each event.
+
+## Earlier state notes
 
 Fixes for #2, #3, #5, #8, #9 are applied. Part landed in commit `24240fc` (a commit made by
 a concurrent session, which also swept up unrelated work and captured `fiscal.service.ts`
@@ -22,7 +37,11 @@ spec failures are unrelated to any of this work and are listed at the bottom.
 |---|-----|-----|---------|----------|
 | N1 | BOOKS-WRONG | 8, 1 | A line tax on a note/cashbook/contra entry posts **two offsetting tax legs** and grosses up **both** principal legs. Tax account nets to zero; the entry balances, so nothing fails | `transaction.service.ts:92,138-140,171-185`; `note.service.ts:672-688`; `cashbook.service.ts:252-258`; `contra.service.ts:152,172` |
 | N2 | BOOKS-WRONG | 2 | `inventory/returns` posts **nothing** to the GL. `createReturnInvoice` is an exposed mutation; `AccountService` is an unused import. A correct parallel path exists at `invoice.return.ts:60-119` | `returns/return.service.ts`; `returns/return.resolver.ts:50` |
-| 1 | BOOKS-WRONG | 2, 4 | Melting posts nothing to the GL — WIP, furnace loss and refining charges never reach the ledger | `inventory/melting/melting.service.ts`; `melting.constants.ts:194` |
+| 4 | BOOKS-WRONG | 7 | **NOT STARTED.** Reports accept `branchId` and ignore it. Blocked on a design call: account-branch vs transaction-branch diverge on inter-branch entries, and `branchId` population on `finance_account_transactions` must be measured first | `report.interface.ts:107` vs 0 hits in `report.service.ts` |
+| N4 | CONTROL-GAP | 9 | **NOT STARTED.** Knock-off over-applies — guard compares to `invoice.totalAmount`, not the open balance; payment path only `console.log`s | `payment.service.ts:450-455`; `note.service.ts:1057` |
+| 6 | CONTROL-GAP | 2 | **GROUNDWORK ONLY, INERT.** Cash-drawer schema/dto/constants/seed prepared; `cash-drawer.service.ts` still has zero references to `AccountTransactionService`, so nothing posts | `cash-drawer.dto.ts:79-95` |
+| N2 | BOOKS-WRONG | 2 | **SCAFFOLDING ONLY, INERT.** `returns/return.service.ts` still has zero posting calls. A spec shell exists | `returns/return.service.ts` |
+| N11 | CONTROL-GAP | 11 | **PARTIALLY WIRED.** `src/utils/resolve-audit-target.ts` (160 lines) written and referenced by the interceptor, but the pre-state capture is unverified — no specs, no confirmation that `snapshotBefore` is now a true before | `interceptors/audit.interceptor.ts:83-84` |
 | 4 | BOOKS-WRONG | 7 | Reports accept `branchId` and ignore it — every branch report is a group report | `report.interface.ts:107` vs 0 hits in `report.service.ts` |
 | N3 | CONTROL-GAP | 8 | A line tax on a **payment** entry unbalances the entry outright — AR leg grossed up and given a tax leg, cash leg written straight to the repo | `payment.service.ts:243-259`, throws at `:196` |
 | N4 | CONTROL-GAP | 9 | Knock-off can **over-apply** — guard compares to `invoice.totalAmount`, not the open balance; on the payment path it only `console.log`s | `payment.service.ts:450-455`; `note.service.ts:1057` |
@@ -43,7 +62,7 @@ spec failures are unrelated to any of this work and are listed at the bottom.
 | 16 | BLIND-SPOT | 12 | No year-end close — retained earnings synthesised at report time, never posted | `report.service.ts:1002-1060` |
 | 17 | DEBT | 1 | `validateBalanced` scans the whole company POSTED ledger on every write, from **65 production call sites** | `account.service.ts:634-640` |
 | 18 | DEBT | 1 | **Downgraded.** `LEDGER_BALANCE_TOLERANCE = 0.005` now exists and is used at the ledger level. `journal.service.ts:84` (0.001) and `payroll.service.ts:1428` (0.01) still diverge | `finance.model.ts:20` |
-| N10 | DEBT | 1 | `accountBalanced()` still uses `formatAmt(a) === formatAmt(b)`, two lines above the method already migrated to the tolerance constant | `account.service.ts:588` |
+| N13 | DEBT | — | **Pre-existing upstream breakage, not from this work.** `StockService` gained a `StockTransferRepository` constructor dependency in commit `29e6e4a` without its spec being updated; `stock.service.spec.ts` (29 tests) and `transfer.service.spec.ts` (2) fail on DI resolution. Proven pre-existing by stashing all of this session's work and re-running: 31 still fail | `inventory/stock/stock.service.ts` |
 | 5 | DEBT | 2 | **Downgraded from BOOKS-WRONG.** The job-order `if (customerAccount)` skip was dead defensive code — `getUserAccount` auto-creates or throws, never returns null. Still worth the explicit throw, since a symmetric skip is invisible to `validateBalanced` | `job-order.service.ts:213` |
 | 19 | DEBT | 5 | `amount2` declared on the ledger row, referenced nowhere | `transaction.schema.ts:120` |
 | 20 | DEBT | 3 | `AccountTransactionStatus` carries overlapping vocabularies (`SAVED`/`DRAFT`, `POSTED`/`CONFIRMED`) on one field | `transaction.schema.ts` status enum |
