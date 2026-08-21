@@ -31,6 +31,22 @@ balance enforcement, branch scoping, dead finance constants. Read the pack **bef
 reading any source file. It exists so you stop re-deriving the same greps and
 mis-remembering what a module does.
 
+**The pack is a lead generator, not evidence of record.** Two rules, both learned the hard
+way:
+
+1. **Never run the pack while anything is editing the tree.** A pack generated alongside
+   in-flight fixes captures a half-written file: its line numbers drift, and findings it
+   reports may already be fixed. If builders are running, wait for them.
+2. **Source wins, always.** Where the pack and the file disagree, the file is right —
+   re-read it and treat that pack section as void. A finding quoted from a stale pack is
+   how an auditor ends up reporting a bug that was fixed an hour earlier, which destroys
+   trust in every other finding in the same report.
+
+Its greps also detect only *one* posting mechanism (`AccountTransactionService`). A module
+that posts via `JournalEntryService`, via a discriminator `super.create`, or through
+another service will show as "0 importers" and is a **false negative**. Confirm every
+zero by reading the module.
+
 ## Two modes — say which one you are in, then work
 
 **AUDIT** — "audit finance", a scheduled run, or a diff review. Produce findings. Do not

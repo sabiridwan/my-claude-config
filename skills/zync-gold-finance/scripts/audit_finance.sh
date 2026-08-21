@@ -62,14 +62,20 @@ for k in $KINDS; do
 done | sort -n
 
 # ---------------------------------------------------------------- 2.2
-hr "2.2  value-handling modules importing AccountTransactionService (0 = posts nothing)"
+hr "2.2  value-handling modules and HOW they reach the ledger (0 in every column = posts nothing)"
+echo "     A = AccountTransactionService · J = JournalEntryService · D = discriminator super.create"
+echo "     A zero in one column is NOT a finding — a module posting via another mechanism"
+echo "     scores 0 there. Only all-zero rows are candidates, and each must be read to confirm."
+printf "%5s %5s %5s   %s\n" A J D MODULE
 for m in inventory/melting inventory/transfer inventory/adjustment inventory/invoice \
-         inventory/purchase inventory/returns job-order scheme membership cash-drawer \
-         hr/payroll subscription; do
+         inventory/purchase inventory/returns inventory/sales job-order scheme membership \
+         cash-drawer hr/payroll hr/advance subscription user; do
   [ -d "src/modules/$m" ] || continue
-  n=$(grep -rl "AccountTransactionService" "src/modules/$m" $TS 2>/dev/null | nospec | wc -l | tr -d ' ')
-  printf "%4s  %s\n" "$n" "$m"
-done | sort -n
+  a=$(grep -rl "AccountTransactionService" "src/modules/$m" $TS 2>/dev/null | nospec | wc -l | tr -d ' ')
+  j=$(grep -rl "JournalEntryService" "src/modules/$m" $TS 2>/dev/null | nospec | wc -l | tr -d ' ')
+  d=$(grep -rl "AccountTransactionKind\." "src/modules/$m" $TS 2>/dev/null | nospec | wc -l | tr -d ' ')
+  printf "%5s %5s %5s   %s\n" "$a" "$j" "$d" "$m"
+done | sort -k1,1n -k2,2n -k3,3n
 
 # ---------------------------------------------------------------- 2.3
 hr "2.3  posting calls guarded by a conditional (silent-skip risk)"
