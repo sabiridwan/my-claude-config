@@ -104,20 +104,38 @@ sanitize() { printf '%s' "$1" | tr '\n\r\t\v\f' ' ' | tr -s ' '; }
 # tag of the same name, so a prompt sandwiched between two blocks of one kind is eaten
 # too. That is the safe direction: the veto still reads the FULL text, so an over-strip
 # costs a route and yields silence, never a cheap route that should have been blocked.
+# Remove harness-injected wrapper blocks so the ordered tier rules see the user's
+# typed text. Claude Code and the IDE extension prepend blocks such as
+# <ide_selection>, <ide_opened_file>, <task-notification> and <system-reminder>;
+# because sanitize() has already folded everything onto one line, a ^-anchored rule
+# would otherwise anchor to the wrapper and never fire, killing T0, T1 and T4 — three
+# of the five routable tiers — whenever the harness injects anything.
 #
-# One explicit expression per tag, deliberately NOT a single alternation with a \1
-# backreference. BSD sed (macOS) supports backreferences only on the replacement side,
-# not inside the pattern, so `s#<(a|b)>.*</\1>#` silently matches nothing there and
-# every anchored rule quietly stops firing again. Keep the expressions explicit.
+# GENERIC on purpose, never an allowlist. The injected tag set is not ours to
+# enumerate: <ide_selection> and <ide_opened_file> come from the IDE extension and
+# appear nowhere in the CLI binary, so a list of tags we happened to observe silently
+# stops matching the day a new one ships. That is not hypothetical — it is how
+# <ide_opened_file> slipped through and reverted every anchored rule to T5.
+#
+# Pure bash parameter expansion, no sed. BSD sed supports backreferences only on the
+# replacement side, so the natural generic form `s#<([a-z-]+)>.*</\1>##g` matches
+# nothing at all on macOS, silently. This also drops a subprocess from the hot path.
+# Removal is shortest-match (first open tag to its first close), so adjacent blocks
+# are stripped individually rather than swallowing the text between them.
+# An unclosed tag is left alone: better to lose a route than eat the user's prompt.
 strip_wrappers() {
-  printf '%s' "$1" | sed -E \
-    -e 's#<ide_selection>.*</ide_selection>##g' \
-    -e 's#<system-reminder>.*</system-reminder>##g' \
-    -e 's#<task-notification>.*</task-notification>##g' \
-    -e 's#<command-name>.*</command-name>##g' \
-    -e 's#<command-message>.*</command-message>##g' \
-    -e 's#<command-args>.*</command-args>##g' \
-    -e 's#<local-command-stdout>.*</local-command-stdout>##g'
+  local s="$1" tag open close guard=0
+  while [ "$guard" -lt 20 ]; do
+    guard=$((guard + 1))
+    [[ "$s" =~ \<([a-z][a-z0-9_-]*)\> ]] || break
+    tag="${BASH_REMATCH[1]}"
+    open="<$tag>"; close="</$tag>"
+    case "$s" in
+      *"$open"*"$close"*) s="${s%%"$open"*}${s#*"$close"}" ;;
+      *) break ;;
+    esac
+  done
+  printf '%s' "$s"
 }
 
 # --- test entry point: pure, no logging, no JSON

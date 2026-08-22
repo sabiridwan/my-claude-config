@@ -193,5 +193,21 @@ if grep -q 'where is resolveGroupId defined' "$lw" && ! grep -q 'ide_selection' 
   pass=$((pass+1)); else fail=$((fail+1)); printf 'FAIL  log kept the wrapper: %s\n' "$(cat "$lw")"; fi
 rm -f "$lw"
 
+
+# --- wrapper stripping must be GENERIC, not an allowlist. The injected tag set is not
+# ours to enumerate: <ide_selection> and <ide_opened_file> come from the IDE extension
+# and appear nowhere in the CLI binary, so any tag added later would silently kill the
+# anchored rules again — which is exactly how <ide_opened_file> got missed.
+te $'<ide_opened_file>The user opened /a/b/c.ts in the IDE.</ide_opened_file>where is resolveGroupId defined' T1 'tier:T1'
+te $'<some-future-tag>whatever this turns out to be</some-future-tag>what is a repository'                    T0 'tier:T0'
+te $'<a>x</a><b>y</b>where is foo'                                                                            T1 'tier:T1'
+te $'<outer>before</outer>add a leaveBalance field<trailing>after</trailing>'                                  T4 'tier:T4'
+
+# an unclosed tag must NOT eat the rest of the prompt
+te $'<unclosed>where is resolveGroupId defined'                                                               T5 'none'
+
+# SAFETY: a generic strip must still leave the veto reading the full text
+te $'<ide_opened_file>src/hr/payroll/payroll.service.ts</ide_opened_file>rename the getRate helper'           T5 'veto'
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
