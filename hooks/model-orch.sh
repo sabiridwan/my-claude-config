@@ -10,8 +10,16 @@ LOG="${MODEL_ORCH_LOG:-$HOME/.claude/model-orch.log}"
 # classify <lowercased-prompt> -> prints tier, and (via globals) the route
 TIER=""; AGENT=""; MODEL=""; RULE=""
 
+# classify <full-text> [<stripped-text>]
+#   $1 full text, sanitized+lowercased — the VETO matches against this, wrappers
+#      included, so a payroll reference pasted inside an <ide_selection> still
+#      vetoes even when the typed ask looks routable. Safety sees everything.
+#   $2 same text with harness wrapper blocks removed — the ORDERED TIER RULES match
+#      against this, so ^-anchors land on what the user actually typed. Defaults to
+#      $1. Over-stripping can therefore only cost a route (silence), never cause one.
 classify() {
   local lc="$1"
+  local ask="${2:-$1}"
   TIER="T5"; AGENT=""; MODEL=""; RULE="none"
 
   [ -r "$RULES" ] || return 0
@@ -48,7 +56,7 @@ classify() {
   for ((i = 0; i < n; i++)); do
     m=$(jq -r ".tiers[$i].match // empty" "$RULES" 2>/dev/null)
     [ -n "$m" ] || continue
-    if printf '%s' "$lc" | grep -qE "$m"; then
+    if printf '%s' "$ask" | grep -qE "$m"; then
       TIER=$(jq -r ".tiers[$i].tier" "$RULES")
       AGENT=$(jq -r ".tiers[$i].agent // empty" "$RULES")
       MODEL=$(jq -r ".tiers[$i].model // empty" "$RULES")
@@ -63,7 +71,7 @@ classify() {
   #    T0 is the one exception: a knowledge question welded to an action clause is
   #    no longer answerable inline, so it drops to T5 (silence) and the main loop
   #    handles it. Routing it to an edit agent would act on a half-understood ask.
-  if [ -n "$escalate" ] && printf '%s' "$lc" | grep -qE "$escalate"; then
+  if [ -n "$escalate" ] && printf '%s' "$ask" | grep -qE "$escalate"; then
     case "$TIER" in
       T0) TIER="T5"; AGENT=""; MODEL=""; RULE="compound-t0" ;;
       T1|T2|T3|T4) RULE="$RULE+compound" ;;
@@ -85,9 +93,37 @@ lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 # after a naive tr collapse unless the run is also squeezed.
 sanitize() { printf '%s' "$1" | tr '\n\r\t\v\f' ' ' | tr -s ' '; }
 
+# Remove harness-injected wrapper blocks so the ordered tier rules see the user's
+# typed text. Claude Code prepends <ide_selection>, <task-notification>,
+# <system-reminder> and command blocks to the prompt; because sanitize() has already
+# folded everything onto one line, a ^-anchored rule would otherwise anchor to the
+# wrapper and never fire — killing T0, T1 and T4, three of the five routable tiers.
+# Run AFTER sanitize(): the blocks span newlines in the raw payload, and sed is
+# line-oriented, so stripping first would only ever catch single-line blocks.
+# Greedy on purpose. Matching is greedy between the first open tag and the last close
+# tag of the same name, so a prompt sandwiched between two blocks of one kind is eaten
+# too. That is the safe direction: the veto still reads the FULL text, so an over-strip
+# costs a route and yields silence, never a cheap route that should have been blocked.
+#
+# One explicit expression per tag, deliberately NOT a single alternation with a \1
+# backreference. BSD sed (macOS) supports backreferences only on the replacement side,
+# not inside the pattern, so `s#<(a|b)>.*</\1>#` silently matches nothing there and
+# every anchored rule quietly stops firing again. Keep the expressions explicit.
+strip_wrappers() {
+  printf '%s' "$1" | sed -E \
+    -e 's#<ide_selection>.*</ide_selection>##g' \
+    -e 's#<system-reminder>.*</system-reminder>##g' \
+    -e 's#<task-notification>.*</task-notification>##g' \
+    -e 's#<command-name>.*</command-name>##g' \
+    -e 's#<command-message>.*</command-message>##g' \
+    -e 's#<command-args>.*</command-args>##g' \
+    -e 's#<local-command-stdout>.*</local-command-stdout>##g'
+}
+
 # --- test entry point: pure, no logging, no JSON
 if [ "${1:-}" = "--classify" ]; then
-  classify "$(lower "$(sanitize "${2:-}")")"
+  _s=$(lower "$(sanitize "${2:-}")")
+  classify "$_s" "$(strip_wrappers "$_s")"
   printf '%s\n' "$TIER"
   exit 0
 fi
@@ -95,7 +131,8 @@ fi
 # --- test entry point: like --classify but also exposes RULE, so tests can
 # tell "vetoed" apart from "matched nothing" (both land on T5 via --classify).
 if [ "${1:-}" = "--explain" ]; then
-  classify "$(lower "$(sanitize "${2:-}")")"
+  _s=$(lower "$(sanitize "${2:-}")")
+  classify "$_s" "$(strip_wrappers "$_s")"
   printf '%s %s\n' "$TIER" "$RULE"
   exit 0
 fi
@@ -109,7 +146,9 @@ prompt=$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null) || exit 0
 cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)
 
 sanitized_prompt=$(sanitize "$prompt")
-classify "$(lower "$sanitized_prompt")"
+_lc=$(lower "$sanitized_prompt")
+_ask=$(strip_wrappers "$_lc")
+classify "$_lc" "$_ask"
 
 # Log every decision, including silent ones — otherwise prompts that SHOULD have
 # matched but did not are invisible, and the rules can never be tuned.
@@ -117,7 +156,14 @@ classify "$(lower "$sanitized_prompt")"
 # above — it must run before classify, not just before this log line), then
 # additionally swap any literal "|" for "/" so a pipe-bearing prompt can never
 # desync the " | "-delimited fields below.
-log_prompt=$(printf '%s' "$sanitized_prompt" | tr '|' '/')
+# Log the wrapper-stripped ask, not the raw prompt. A wrapped prompt would otherwise
+# spend its whole 60-character budget on <ide_selection> boilerplate, leaving the
+# tuning pass unable to see what was actually asked — the log's only purpose. Falls
+# back to the full text when stripping leaves nothing but whitespace, so a prompt that
+# is entirely wrapper still logs something identifiable rather than an empty field.
+log_source=$(strip_wrappers "$sanitized_prompt")
+[ -n "${log_source// /}" ] || log_source="$sanitized_prompt"
+log_prompt=$(printf '%s' "$log_source" | tr '|' '/')
 {
   printf '%s | %s | %s | %s | %.60s\n' \
     "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "${cwd:-?}" "$TIER" "$RULE" "$log_prompt"

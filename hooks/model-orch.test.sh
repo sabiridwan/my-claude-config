@@ -165,5 +165,33 @@ tier_field=$(awk -F' \\| ' '{print $3}' "$logfile")
 if [ "$nf" = "5" ] && [ "$tier_field" = "T1" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL  pipe in prompt desynced fields, NF=$nf field3=$tier_field"; fi
 rm -f "$logfile"
 
+
+# --- harness wrappers: the classifier receives ide_selection / task-notification /
+# system-reminder blocks prepended to the user's actual text. Anchored rules (T0, T1,
+# T4) must see the typed prompt, not the wrapper, or three of five tiers are dead.
+te $'<ide_selection>lines 1-10 of foo.ts</ide_selection>where is resolveGroupId defined' T1 'tier:T1'
+te $'<task-notification>agent done</task-notification>what is a repository'             T0 'tier:T0'
+te $'<system-reminder>be nice</system-reminder>add a leaveBalance field'                T4 'tier:T4'
+te $'<ide_selection>x</ide_selection>write a commit message for this diff'              T3 'tier:T3'
+
+# --- SAFETY: the veto matches the FULL text, wrapper included. A payroll reference in
+# a pasted selection must still veto even though the typed ask looks routable.
+te $'<ide_selection>the payroll tax band table</ide_selection>rename the getRate helper' T5 'veto'
+te $'<system-reminder>production deploy in progress</system-reminder>where is foo'       T5 'veto'
+
+# --- unwrapped prompts must be completely unaffected
+te 'where is resolveGroupId defined'  T1 'tier:T1'
+te 'what is a repository'             T0 'tier:T0'
+
+
+# --- the log must record the user's ask, not the harness wrapper: a wrapped prompt
+# would otherwise spend its whole 60-char budget on boilerplate, blinding the tuning pass.
+lw=$(mktemp)
+printf '%s' '<ide_selection>lines 1 to 10 of some very long selected file content here</ide_selection>where is resolveGroupId defined' \
+  | jq -Rs '{prompt:.,cwd:"/t"}' | MODEL_ORCH_LOG="$lw" "$SCRIPT" >/dev/null 2>&1
+if grep -q 'where is resolveGroupId defined' "$lw" && ! grep -q 'ide_selection' "$lw"; then
+  pass=$((pass+1)); else fail=$((fail+1)); printf 'FAIL  log kept the wrapper: %s\n' "$(cat "$lw")"; fi
+rm -f "$lw"
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
