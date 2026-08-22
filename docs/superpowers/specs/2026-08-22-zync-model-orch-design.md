@@ -8,12 +8,26 @@
 
 ## Problem
 
-Token burn on tasks that do not need the session model. Trivial work — locating a
-symbol, fixing a typo, writing a commit message, answering a definition question —
-runs on Opus with the full conversation resent every turn.
+Every prompt runs on the session model regardless of what it needs, with the full
+conversation resent each turn. That is wrong in both directions:
 
-The stated goal was "an agent deployed on every prompt that routes to a different
-model based on complexity."
+- **Downward.** Trivial work — locating a symbol, fixing a typo, writing a commit
+  message, answering a definition question — burns the session model.
+- **Upward.** Genuinely hard work — architecture, deep debugging, correctness-critical
+  payroll logic — gets the session model when a more capable one exists above it.
+
+The goal is therefore routing to the *right* model, not merely the *cheap* one. Net
+token effect is a reduction on read-heavy days and an increase on hard ones. This is
+deliberate; the log measures which.
+
+Model ladder, confirmed against the installed CLI:
+
+```
+haiku  <  sonnet  <  opus (current session)  <  fable
+```
+
+`Fable 5 - most capable for your hardest and longest-running tasks` (string extracted
+from CLI 2.1.228).
 
 ## Constraint that shapes the design
 
@@ -29,6 +43,16 @@ model based on complexity."
 There is no `model` field on any hook event. By the time `UserPromptSubmit` fires,
 the turn is already bound to the session model. True per-prompt model routing inside
 an interactive session is not achievable.
+
+**This cuts both ways.** The hook can no more raise the session to `fable` than it can
+drop it to `haiku`. Escalation therefore has exactly two mechanisms, both advisory:
+
+1. Nudge the operator to run `/model fable` themselves for the next stretch of work.
+2. Nudge the assistant to spawn a `fable` subagent for the hard part, leaving the
+   session on `opus`.
+
+Option 2 is the default recommendation because it is scoped to one task and needs no
+human action. Option 1 is suggested only when the escalation signal repeats.
 
 Model is selectable at four surfaces only:
 
@@ -96,6 +120,7 @@ user prompt
 | T3 | Commit message, docs, summarize, changelog | `Agent(general-purpose, model:"haiku")` |
 | T4 | Bounded multi-file feature, already specified | `Agent(general-purpose, model:"sonnet")` |
 | T5 | Everything else | Main loop. **No injection.** |
+| T6 | Hardest work — architecture, deep debug, correctness-critical | `Agent(general-purpose, model:"fable")`, or suggest `/model fable` |
 
 T2 targets `cavecrew-builder`, which hard-refuses 3+ file scope. That refusal is a
 second safety net under the classifier: a misrouted large task bounces back rather
@@ -115,6 +140,15 @@ than being done badly.
    Rationale: these are the domains where a wrong answer is expensive and where the
    session model's judgment is the product. Payroll and statutory code must never be
    routed to a cheap model by accident.
+
+   A veto hit lands on **T5 by default**. It escalates to **T6** only when a
+   hardness signal is also present:
+
+   `architect|design the|rewrite|from scratch|end.to.end|whole (system|module)|
+    root cause|intermittent|race condition|data loss|corrupt|audit`
+
+   So `"fix the payroll typo"` is T5 (veto stops the haiku route, nothing more) while
+   `"find the root cause of the intermittent payroll rounding drift"` is T6.
 
 2. **Ordered first-match-wins regex** against the lowercased prompt.
 
@@ -180,8 +214,20 @@ clause so a misclassification costs one sentence of context, not a wrong result.
 ```
 
 A rule carries either `inline: true` (T0 — answer directly, delegate to nothing) or
-an `agent` + `model` pair (T1–T4). Never both, never neither. T5 is the absence of a
-rule, so it is never listed in `tiers`.
+an `agent` + `model` pair (T1–T4, T6). Never both, never neither. T5 is the absence of
+a rule, so it is never listed in `tiers`.
+
+T6 is not a `tiers` entry either. It is derived: veto hit AND `hardness` regex match.
+It lives beside `veto` at the top level:
+
+```json
+{
+  "veto": "payroll|statutory|...",
+  "hardness": "architect|root cause|race condition|...",
+  "escalate": "\\band\\b.*\\b(also|then)\\b|\\bthen\\b",
+  "tiers": [ ... ]
+}
+```
 
 Rules live in data, not code, so tuning against the log is an edit to one JSON file
 and a test run — no shell logic changes.
@@ -232,8 +278,14 @@ Fixture set must include:
 - One compound-clause escalation case
 - At least three prompts that must produce no output at all
 
+- One T5-vs-T6 discrimination pair sharing a veto keyword, asserting that the hardness
+  signal is what separates them:
+  `"fix the payroll typo"` -> T5, `"find the root cause of the intermittent payroll
+  rounding drift"` -> T6
+
 The veto probes are the most important tests. They are the ones that prevent an
-expensive mistake.
+expensive mistake in the cheap direction. The T5/T6 pair guards the expensive
+direction: without it, every veto hit could silently drift into `fable`.
 
 ---
 
@@ -245,6 +297,8 @@ expensive mistake.
   debuggable.
 - Editing plugin-owned agent files.
 - Blocking or rewriting prompts. This system only appends context.
+- Automatically switching the session model to `fable`. Not possible from a hook, and
+  not desirable unattended — `fable` is the most expensive rung on the ladder.
 
 ---
 
