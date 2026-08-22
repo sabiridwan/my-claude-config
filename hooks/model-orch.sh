@@ -83,9 +83,13 @@ classify "$(lower "$prompt")"
 
 # Log every decision, including silent ones — otherwise prompts that SHOULD have
 # matched but did not are invisible, and the rules can never be tuned.
+# Sanitise before truncating: collapse newlines/CR/tabs to spaces and swap any
+# literal "|" for "/" so a pasted multi-line or pipe-bearing prompt can never
+# split into extra physical lines or desync the " | "-delimited fields below.
+log_prompt=$(printf '%s' "$prompt" | tr '\n\r\t' ' ' | tr '|' '/')
 {
   printf '%s | %s | %s | %s | %.60s\n' \
-    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "${cwd:-?}" "$TIER" "$RULE" "$prompt"
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "${cwd:-?}" "$TIER" "$RULE" "$log_prompt"
 } >> "$LOG" 2>/dev/null || true
 
 [ "$TIER" = "T5" ] && exit 0

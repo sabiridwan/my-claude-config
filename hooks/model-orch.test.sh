@@ -105,5 +105,26 @@ rout=$(printf '{"prompt":"where is foo","cwd":"/x"}' | MODEL_ORCH_RULES=/nonexis
 if [ -z "$rout" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL  missing rules produced output: $rout"; fi
 if [ "$rrc" -eq 0 ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL  missing rules exited $rrc"; fi
 
+# log sanitisation: an embedded newline must not split the log into multiple
+# physical lines (structure check, not just a grep for content).
+# Build the payload via jq -Rs . (as h() does) so the newline survives as a
+# real JSON-escaped \n rather than a raw byte that would make the JSON invalid.
+logfile=$(mktemp)
+printf '{"prompt":%s,"cwd":"/x"}' "$(printf 'line one\nline two' | jq -Rs .)" \
+  | MODEL_ORCH_LOG="$logfile" "$SCRIPT" >/dev/null 2>&1
+lines=$(wc -l < "$logfile" | tr -d ' ')
+if [ "$lines" = "1" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL  embedded newline produced $lines physical lines"; fi
+rm -f "$logfile"
+
+# log sanitisation: a literal "|" in the prompt must not desync the
+# " | "-delimited fields — must still parse into exactly 5 fields with the
+# tier landing in field 3 under awk -F' \\| '
+logfile=$(mktemp)
+printf '{"prompt":"where is foo | bar defined","cwd":"/x"}' | MODEL_ORCH_LOG="$logfile" "$SCRIPT" >/dev/null 2>&1
+nf=$(awk -F' \\| ' '{print NF}' "$logfile")
+tier_field=$(awk -F' \\| ' '{print $3}' "$logfile")
+if [ "$nf" = "5" ] && [ "$tier_field" = "T1" ]; then pass=$((pass+1)); else fail=$((fail+1)); echo "FAIL  pipe in prompt desynced fields, NF=$nf field3=$tier_field"; fi
+rm -f "$logfile"
+
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
