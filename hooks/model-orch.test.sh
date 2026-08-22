@@ -50,6 +50,7 @@ t "rename branchId to storeId in that file"                   T2
 # --- T3: prose
 t "write a commit message for this diff"                      T3
 t "summarize what changed in this file"                       T3
+t "can u commit all my updates"                                T3
 
 # --- T4: bounded build
 t "add a leaveBalance field to the employee schema"           T4

@@ -16,7 +16,7 @@
     },
     {
       "tier": "T3",
-      "match": "\\b(commit message|changelog|summari[sz]e|write docs|readme)\\b",
+      "match": "\\b(commit message|changelog|summari[sz]e|write docs|readme|commit (all|this|these|my) )\\b",
       "agent": "orch-scribe",
       "model": "haiku"
     },
