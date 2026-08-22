@@ -74,12 +74,16 @@ classify() {
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
-# collapse newlines/CR/tabs to spaces so classify() (and grep's line-oriented
-# ^-anchors within it) see one logical line instead of being fed a multi-line
-# prompt one physical line at a time. Must run BEFORE classify(), not just
-# before the log line, or ^-anchored rules and multi-word veto tokens can be
-# evaded by splitting them across a newline.
-sanitize() { printf '%s' "$1" | tr '\n\r\t' ' '; }
+# collapse newlines/CR/tabs/vtab/formfeed to spaces, then squeeze runs of
+# spaces down to one, so classify() (and grep's line-oriented ^-anchors
+# within it) see one logical line instead of being fed a multi-line prompt
+# one physical line at a time. Must run BEFORE classify(), not just before
+# the log line, or ^-anchored rules and multi-word veto tokens ("not
+# working", "why is") can be evaded by splitting them across a newline —
+# including CRLF, an indented continuation line, a trailing space before the
+# newline, or a blank line between clauses, all of which leave TWO spaces
+# after a naive tr collapse unless the run is also squeezed.
+sanitize() { printf '%s' "$1" | tr '\n\r\t\v\f' ' ' | tr -s ' '; }
 
 # --- test entry point: pure, no logging, no JSON
 if [ "${1:-}" = "--classify" ]; then

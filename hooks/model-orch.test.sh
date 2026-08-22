@@ -82,7 +82,20 @@ t "what is a repository and then show me one"                 T5
 # see one collapsed logical line, not be fed the prompt one physical line at
 # a time. $'...' below embeds a REAL newline (not the two characters "\n").
 t $'fix the typo in branch.resolver.ts\nwhat is the right label for it'  T2
-t $'rename the getRate helper because it is not\nworking'               T5
+
+# --- multi-line veto evasion: a plain "\n"-to-space collapse alone leaves
+# TWO spaces wherever the split introduces extra whitespace around the
+# newline (CRLF, an indented continuation line, a trailing space before the
+# newline, a blank line between clauses) — a two-word veto token like "not
+# working" only survives collapse-without-squeeze if the split happens to
+# land on a bare "\n" with nothing else around it. sanitize() must squeeze
+# the collapsed run down to one space so all of these still match the veto.
+# Assert via --explain (not just tier) so these can't pass by accident by
+# landing on T5 "no match" instead of T5 "veto".
+te $'rename the getRate helper because it is not\nworking'         T5 veto
+te $'rename the getRate helper because it is not\r\nworking'       T5 veto
+te $'rename the getRate helper because it is not\n  working'       T5 veto
+te $'rename the getRate helper because it is not\n\nworking'       T5 veto
 
 
 # --- hook mode: stdin JSON in, advisory JSON (or silence) out
