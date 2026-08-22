@@ -1,0 +1,86 @@
+{
+  "port": 8787,
+  "upstream": "https://api.anthropic.com",
+  "models": {
+    "trivial": "claude-sonnet-5",
+    "simple": "claude-sonnet-5",
+    "moderate": "claude-sonnet-5",
+    "complex": "claude-opus-5",
+    "critical": "claude-opus-5"
+  },
+  "classifier": {
+    "mode": "regex",
+    "_note": "LLM classification is off on a subscription: the extra call inherits betas the plan rejects, burns the same quota the router is trying to save, and 429s under load."
+  },
+  "guards": {
+    "neverDowngradeBelowOnTools": false,
+    "vetoToCritical": "\\b(payment|billing|charge|refund|invoice|pricing|price[sd]?|money|payroll|tax)\\b|\\b(credential|password|secret|api key|token|oauth|\\bauth\\b|encrypt|vulnerab|exploit|cve)\\b|\\b(migration|drop table|truncate|delete all|force.?push|rm -rf|production deploy|prod deploy)\\b",
+    "readOnlyExempt": "^(where|which file|what calls|locate|list|map|show|read|cat|open|grep|search for|find)\\b(?!.*\\b(root cause|why|rotate|change|update|delete|remove|drop)\\b)",
+    "dropBetasOnDowngrade": [
+      "context-1m-",
+      "effort-"
+    ],
+    "maxOutput": {
+      "claude-haiku-4-5-20251001": 64000,
+      "claude-sonnet-5": 64000,
+      "claude-opus-5": 64000
+    },
+    "retryOriginalOn4xx": true,
+    "contextLimits": {
+      "claude-haiku-4-5-20251001": 200000,
+      "claude-sonnet-5": 200000,
+      "claude-opus-5": 1000000
+    },
+    "contextSafety": 0.85,
+    "dropBodyFields": {
+      "claude-haiku-4-5-20251001": [
+        "thinking",
+        "output_config.effort"
+      ],
+      "claude-sonnet-5": []
+    },
+    "learnUnsupportedFields": true,
+    "stickyAboveTokens": 40000
+  },
+  "rules": [
+    {
+      "tier": "trivial",
+      "match": "^(hi|hey|hello|thanks|thank you|ok|okay|yep|nope|cool|nice)\\b\\W*$"
+    },
+    {
+      "tier": "complex",
+      "match": "\\b(architect|design the|from scratch|end.to.end|trade.?off|whole (system|app|module|codebase)|root cause|intermittent|flaky|race condition|deadlock|memory leak|data loss|corrupt|regression|audit|why is|why does|why did|not working|doesn't work|failing|broken|stack ?trace)\\b"
+    },
+    {
+      "tier": "trivial",
+      "match": "^(what (is|does|are|do|means?)|who|when|which is better|define|explain|meaning of|difference between)\\b"
+    },
+    {
+      "tier": "trivial",
+      "match": "^(is|are|does|do|did|can|should|will)\\b.{0,60}\\?\\s*$"
+    },
+    {
+      "tier": "simple",
+      "match": "^(where|which file|what calls|locate|list|map|show|read|cat|open|grep|search for)\\b"
+    },
+    {
+      "tier": "simple",
+      "match": "^find\\b(?!.*\\b(root cause|bug|leak|regression|why)\\b)"
+    },
+    {
+      "tier": "simple",
+      "match": "\\b(summari[sz]e|proofread|typo|rename|reformat|indent|lint|commit message|changelog|readme|remove the comment|add a comment|bump the version)\\b"
+    },
+    {
+      "tier": "moderate",
+      "match": "^(add|create|implement|build|write|update|change|make|wire|hook up|set up|scaffold|generate|convert|port)\\b"
+    },
+    {
+      "tier": "moderate",
+      "match": "\\b(test|spec|refactor|endpoint|component|module|schema|hook|script|config|styling|responsive)\\b"
+    }
+  ],
+  "log": "~/.claude/router.log",
+  "defaultTier": "moderate",
+  "_haiku_note": "Haiku 4.5 needs the Opus request shape rewritten: drop thinking, drop output_config.effort, and convert mid-conversation role:'system' messages (the last is unimplemented). Point a tier at it only after that."
+}
