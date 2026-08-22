@@ -37,6 +37,8 @@ te() {
 t "what is short form of orchestration"                       T0
 t "what does that mean"                                       T0
 t "explain how mongoose-delete works"                         T0
+t "which model are you? answer with just the model name"      T0
+t "what exactly is wong with the nhis process ?"               T0
 
 # --- T1: locate
 t "where is resolveGroupId defined"                           T1
@@ -73,6 +75,13 @@ te "what is the production deploy command"                    T5 veto
 te "fix the payroll typo"                                     T5 veto
 te "find the root cause of the intermittent payroll rounding drift"  T6 veto+hardness
 te "architect the statutory remittance module from scratch"   T6 veto+hardness
+
+# --- T6 false-positive guards: hardness must not fire on substrings inside
+# identifiers, or on a hardness word buried deep in a long paste. Both are real
+# corpus patterns (auditService/useAuth identifiers; skill/task-notification
+# pastes with "architect" hundreds of chars past the actual ask).
+te "fix the failing auditService call in payroll"   T5 veto
+te "why is this login failing during checkout there is a security bug in the auth handler lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut labore et dolore magna aliqua ut enim ad minim veniam quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur excepteur sint occaecat cupidatat non proident sunt in culpa qui officia deserunt mollit anim id est laborum can u architect a fix"   T5 veto
 
 # --- compound: tier is unchanged, only confidence drops (T0 is the exception)
 t "where is resolveGroupId defined and then rename it"        T1

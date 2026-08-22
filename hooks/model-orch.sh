@@ -40,8 +40,19 @@ classify() {
   fi
 
   # 1. Veto first, always. Lands on T5, or T6 if a hardness signal is also present.
+  #    Veto still reads the FULL raw text ($lc) — that's the safety rail and it must
+  #    see everything, including pasted content. Hardness is different: it escalates
+  #    to T6 (fable, the expensive tier), so it must reflect what the USER is asking,
+  #    not what got pasted alongside it. Scanning $lc let a task-notification, a
+  #    skill load, or a 400-line file paste containing "architect"/"audit" anywhere
+  #    push routine prompts onto fable — measured at >85% of all T6 hits across the
+  #    real prompt corpus, nearly all from a hardness word buried past the first
+  #    couple hundred chars of a long paste, not from the actual ask. Hardness reads
+  #    only the stripped ask ($ask, wrappers already removed), and only its head —
+  #    the part a human actually typed before pasting something huge after it.
+  local ask_head="${ask:0:300}"
   if printf '%s' "$lc" | grep -qE "$veto"; then
-    if [ -n "$hardness" ] && printf '%s' "$lc" | grep -qE "$hardness"; then
+    if [ -n "$hardness" ] && printf '%s' "$ask_head" | grep -qE "$hardness"; then
       # T6's route lives in the rules file like every other tier, so retargeting it
       # is a data edit rather than a code edit. Falls back to the previous hardcoded
       # pair if the key is absent, so an older rules file still routes rather than

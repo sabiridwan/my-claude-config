@@ -1,11 +1,11 @@
 {
   "veto": "payroll|statutory|contribution|\\btax\\b|migration|production|deploy|security|\\bauth\\b|credential|secret|failing|not working|why is|debug|refactor|architect",
-  "hardness": "architect|design the|rewrite|from scratch|end.to.end|whole (system|module)|root cause|intermittent|race condition|data loss|corrupt|audit",
+  "hardness": "\\b(architect|design the|rewrite|from scratch|end.to.end|whole (system|module)|root cause|intermittent|race condition|data loss|corrupt|audit)\\b",
   "escalate": "\\band\\b.*\\b(also|then)\\b|\\bthen\\b",
   "tiers": [
     {
       "tier": "T0",
-      "match": "^(what (is|does|are|do)|define|explain|meaning of)\\b",
+      "match": "^(which model|what (exactly |really )?(is|does|are|do)|define|explain|meaning of)\\b",
       "inline": true
     },
     {
