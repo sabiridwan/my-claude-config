@@ -1,0 +1,12 @@
+{
+  "veto": "payroll|statutory|contribution|\\btax\\b|migration|production|deploy|security|\\bauth\\b|credential|secret|failing|not working|why is|debug|refactor|architect",
+  "hardness": "architect|design the|rewrite|from scratch|end.to.end|whole (system|module)|root cause|intermittent|race condition|data loss|corrupt|audit",
+  "escalate": "\\band\\b.*\\b(also|then)\\b|\\bthen\\b",
+  "tiers": [
+    { "tier": "T0", "match": "^(what (is|does|are|do)|define|explain|meaning of)\\b", "inline": true },
+    { "tier": "T1", "match": "^(where|which file|what calls|find|locate|list all|map|show me all)\\b", "agent": "cavecrew-investigator", "model": "haiku" },
+    { "tier": "T3", "match": "\\b(commit message|changelog|summari[sz]e|write docs|readme)\\b", "agent": "general-purpose", "model": "haiku" },
+    { "tier": "T2", "match": "\\b(typo|rename|remove the comment|reformat|add a field|change the (label|text|string))\\b", "agent": "cavecrew-builder", "model": "haiku" },
+    { "tier": "T4", "match": "^(add|create|implement|build)\\b", "agent": "general-purpose", "model": "sonnet" }
+  ]
+}
