@@ -71,4 +71,40 @@ if [ "${1:-}" = "--classify" ]; then
   exit 0
 fi
 
+# --- hook mode
+input=$(cat 2>/dev/null) || exit 0
+[ -n "$input" ] || exit 0
+
+prompt=$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null) || exit 0
+[ -n "$prompt" ] || exit 0
+cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)
+
+classify "$(lower "$prompt")"
+
+# Log every decision, including silent ones — otherwise prompts that SHOULD have
+# matched but did not are invisible, and the rules can never be tuned.
+{
+  printf '%s | %s | %s | %s | %.60s\n' \
+    "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "${cwd:-?}" "$TIER" "$RULE" "$prompt"
+} >> "$LOG" 2>/dev/null || true
+
+[ "$TIER" = "T5" ] && exit 0
+
+case "$RULE" in
+  *+compound) conf="low" ;;
+  *)          conf="high" ;;
+esac
+
+if [ "$TIER" = "T0" ]; then
+  msg="tier=T0 confidence=$conf — knowledge question. Answer inline; no tools, no subagent."
+elif [ "$conf" = "high" ]; then
+  msg="tier=$TIER confidence=high — prefer Agent($AGENT, model:\"$MODEL\") for this. Override if the classification is wrong."
+else
+  msg="tier=$TIER confidence=low — this may be routable to Agent($AGENT, model:\"$MODEL\") — use judgment. Override if the classification is wrong."
+fi
+
+jq -nc --arg m "[zync-model-orch] $msg" \
+  '{hookSpecificOutput:{hookEventName:"UserPromptSubmit",additionalContext:$m}}' \
+  2>/dev/null || true
+
 exit 0
