@@ -42,7 +42,15 @@ classify() {
   # 1. Veto first, always. Lands on T5, or T6 if a hardness signal is also present.
   if printf '%s' "$lc" | grep -qE "$veto"; then
     if [ -n "$hardness" ] && printf '%s' "$lc" | grep -qE "$hardness"; then
-      TIER="T6"; AGENT="general-purpose"; MODEL="fable"; RULE="veto+hardness"
+      # T6's route lives in the rules file like every other tier, so retargeting it
+      # is a data edit rather than a code edit. Falls back to the previous hardcoded
+      # pair if the key is absent, so an older rules file still routes rather than
+      # emitting a nudge naming an empty agent.
+      TIER="T6"; RULE="veto+hardness"
+      AGENT=$(jq -r '.t6.agent // "general-purpose"' "$RULES" 2>/dev/null)
+      MODEL=$(jq -r '.t6.model // "fable"' "$RULES" 2>/dev/null)
+      [ -n "$AGENT" ] || AGENT="general-purpose"
+      [ -n "$MODEL" ] || MODEL="fable"
     else
       TIER="T5"; RULE="veto"
     fi

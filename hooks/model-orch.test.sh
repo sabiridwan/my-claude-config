@@ -116,7 +116,7 @@ h() {
   esac
 }
 
-h "where is resolveGroupId defined"        "cavecrew-investigator"
+h "where is resolveGroupId defined"        "orch-scout"
 h "where is resolveGroupId defined"        "haiku"
 h "what is short form of orchestration"    "T0"
 h "find the root cause of the intermittent payroll rounding drift"  "fable"
@@ -208,6 +208,31 @@ te $'<unclosed>where is resolveGroupId defined'                                 
 
 # SAFETY: a generic strip must still leave the veto reading the full text
 te $'<ide_opened_file>src/hr/payroll/payroll.service.ts</ide_opened_file>rename the getRate helper'           T5 'veto'
+
+
+# --- every tier must name an agent that actually exists on disk, and T6's route must
+# come from the rules file rather than a hardcoded pair. A nudge naming a missing agent
+# fails at dispatch time, long after the classification looks correct.
+for _t in T1 T2 T3 T4; do
+  _a=$(jq -r --arg t "$_t" '.tiers[] | select(.tier==$t) | .agent' "$MODEL_ORCH_RULES")
+  if [ -f "$HOME/.claude/agents/$_a.md" ]; then pass=$((pass+1));
+  else fail=$((fail+1)); printf 'FAIL  %s routes to missing agent: %s\n' "$_t" "$_a"; fi
+done
+_a6=$(jq -r '.t6.agent' "$MODEL_ORCH_RULES")
+if [ -f "$HOME/.claude/agents/$_a6.md" ]; then pass=$((pass+1));
+else fail=$((fail+1)); printf 'FAIL  T6 routes to missing agent: %s\n' "$_a6"; fi
+h "find the root cause of the intermittent payroll rounding drift"  "orch-deep"
+h "find the root cause of the intermittent payroll rounding drift"  "fable"
+
+# each agent's pinned model must match the tier that routes to it, or the nudge and the
+# agent definition disagree and whichever wins is a coin flip
+for _pair in "T1 haiku" "T2 haiku" "T3 haiku" "T4 sonnet"; do
+  set -- $_pair
+  _a=$(jq -r --arg t "$1" '.tiers[] | select(.tier==$t) | .agent' "$MODEL_ORCH_RULES")
+  _m=$(grep -m1 '^model:' "$HOME/.claude/agents/$_a.md" | awk '{print $2}')
+  if [ "$_m" = "$2" ]; then pass=$((pass+1));
+  else fail=$((fail+1)); printf 'FAIL  %s: rules say %s, %s.md pins %s\n' "$1" "$2" "$_a" "$_m"; fi
+done
 
 printf '\n%d passed, %d failed\n' "$pass" "$fail"
 [ "$fail" -eq 0 ]
