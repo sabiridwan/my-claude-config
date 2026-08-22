@@ -135,7 +135,11 @@ than being done badly.
 1. **Veto list runs first.** Any match forces T5 regardless of every other rule:
 
    `payroll|statutory|contribution|tax|migration|production|deploy|security|auth|
-    credential|secret|failing|not working|why is|debug|refactor|architect|schema`
+    credential|secret|failing|not working|why is|debug|refactor|architect`
+
+   `schema` was considered and rejected. In a Mongoose codebase almost every backend
+   prompt contains the word, so vetoing on it would suppress routing across the entire
+   repo. `migration` covers the genuinely irreversible case.
 
    Rationale: these are the domains where a wrong answer is expensive and where the
    session model's judgment is the product. Payroll and statutory code must never be
@@ -152,9 +156,20 @@ than being done badly.
 
 2. **Ordered first-match-wins regex** against the lowercased prompt.
 
-3. **Compound-clause escalation.** A prompt joining two or more verb clauses with
-   `and` / `then` / `also` escalates one tier. Compound asks are where cheap models
-   break — each clause is individually simple, the combination is not.
+3. **Compound-clause handling.** A prompt joining two or more clauses with
+   `and` / `then` / `also` does **not** change tier — the matched rule is still the
+   best available guess at the work. It lowers confidence to `low`, which softens the
+   injected wording.
+
+   `T0` is the single exception. A knowledge question welded to an action clause
+   (`"what is a repository and then show me one"`) is no longer answerable inline, so
+   it drops to `T5` and the main loop takes it. Routing it to an edit agent would act
+   on a half-understood ask, which is worse than not routing at all.
+
+   An earlier draft escalated compound prompts by one tier. That was dropped: moving a
+   locate request up to an edit agent because it contained the word "then" changes what
+   the agent is permitted to *do*, on the basis of a signal that only indicates the
+   prompt is long.
 
 ### Default is silence
 
@@ -275,7 +290,9 @@ Fixture set must include:
    `"what does that mean"` -> T0)
 - One veto probe per veto keyword — asserting T5 even when the prompt *also* matches
   a cheap tier (e.g. `"where is the payroll tax band defined"` -> T5, not T1)
-- One compound-clause escalation case
+- Two compound-clause cases: one asserting the tier is *unchanged*
+  (`"where is resolveGroupId defined and then rename it"` -> T1, not T2) and one
+  asserting the T0 exception (`"what is a repository and then show me one"` -> T5)
 - At least three prompts that must produce no output at all
 
 - One T5-vs-T6 discrimination pair sharing a veto keyword, asserting that the hardness
