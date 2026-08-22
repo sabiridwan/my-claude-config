@@ -30,3 +30,6 @@ projects/
 
 # cc-skill-sync run reports — regenerable, noisy in history
 cc-skill-sync/reports/
+
+# zync-model-orch prompt log — records 60 chars of every prompt, never commit
+model-orch.log
