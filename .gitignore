@@ -33,3 +33,6 @@ cc-skill-sync/reports/
 
 # zync-model-orch prompt log — records 60 chars of every prompt, never commit
 model-orch.log
+
+# zync-model-orch prompt log — records 60 chars of every prompt, never commit
+model-orch.log

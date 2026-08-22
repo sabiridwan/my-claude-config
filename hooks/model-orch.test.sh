@@ -16,6 +16,23 @@ t() {
   fi
 }
 
+# te (test-explain): asserts TIER *and* RULE via --explain, so a fixture can
+# tell "vetoed" apart from "matched nothing" — both land on T5 through
+# --classify alone. Used for the veto fixtures, per the design spec calling
+# those "the most important tests".
+te() {
+  local prompt="$1" expected_tier="$2" expected_rule="$3" got got_tier got_rule
+  got=$("$SCRIPT" --explain "$prompt" 2>/dev/null)
+  got_tier="${got%% *}"
+  got_rule="${got#* }"
+  if [ "$got_tier" = "$expected_tier" ] && [ "$got_rule" = "$expected_rule" ]; then
+    pass=$((pass+1))
+  else
+    fail=$((fail+1))
+    printf 'FAIL  want=%s/%s got=%s/%s  %s\n' "$expected_tier" "$expected_rule" "${got_tier:-<empty>}" "${got_rule:-<empty>}" "$prompt"
+  fi
+}
+
 # --- T0: knowledge questions, answered inline (real prompts from the design session)
 t "what is short form of orchestration"                       T0
 t "what does that mean"                                       T0
@@ -44,19 +61,28 @@ t "ok do that"                                                T5
 t "the client called about the invoice"                       T5
 
 # --- VETO: cheap-tier pattern present, veto must win anyway
-t "where is the payroll tax band defined"                     T5
-t "find the statutory contribution rate"                      T5
-t "rename the migration file"                                 T5
-t "what is the production deploy command"                     T5
+# Asserts the reason (RULE), not just the tier — without this a veto-less
+# rules file that also happens to match nothing would still show T5 here.
+te "where is the payroll tax band defined"                    T5 veto
+te "find the statutory contribution rate"                     T5 veto
+te "rename the migration file"                                T5 veto
+te "what is the production deploy command"                    T5 veto
 
 # --- T5 vs T6: same veto keyword, hardness signal is the only difference
-t "fix the payroll typo"                                      T5
-t "find the root cause of the intermittent payroll rounding drift"  T6
-t "architect the statutory remittance module from scratch"    T6
+te "fix the payroll typo"                                     T5 veto
+te "find the root cause of the intermittent payroll rounding drift"  T6 veto+hardness
+te "architect the statutory remittance module from scratch"   T6 veto+hardness
 
 # --- compound: tier is unchanged, only confidence drops (T0 is the exception)
 t "where is resolveGroupId defined and then rename it"        T1
 t "what is a repository and then show me one"                 T5
+
+# --- multi-line prompts: grep is line-oriented, so ^-anchored rules and
+# multi-word veto tokens must not be evadable by a newline. classify() must
+# see one collapsed logical line, not be fed the prompt one physical line at
+# a time. $'...' below embeds a REAL newline (not the two characters "\n").
+t $'fix the typo in branch.resolver.ts\nwhat is the right label for it'  T2
+t $'rename the getRate helper because it is not\nworking'               T5
 
 
 # --- hook mode: stdin JSON in, advisory JSON (or silence) out

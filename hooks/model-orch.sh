@@ -21,8 +21,18 @@ classify() {
   hardness=$(jq -r '.hardness // empty' "$RULES" 2>/dev/null)
   escalate=$(jq -r '.escalate // empty' "$RULES" 2>/dev/null)
 
+  # Fail closed: the veto is the one safety rail keeping payroll/migration/
+  # security/"not working" prompts off cheap tiers. If a rules-file edit ever
+  # drops or empties the veto key, silently falling through to the ordered
+  # tier rules would reroute every veto fixture to a cheap tier with no
+  # runtime signal. Treat a missing/empty veto as unsafe to route at all.
+  if [ -z "$veto" ]; then
+    TIER="T5"; RULE="no-veto-fail-closed"
+    return 0
+  fi
+
   # 1. Veto first, always. Lands on T5, or T6 if a hardness signal is also present.
-  if [ -n "$veto" ] && printf '%s' "$lc" | grep -qE "$veto"; then
+  if printf '%s' "$lc" | grep -qE "$veto"; then
     if [ -n "$hardness" ] && printf '%s' "$lc" | grep -qE "$hardness"; then
       TIER="T6"; AGENT="general-purpose"; MODEL="fable"; RULE="veto+hardness"
     else
@@ -64,10 +74,25 @@ classify() {
 
 lower() { printf '%s' "$1" | tr '[:upper:]' '[:lower:]'; }
 
+# collapse newlines/CR/tabs to spaces so classify() (and grep's line-oriented
+# ^-anchors within it) see one logical line instead of being fed a multi-line
+# prompt one physical line at a time. Must run BEFORE classify(), not just
+# before the log line, or ^-anchored rules and multi-word veto tokens can be
+# evaded by splitting them across a newline.
+sanitize() { printf '%s' "$1" | tr '\n\r\t' ' '; }
+
 # --- test entry point: pure, no logging, no JSON
 if [ "${1:-}" = "--classify" ]; then
-  classify "$(lower "${2:-}")"
+  classify "$(lower "$(sanitize "${2:-}")")"
   printf '%s\n' "$TIER"
+  exit 0
+fi
+
+# --- test entry point: like --classify but also exposes RULE, so tests can
+# tell "vetoed" apart from "matched nothing" (both land on T5 via --classify).
+if [ "${1:-}" = "--explain" ]; then
+  classify "$(lower "$(sanitize "${2:-}")")"
+  printf '%s %s\n' "$TIER" "$RULE"
   exit 0
 fi
 
@@ -79,20 +104,29 @@ prompt=$(printf '%s' "$input" | jq -r '.prompt // empty' 2>/dev/null) || exit 0
 [ -n "$prompt" ] || exit 0
 cwd=$(printf '%s' "$input" | jq -r '.cwd // empty' 2>/dev/null)
 
-classify "$(lower "$prompt")"
+sanitized_prompt=$(sanitize "$prompt")
+classify "$(lower "$sanitized_prompt")"
 
 # Log every decision, including silent ones — otherwise prompts that SHOULD have
 # matched but did not are invisible, and the rules can never be tuned.
-# Sanitise before truncating: collapse newlines/CR/tabs to spaces and swap any
-# literal "|" for "/" so a pasted multi-line or pipe-bearing prompt can never
-# split into extra physical lines or desync the " | "-delimited fields below.
-log_prompt=$(printf '%s' "$prompt" | tr '\n\r\t' ' ' | tr '|' '/')
+# Reuse the same newline/CR/tab collapse classify() already saw (see sanitize()
+# above — it must run before classify, not just before this log line), then
+# additionally swap any literal "|" for "/" so a pipe-bearing prompt can never
+# desync the " | "-delimited fields below.
+log_prompt=$(printf '%s' "$sanitized_prompt" | tr '|' '/')
 {
   printf '%s | %s | %s | %s | %.60s\n' \
     "$(date -u '+%Y-%m-%dT%H:%M:%SZ')" "${cwd:-?}" "$TIER" "$RULE" "$log_prompt"
 } >> "$LOG" 2>/dev/null || true
 
 [ "$TIER" = "T5" ] && exit 0
+
+# Guard against a malformed rules entry: any tier other than T0 must carry
+# both an agent and a model, or there is nothing sane to route to. Silence
+# is the correct output for a malformed rule, not `Agent(, model:"")`.
+if [ "$TIER" != "T0" ] && { [ -z "$AGENT" ] || [ -z "$MODEL" ]; }; then
+  exit 0
+fi
 
 case "$RULE" in
   *+compound) conf="low" ;;
