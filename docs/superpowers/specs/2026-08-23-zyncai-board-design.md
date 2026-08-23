@@ -1,6 +1,18 @@
 # zyncai board — Phase 1 design
 
-**Status:** approved design, not yet implemented
+> **SUPERSEDED (2026-08-23) by `2026-08-23-zyncai-plugin-architecture-design.md`.**
+> zyncai adopts SAMI's team architecture, in which ticket state lives behind a
+> ticket-store interface rather than in a board this document treats as the
+> architecture. What survives, folded into that design's **file adapter**:
+> atomic temp-then-rename writes, the coded/uncoded error channel by provenance,
+> the full-40-character sha rule, the deadlock fingerprint, and the spec-drift
+> guard. What does not: `state.json` as the architecture, and the task-graph
+> validator — a pipeline graph replaces it.
+>
+> Kept rather than deleted because the reasoning below is why those five parts
+> exist, and each was paid for by a real defect.
+
+**Status:** superseded — read for the surviving rationale, not as the plan of record
 **Date:** 2026-08-23
 **Depends on:** `2026-08-23-zyncai-design.md` (the zyncai spec proper)
 **Scope:** Phase 1 of turning zyncai from one maintenance seat into an
