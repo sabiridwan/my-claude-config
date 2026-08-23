@@ -38,10 +38,17 @@ because the engine models Nigeria. That arrangement is fragile in a specific way
 - **Personal reliefs must stay 0.** The 2025 Act abolished the Consolidated Relief Allowance.
   A non-zero `individualRelief` on an NG bracket **under-deducts PAYE for every employee**.
 
-The two env vars are a live trap: `tenant_country` picks the engine and defaults to Malaysia;
-`seed_country` gates master-data seeding and **defaults to NG when unset**. A tenant with
-neither set runs the Malaysia engine while seeding Nigerian master data. Two `zerp-be`
-migrations exist because exactly this leaked:
+The two env vars are a live trap: `tenant_country` picks the engine and **defaults to Nigeria**
+since `f8aa622e` (2026-08-21), which inverted it — before that it defaulted to Malaysia, and a
+tenant relying on the default silently changed country when that commit shipped. Resolution is
+now: explicit `tenant_country` wins, else a `tenant_key` in `msgold_seed_tenant_keys` (default
+`"msgold,msgd"`) means Malaysia, else Nigeria. Note the consequence for a MALAYSIAN tenant whose
+key is not in that list — it now runs the Nigeria engine against whatever bands it holds;
+`seed_country` gates master-data seeding and **defaults to NG when unset**. Since both now
+default to NG, the trap has moved: it is the MALAYSIAN tenant that is exposed — one whose
+`tenant_key` is missing from `msgold_seed_tenant_keys` runs the Nigeria engine AND seeds
+Nigerian master data, silently, from the moment it is created. Two `zerp-be` migrations exist
+because the earlier version of this leaked in the other direction:
 `2026-08-04-purge-nigeria-contamination-from-malaysia.ts` and
 `2026-08-06-fix-nigeria-pension-employer-rate.ts`.
 
