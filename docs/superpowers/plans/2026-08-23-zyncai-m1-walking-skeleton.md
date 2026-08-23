@@ -77,8 +77,7 @@ git init
   "description": "zyncai — the ZyncGold repo maintenance team: audit, fix, verify, PR. Say \"hey zyncai\" to start, or use /zyncai:explain and /zyncai:scope.",
   "version": "0.1.0",
   "author": {
-    "name": "Sabir Idwan",
-    "email": "sabi@sam-media.com"
+    "name": "Zync Tech"
   },
   "skills": ["./skills/"]
 }
@@ -88,13 +87,12 @@ git init
 
 ```json
 {
-  "name": "zyncgold",
+  "name": "zync-tech",
   "owner": {
-    "name": "Sabir Idwan",
-    "email": "sabi@sam-media.com"
+    "name": "Zync Tech"
   },
   "metadata": {
-    "description": "ZyncGold internal Claude Code plugins."
+    "description": "Zync Tech internal Claude Code plugins."
   },
   "plugins": [
     {
@@ -103,7 +101,7 @@ git init
       "skills": ["./skills/"],
       "description": "zyncai — the ZyncGold repo maintenance team: audit, fix, verify, PR, with the safety rails that keep it read-only until a human merges.",
       "version": "0.1.0",
-      "author": { "name": "Sabir Idwan" }
+      "author": { "name": "Zync Tech" }
     }
   ]
 }
@@ -126,7 +124,7 @@ graphify-out/
 
 One skill per seat: Ops routes, Audit finds, Fix implements, Verify judges, PR
 hands to a human. The orchestrator owns only sequencing, loop limits, and
-resume. Modelled on SAMI.
+resume.
 
 ## Run it
 
@@ -191,7 +189,7 @@ claude plugin validate .
 git add .claude-plugin/plugin.json .claude-plugin/marketplace.json README.md .gitignore
 git commit -m "feat: scaffold zyncai as a Claude Code plugin
 
-Skills are seats on a team, modelled on SAMI. Manifests only here; the
+Skills are seats on a team. Manifests only here; the
 seats arrive in later tasks under the ./skills/ scan path."
 ```
 
@@ -210,6 +208,9 @@ Expected: `claude plugin validate .` reports the manifests valid. If it fails, f
 - Produces: `openTicket({ request, repos, storeRoot })` → `{ id, ... }`; `readTicket(id, storeRoot)` → ticket object; `setStatus(id, status, storeRoot)` → ticket; `appendLog(id, entry, storeRoot)` → ticket; `recordDeliverables(id, rows, storeRoot)` → ticket; `TICKET_STATUSES` (a `Set`); `ERR_TICKET_NOT_FOUND`, `ERR_TICKET_CORRUPT`, `TICKET_ERROR_CODES`, `isStoreConditionError(err)`. Tasks 4–6 consume these names exactly.
 
 - [ ] **Step 1: Write the failing tests**
+
+(`assert.throws()` returns `undefined`, never the caught error — inspect a thrown
+error with the validator-function form, as below, not by assigning its result.)
 
 ```js
 import { test } from 'node:test';
@@ -254,9 +255,11 @@ test('ticket ids are sequential, so a second ticket does not collide', () => {
 
 test('reading a ticket that does not exist is a store condition', () => {
   const root = store();
-  const err = assert.throws(() => readTicket('zai-9999', root));
-  assert.equal(err.code, ERR_TICKET_NOT_FOUND);
-  assert.equal(isStoreConditionError(err), true);
+  assert.throws(() => readTicket('zai-9999', root), (err) => {
+    assert.equal(err.code, ERR_TICKET_NOT_FOUND);
+    assert.equal(isStoreConditionError(err), true);
+    return true;
+  });
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -264,8 +267,10 @@ test('a truncated ticket file is corrupt, never a silently empty ticket', () => 
   const root = store();
   const t = openTicket({ request: 'x', repos: [], storeRoot: root });
   writeFileSync(join(root, t.id, 'state.json'), '{"id": "zai-0001",');
-  const err = assert.throws(() => readTicket(t.id, root));
-  assert.equal(err.code, ERR_TICKET_CORRUPT);
+  assert.throws(() => readTicket(t.id, root), (err) => {
+    assert.equal(err.code, ERR_TICKET_CORRUPT);
+    return true;
+  });
   rmSync(root, { recursive: true, force: true });
 });
 
@@ -340,7 +345,7 @@ test('the ledger is created as prose and is never parsed', () => {
   assert.match(ledger, /audit zerp-be/);
   // Corrupting the ledger must not affect the machine state — they are separate
   // records on purpose: prose says why, state.json says what to do next.
-  writeFileSync(join(root, t.id, 'ledger.md'), 'not markdown at all  ');
+  writeFileSync(join(root, t.id, 'ledger.md'), 'not markdown at all');
   assert.equal(readTicket(t.id, root).status, 'intake');
   rmSync(root, { recursive: true, force: true });
 });
