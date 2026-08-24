@@ -48,6 +48,11 @@ For just the payment form on an existing page, use `cc-payment-integration` dire
 See `product.example.json`. Collect:
 
 - `serviceId`, `serviceDisplayName`, `country` (default `xx`).
+- `pageType` (`gcomp` default | `noncomp`) — the PAGE TYPE. `gcomp` is the dual-mode page (comp
+  checkout by default, creative via `?non-comp=true`); `noncomp` serves the creative to every
+  visitor. It sets the repo/page name token (`-gcomp`/`-noncomp`) AND `PAGE_MODE` in the generated
+  `payments/settings.ts` — `resolveMode.decideComp()` returns non-comp unconditionally on a noncomp
+  page (forceComp and `?non-comp=false` still win, for the panel escape hatch and QA).
 - `creative` (`none|download|video`) and `nid` (default true) — these, with `serviceId`, **derive the
   project name** per `references/naming-convention.md`. You normally do NOT set `productName`; let it
   be derived (e.g. `cc-dynamic-streamtrainfit-template-download-nid-gcomp`). Set `productName`

@@ -31,8 +31,9 @@ requester's head:
 4. Wallet identity — Apple Pay merchant identifier + label; if Google Pay is on, its gateway
    merchant ID + Business Console merchant ID (+ the merchant name shown in the sheet)
 5. Google Pay on? Card form on?
-6. Anything different from the last page for this product? (template, creative, country, currency,
-   languages the page must be right in, design reference, publish-or-not)
+6. Anything different from the last page for this product? (template, creative, page type —
+   gcomp [comp + ?non-comp=true] or noncomp [creative always] — country, currency, languages the
+   page must be right in, design reference, publish-or-not)
 
 `assets/quick-request.md` is this list as a paste-able form, with a worked example — hand it to
 anyone who asks what you need. `assets/prompt-template.md` is the fuller single-message version (all

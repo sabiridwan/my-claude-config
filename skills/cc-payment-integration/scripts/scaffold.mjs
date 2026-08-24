@@ -137,6 +137,8 @@ export const WALLET_REQUIRE_CONSENT = ${consent.walletRequireConsent === true};
 export const CHECK_CONSENT_BY_DEFAULT = ${consent.checkConsentByDefault !== false};
 export const LOCALE = '${cfg.locale || 'en'}';
 export const REQUIRE_COUNTRY = ${cfg.nonComp?.requireCountry !== false};
+// 'gcomp' = comp by default, non-comp via ?non-comp=true · 'noncomp' = creative for everyone.
+export const PAGE_MODE: 'gcomp' | 'noncomp' = '${cfg.pageType === 'noncomp' ? 'noncomp' : 'gcomp'}';
 `;
 write(`${PREFIX}/payments/settings.ts`, settings);
 

@@ -40,6 +40,7 @@ breaks without it.
 | A16 | Template / git repo | `cc-dynamic-<service>-template-gcomp` | Template | — |
 | A17 | New build expected? | `yes / no` | Template Version | — |
 | A18 | Creative | `download` / `video` / comp-only | — (build time) | — |
+| A18b | Page type | `gcomp` (comp checkout by default; `?non-comp=true` shows the creative) / `noncomp` (creative for EVERY visitor; `?non-comp=false` shows comp for QA) | — (build time: settings.ts `PAGE_MODE`; the `-gcomp`/`-noncomp` token in the repo & page name) | — |
 | A19 | Publish after creating? | `yes` / `leave unpublished` | Actions → Publish | — |
 | A20 | Existing pages to reuse or retire | page id + intent | — | — |
 | A21 | Languages to verify | `de` (default: derive from A2/A3) | — (page auto-detects browser language; QA needs to know which locales must be right) | translations/<locale>.json |
@@ -115,6 +116,12 @@ something `cc-ouisys-panel` refuses to do, so in practice it means creating it t
 
 The name does not follow from the ID and does not follow from the gateway: `celeris`, `maxpay`,
 `acquired`, `aci-pxp` are PSPs, and one of them serves several acquiring banks. Ask for the word.
+
+**gcomp vs noncomp confused.** These are different PAGE TYPES, not a flag on one page. A gcomp page
+is the comp checkout that only shows the creative with `?non-comp=true`; a noncomp page serves the
+creative to everyone, unconditionally. A request that says "non comp page" filed as gcomp ships the
+wrong default to all traffic — and the name token (`-gcomp`/`-noncomp`) can't be fixed later because
+pages don't rename. Ask which type explicitly whenever the request mentions non-comp at all.
 
 **Forgotten existing page.** A product already had a page nobody mentioned. A second one was created
 alongside it, leaving a dormant page on an older template with a stale slug — harmless until someone

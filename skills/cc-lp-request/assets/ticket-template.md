@@ -18,6 +18,7 @@ Values that are genuinely true for every page in this request.
 | Template / git repo | |
 | New build expected? | |
 | Creative | |
+| Page type (gcomp: comp + ?non-comp=true · noncomp: creative always) | |
 | Target country | |
 | `d_country` default | |
 | Publish after creating? | |

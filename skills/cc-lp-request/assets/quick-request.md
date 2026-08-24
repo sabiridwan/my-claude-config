@@ -44,7 +44,8 @@ Leave any of them blank if you don't have them and they become named blockers.
 config with no Google Pay block and a config with Google Pay switched off look different to the
 page code.
 
-**6. Deltas** — template, creative, country, currency, languages the page must be right in, design
+**6. Deltas** — template, creative, **page type (gcomp = comp checkout with ?non-comp=true escape;
+noncomp = the creative for every visitor)**, country, currency, languages the page must be right in, design
 reference (match the product site is the default — say so if you want a different look or a fresh
 design), publish-or-not. Usually "same as last time", which is a complete answer.
 

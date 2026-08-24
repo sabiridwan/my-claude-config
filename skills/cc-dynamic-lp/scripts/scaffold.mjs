@@ -68,7 +68,8 @@ function deriveName(cfg) {
   if (cfg.creative === 'download') parts.push('download');
   else if (cfg.creative === 'video') parts.push('video');
   if (cfg.nid !== false) parts.push('nid'); // nid variant by default
-  parts.push(cfg.suffix || 'gcomp'); // google comp/non-comp variant
+  // Page TYPE token: gcomp = dual-mode (comp + ?non-comp=true), noncomp = creative-only.
+  parts.push(cfg.suffix || (cfg.pageType === 'noncomp' ? 'noncomp' : 'gcomp'));
   return parts.join('-');
 }
 const productName = deriveName(cfg);
@@ -194,6 +195,7 @@ if (fs.existsSync(paymentScaffold)) {
     branding: cfg.branding || {}, locale: cfg.locale || 'en',
     devFallbackPlan: cfg.devFallbackPlan,
     // Brand theme (extracted from the product's live site) + product copy for the checkout page.
+    pageType: cfg.pageType === 'noncomp' ? 'noncomp' : 'gcomp',
     brand: cfg.brand || {}, copy: cfg.copy || {},
     // Extra fields so the dev fallback config also satisfies the host template's RootContext.
     pageName: productName, mcc: cfg.mcc

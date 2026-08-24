@@ -9,3 +9,6 @@ export const LOCALE = 'en';
 // Require ?d_country to be present for non-comp (mirrors the xracademy /xhosp gate). Set false for
 // the download-template behavior (non-comp without d_country).
 export const REQUIRE_COUNTRY = true;
+// PAGE TYPE, set from product.json pageType. 'gcomp' = comp checkout by default, non-comp only via
+// ?non-comp=true. 'noncomp' = the creative for every visitor (?non-comp=false shows comp for QA).
+export const PAGE_MODE: 'gcomp' | 'noncomp' = 'gcomp';

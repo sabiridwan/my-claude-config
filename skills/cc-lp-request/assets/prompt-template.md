@@ -16,6 +16,7 @@ Create a new cc landing page:
    Google Pay (if on): gateway merchant ID <...>, Business Console merchant ID <BCR2DN...>, merchant name <domain.com>
 5. Methods: <apple pay / google pay / card — which are on>
 6. Deltas:
+   page type: <gcomp (comp + ?non-comp=true) | noncomp (creative always)>
    country/d_country: <xx / nl>        currency: <EUR, local currency yes/no>
    MCC / legal entity: <name or "same as <product>">
    languages to verify: <en, de, ...>
@@ -39,6 +40,7 @@ Create a new cc landing page:
    Google Pay: gateway merchant ID AGDS030924001, Business Console merchant ID BCR2DN4T6O6NPIB5, merchant name files-editor.com
 5. Methods: apple pay + google pay + card
 6. Deltas:
+   page type: gcomp
    country/d_country: xx / nl        currency: EUR, local currency yes
    MCC / legal entity: PEPPEROSE LIMITED
    languages to verify: en
@@ -69,5 +71,8 @@ gateway <x> bank <name/id>, same wallets/MCC as <sibling product>. Requester: <n
 - **One-off price goes in BOTH price fields** — the hidden trial-price field defaults to 0.01.
 - **Apple Pay + Google Pay identity is domain-bound** — a sibling's IDs can fail live sessions.
 - **Bank NAME ≠ gateway** — the name is a page-name token; pages don't rename, they get recreated.
+- **gcomp ≠ noncomp** — gcomp shows the comp checkout by default (creative only via
+  `?non-comp=true`); a noncomp page shows the creative to everyone. Different page, different name
+  token, can't be flipped after creation.
 - **Plan type in panel words**: `subscription` / `trial-then-subscription` / `one-off` — "not a
   subscription" prose has shipped renewal copy on one-off charges before.

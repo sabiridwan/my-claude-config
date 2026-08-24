@@ -2,7 +2,7 @@
 // Must be computed BEFORE first paint so the layout never flashes.
 import { getPageConfigs } from './paymentConfig';
 import { searchParams } from './params';
-import { CREATIVE_MODE, REQUIRE_COUNTRY } from './settings';
+import { CREATIVE_MODE, REQUIRE_COUNTRY, PAGE_MODE } from './settings';
 import type { ResolvedMode } from './types';
 
 // Replicates the reference RootContext `isCompliant` exactly (comp when compliant; non-comp only when
@@ -12,6 +12,14 @@ export function decideComp(): boolean {
   const p = searchParams();
   if (pc.flags?.forceComp) return true; // forceComp always forces comp
   if (p['non-comp'] === 'true' || p['nonCompEnable'] === 'true') return false; // QA override → non-comp
+  // QA override the other way: ?non-comp=false shows the comp checkout even on a noncomp page.
+  if (p['non-comp'] === 'false' || p['non-comp'] === 'off' || p['non-comp'] === '0') return true;
+
+  // A dedicated NONCOMP page serves the creative to everyone — no device/country rules. This is a
+  // different PAGE TYPE from gcomp (which is comp by default and needs ?non-comp=true), not a flag
+  // on the same page. Set at scaffold time from product.json pageType; the repo/page name carries
+  // the matching -noncomp / -gcomp token.
+  if (PAGE_MODE === 'noncomp') return false;
 
   const country = (p['d_country'] || '').toLowerCase();
   const hasApplePay = typeof window !== 'undefined' && !!window.ApplePaySession;
