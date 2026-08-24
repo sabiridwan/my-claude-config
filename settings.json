@@ -248,6 +248,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-ai/scripts/lp-request-trigger.sh",
+            "timeout": 5,
+            "statusMessage": "Checking for CC page request..."
+          }
+        ]
       }
     ]
   },
