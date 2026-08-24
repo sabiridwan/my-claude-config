@@ -64,29 +64,58 @@ make the ticket look complete.
 
 After creating, hand back the page URL so they can watch it.
 
-## Progress comments — every update lands on the ticket
+## Ticket updates — the ops-pipeline format (Sami's convention)
 
-Once the ticket exists, it is the single thread of record. **Every milestone and every change gets
-a `notion-create-comment` on the ticket page**, attributed to the requester the work was done for:
+The Design/Ops boards already run a proven update convention (see any GENT ticket with a
+"📋 Update" block — e.g. GENT-7241). CC tickets follow the same shape. **Every milestone writes a
+structured update into the PAGE BODY, plus a short comment as the notification ping** — body edits
+don't reliably notify watchers, and comments alone bury the record.
+
+### 1. The update block (page body, newest on top)
+
+Prepend to the page content:
 
 ```
-[<stage>] <what happened> — for <requester>
-<links / ids>
+### 📋 Update — <YYYY-MM-DD> [· vN] (<who did it> — for <requester>)
+
+| | |
+| --- | --- |
+| **What was done** | one paragraph, plain language, links inline |
+| **URLs** | staging https://staging.mouisys.com/<xcid> · panel edit https://panel.ouisys.com/dynamic-pages/update-credit-card/<id> |
+| **Page / Template** | <page-name> · xcid <xcid> · template <id> v<N> (version id <id>) |
+| **Status** | <old> → <new> |
+| **Outstanding** | each open item with its OWNER — "Ops: …", "Sabi: …", "Apple dev account owner: …" |
+
+Done by <who> — for <requester>
 ```
 
-Post one comment per event, at minimum on:
+A re-upload that supersedes an earlier version gets `· v2` in the heading and names the superseded
+version ids in Page/Template, the way GENT-7241's v2 does — old references stay live, marked
+superseded, never silently overwritten.
 
-- **Ticket updated** — a field filled in, a blocker resolved, or a value corrected (say what changed
-  and who supplied it)
-- **Build uploaded** — `[build] v<N> uploaded (template <id>, version <id>) — for <requester>`
-- **Page created** — `[page] <page-name> created — xcid <xcid>, staging https://staging.mouisys.com/<xcid>`
-- **QA verdict** — `[qa] PASS/FAIL — <one-line summary>` (cc-qa posts its full report too)
-- **Fix + re-upload** — `[fix] v<N> — <what was wrong, what changed>`
-- **Handoff** — `[ready] staging QA'd; production publish pending (owner: Sabi)` + panel edit URL
+### 2. The Pipeline Log (collapsible, one per build)
+
+Below the update block, a toggle keeps the audit trail without cluttering the ticket:
+
+```
+<details><summary>**Pipeline Log** — <stage> detail (<who>, <YYYY-MM-DD>)</summary>
+**Inputs.** ticket fields used, sibling page copied from, panel lookups.
+**Config.** slug/gateway/bankId/MCC/plan actually sent, and where each value came from.
+**API.** the panel MCP calls and results (create_template id, create_page_config → page_config_id/version_id/xcid, upload record id).
+**Verification.** what QA actually checked and saw — rendered states, network evidence, dry-run result.
+**Files.** repo, commits, build versions.
+</details>
+```
+
+### 3. Results + comment ping
+
+- Fill the `## Results` table (live/staging URL + panel edit link per page) at handoff.
+- Post ONE short `notion-create-comment` per milestone as the ping:
+  `[<stage>] <one line> — for <requester>` (build / page / qa / fix / ready). The body block is the
+  record; the comment is the notification.
 
 Move `Status` to `In Progress` when the build starts. Never set `Done` — the requester/owner closes
-it after the production publish, which is not the assistant's step. Fill the `## Results` section
-in the page body (live page URL + panel edit link) at handoff.
+it after the production publish, which is not the assistant's step.
 
-`Created by` on comments records whoever's Notion account the MCP acts as — that's why the
-`— for <requester>` suffix is required on every comment, not decoration.
+`Created by` on edits and comments records whoever's Notion account the MCP acts as — that's why
+`— for <requester>` is required in the heading, the sign-off, and every comment. Not decoration.
