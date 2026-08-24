@@ -28,9 +28,11 @@ requester's head:
 1. Product + domain
 2. Slugs, one per line, with price and one-off / trial
 3. Gateway + bank (name and ID)
-4. Apple Pay merchant identifier + label
+4. Wallet identity — Apple Pay merchant identifier + label; if Google Pay is on, its gateway
+   merchant ID + Business Console merchant ID (+ the merchant name shown in the sheet)
 5. Google Pay on? Card form on?
-6. Anything different from the last page for this product?
+6. Anything different from the last page for this product? (template, creative, country, currency,
+   languages the page must be right in, design reference, publish-or-not)
 
 `assets/quick-request.md` is this list as a paste-able form, with a worked example — hand it to
 anyone who asks what you need.
@@ -94,6 +96,23 @@ another is ambiguous and the builder cannot resolve it. Get the gateway as an ex
 (`merchant.com.<something>.N`) and the sheet label both belong to the domain being served. If the
 requester doesn't have them, that's a real blocker owned by whoever manages the Apple developer
 account — mark it TBC rather than letting the builder copy a neighbouring product's.
+
+**Google Pay identity — same rule, and it has no fields anywhere else.** When Google Pay is on, the
+config needs `gatewayMerchantId`, the Business Console `merchantInfo.merchantId`, and the
+`merchantName` the payer sees inside the sheet. None of these can be looked up from the panel for a
+new MID, and a borrowed pair is the same inherited-identity defect as the Apple Pay one — it shows
+another product's name to the payer and can be rejected by the gateway. If the requester doesn't
+have them: TBC, owner = whoever manages the Google Pay Business Console.
+
+**Languages the page must be right in.** The page ships every locale and auto-detects the browser
+language; a `-de` slug means German shoppers read the German copy. Default to deriving the list
+from the country / `d_country`, state it in the ticket, and let the requester correct it — QA needs
+to know which locales to verify, and a stale price hides in exactly the locale nobody checked.
+
+**Design reference.** The builder's default is to harvest brand (colours, fonts, logo, footer
+identity) from the live product site. If the requester wants a different look — another page as the
+reference, or a fresh design — that's a ticket field, not a chat aside. And if the product site
+isn't live yet, brand AND footer identity (company block, legal-link UUIDs) become named blockers.
 
 **Plan type — in the panel's own words.** `subscription`, `trial-then-subscription`, or `one-off`.
 "One off: yes/no" plus a sentence of prose is ambiguous, and the three shapes produce different

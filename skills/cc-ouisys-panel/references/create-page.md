@@ -187,8 +187,14 @@ before saving. Shape:
     "flags": { "forceComp": false },
     "cardMccInformation": { /* … */ },
     "payments": { "googlePay": {…}, "applePay": {…} },   // no "card" — by design
-    "plan": { "fullPrice": "49.99", "trialPrice": "0.01", "currency": "EUR",
+    "plan": { "type": "trial-then-subscription",   // "subscription" | "trial-then-subscription" | "one-off"
+              "fullPrice": "49.99", "trialPrice": "0.01", "currency": "EUR",
               "trialDays": 1, "billingCycleDays": 28, "isLocalCurrency": true },
+    // ALWAYS set plan.type explicitly. Omitting it makes the page fall back to inferring
+    // from trialDays (trialDays > 0 → trial-then-subscription, else subscription) — which can
+    // NEVER produce one-off, so an untyped one-off page advertises a renewal that won't happen.
+    // One-off shape: { "type": "one-off", "fullPrice": X, "trialPrice": X, "trialDays": 0,
+    // "billingCycleDays": 0, ... } — the charge amount stated in BOTH price fields.
     "env": { /* … */ },
     "vertical": "credit-card"
   },

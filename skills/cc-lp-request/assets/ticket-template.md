@@ -22,6 +22,8 @@ Values that are genuinely true for every page in this request.
 | `d_country` default | |
 | Publish after creating? | |
 | Existing pages to reuse or retire | |
+| Languages to verify (default: derive from country) | |
+| Design reference (product site / URL / fresh design) | |
 
 ## Block B — per MID
 
@@ -34,7 +36,7 @@ Repeat this block for each MID. The MID's own page in the MIDs database carries 
 | Descriptor / domain | | |
 | Gateway | | |
 | Bank name | | |
-| Bank ID | | |
+| Bank ID (covers card + Apple Pay + Google Pay unless stated) | | |
 | MCC / legal entity | | |
 | Service ID | | |
 | Service display name | | |
@@ -43,6 +45,9 @@ Repeat this block for each MID. The MID's own page in the MIDs database carries 
 | Apple Pay label | | |
 | Supported card networks | | |
 | Google Pay enabled? | | |
+| Google Pay gateway merchant ID (required if enabled) | | |
+| Google Pay merchant ID — Business Console (required if enabled) | | |
+| Google Pay merchant name (shown in the sheet) | | |
 | Card Submit enabled? | | |
 
 ## Block C — per page (one row per billing slug, grouped under its MID)

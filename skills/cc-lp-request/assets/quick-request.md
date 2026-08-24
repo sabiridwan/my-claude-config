@@ -7,7 +7,7 @@ blocker with an owner — nothing gets silently guessed.
 1. Product / bank, and how many MIDs:
 2. Per MID — name or link, descriptor domain, slug, price, one-off / trial:
 3. Gateway + bank (name and ID), per MID if they differ:
-4. Apple Pay merchant identifier + label, per MID:
+4. Wallet identity per MID — Apple Pay merchant identifier + label; if Google Pay is on, its gateway merchant ID + Business Console merchant ID:
 5. Google Pay on? Card form on?
 6. Anything different from the last page for this product?
 ```
@@ -34,16 +34,19 @@ guessing it wrong means advertising a renewal that never happens.
 bank *name* is a token in the page name that no lookup can supply. "Same as <existing page>" is a
 valid answer.
 
-**4. Apple Pay identity** — the one field that cannot be derived, borrowed, or inferred. It's tied
-to the domain being served, so another product's identifier means live payments fail. Leave it blank
-if you don't have it and it becomes a named blocker.
+**4. Wallet identity** — the fields that cannot be derived, borrowed, or inferred. The Apple Pay
+merchant identifier is tied to the domain being served, so another product's identifier means live
+payments fail. The Google Pay pair (gateway merchant ID + Business Console merchant ID) is
+registered to a merchant the same way, and the merchant name renders inside the live payment sheet.
+Leave any of them blank if you don't have them and they become named blockers.
 
 **5. Wallets** — "Apple Pay only" is a decision worth stating rather than implying, because a
 config with no Google Pay block and a config with Google Pay switched off look different to the
 page code.
 
-**6. Deltas** — template, creative, country, currency, publish-or-not. Usually "same as last time",
-which is a complete answer.
+**6. Deltas** — template, creative, country, currency, languages the page must be right in, design
+reference (match the product site is the default — say so if you want a different look or a fresh
+design), publish-or-not. Usually "same as last time", which is a complete answer.
 
 ## Example of a filled one
 

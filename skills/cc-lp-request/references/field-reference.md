@@ -24,7 +24,7 @@ breaks without it.
 | A3 | `d_country` default | `de` | — (runtime URL param) | — |
 | A4 | Gateway | `celeris` | Gateway | `gateway` |
 | A5 | Bank name | `pxp` | — (the `{bank}` token in the page name, right after `cc`) | — |
-| A6 | Bank ID | `173` | Bank ID | `payments.applePay.bankId` |
+| A6 | Bank ID | `173` | Bank ID | `payments.applePay.bankId` + `payments.googlePay.bankId` + the card flow's `bankId` — one value covers all three unless the requester states they differ |
 | A7 | MCC / legal entity | `Prizeflix B.V.` | MCC combobox | `cardMccInformation` |
 | A8 | Service ID | `vreducationlab` | Service ID | `service.id` |
 | A9 | Service display name | `VR Education Lab` | Service Display Name | `service.displayName` |
@@ -33,12 +33,17 @@ breaks without it.
 | A12 | Apple Pay label | the domain | Label | `payments.applePay.label` |
 | A13 | Supported card networks | `masterCard, maestro` (+ `visa`?) | Supported Networks | `payments.applePay.supportedNetworks` |
 | A14 | Google Pay enabled? | `no` | Payment Methods checkbox | `paymentMethods[]` |
+| A14a | Google Pay gateway merchant ID (required when A14 = yes) | `AGDS030924001` | Gateway Merchant ID | `payments.googlePay.gatewayMerchantId` |
+| A14b | Google Pay merchant ID — Business Console (required when A14 = yes) | `BCR2DN4T6O6NPIB5` | Merchant ID | `payments.googlePay.merchantInfo.merchantId` |
+| A14c | Google Pay merchant name (user-visible in the sheet) | the domain, e.g. `pdfbrain-ai.com` | Merchant Name | `payments.googlePay.merchantInfo.merchantName` |
 | A15 | Card Submit enabled? | `no` | Payment Methods checkbox | `paymentMethods[]` |
 | A16 | Template / git repo | `cc-dynamic-<service>-template-gcomp` | Template | — |
 | A17 | New build expected? | `yes / no` | Template Version | — |
 | A18 | Creative | `download` / `video` / comp-only | — (build time) | — |
 | A19 | Publish after creating? | `yes` / `leave unpublished` | Actions → Publish | — |
 | A20 | Existing pages to reuse or retire | page id + intent | — | — |
+| A21 | Languages to verify | `de` (default: derive from A2/A3) | — (page auto-detects browser language; QA needs to know which locales must be right) | translations/<locale>.json |
+| A22 | Design reference | `match product site` (default) / a URL / `fresh design` | — (build time; cc-dynamic-lp harvests brand from this) | — |
 
 ## Block B — once per billing slug
 
@@ -75,6 +80,14 @@ which is why requesters copy it in good faith.
 **Ambiguous gateway.** A ticket titled "Ecommpay — Create Landing Page" carried five slugs all
 prefixed `cc_celerispay`. The builder could not tell whether the title or the slugs were
 authoritative and had to stop and ask. One explicit field removes the whole class of problem.
+
+**Inherited Google Pay identity.** Same failure mode as the Apple Pay one below, and it shipped
+the same way: with no Google Pay fields in the ticket, a builder copies `gatewayMerchantId` /
+`merchantInfo.merchantId` from a sibling page. The Business Console merchant ID is registered to a
+merchant and the merchant name renders inside the live Google Pay sheet — a borrowed identity shows
+another product's name to the payer and can be rejected by the gateway. If Google Pay is on and the
+requester doesn't have the IDs, that's a named blocker (owner: whoever manages the Google Pay
+Business Console), not a copy-from-neighbour.
 
 **Inherited Apple Pay merchant identifier.** With no identifier in the ticket, a builder copied
 `merchant.com.xracademy.online.2` from a sibling page onto a different domain's pages. Apple
