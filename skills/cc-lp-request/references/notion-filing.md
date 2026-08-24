@@ -63,3 +63,30 @@ Never file a ticket the requester has not seen, and never fill a blocker with a 
 make the ticket look complete.
 
 After creating, hand back the page URL so they can watch it.
+
+## Progress comments — every update lands on the ticket
+
+Once the ticket exists, it is the single thread of record. **Every milestone and every change gets
+a `notion-create-comment` on the ticket page**, attributed to the requester the work was done for:
+
+```
+[<stage>] <what happened> — for <requester>
+<links / ids>
+```
+
+Post one comment per event, at minimum on:
+
+- **Ticket updated** — a field filled in, a blocker resolved, or a value corrected (say what changed
+  and who supplied it)
+- **Build uploaded** — `[build] v<N> uploaded (template <id>, version <id>) — for <requester>`
+- **Page created** — `[page] <page-name> created — xcid <xcid>, staging https://staging.mouisys.com/<xcid>`
+- **QA verdict** — `[qa] PASS/FAIL — <one-line summary>` (cc-qa posts its full report too)
+- **Fix + re-upload** — `[fix] v<N> — <what was wrong, what changed>`
+- **Handoff** — `[ready] staging QA'd; production publish pending (owner: Sabi)` + panel edit URL
+
+Move `Status` to `In Progress` when the build starts. Never set `Done` — the requester/owner closes
+it after the production publish, which is not the assistant's step. Fill the `## Results` section
+in the page body (live page URL + panel edit link) at handoff.
+
+`Created by` on comments records whoever's Notion account the MCP acts as — that's why the
+`— for <requester>` suffix is required on every comment, not decoration.

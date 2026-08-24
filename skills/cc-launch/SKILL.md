@@ -56,7 +56,12 @@ Collect the union of what the downstream skills need, so the user answers once:
 - Checkout backend keys: `slug`, `gateway` (`celeris|maxpay|ecardon|acquired`), `bankId`
   (card/applePay/googlePay), Apple `merchantIdentifier`, Google `gatewayMerchantId`.
 - Payment methods + order; consent flags; branding (colors, font, logo).
-- Ticket: the Notion ticket URL/id for this page (so cc-qa can post the QA report there).
+- Ticket: the Notion ticket URL/id for this page. **If none exists, cc-lp-request files one first**
+  (its notion-filing.md flow) — every LP request gets a CC Tasks ticket. From then on, post a
+  `notion-create-comment` on it at every milestone — build uploaded, page created (xcid + staging
+  URL), QA verdict, each fix/re-upload, and the final handoff — each comment suffixed
+  `— for <requester>` (see cc-lp-request/references/notion-filing.md "Progress comments"). Move
+  Status to In Progress at build start; never set Done (the owner closes it after publish).
 - Prices come from the panel config at runtime — never hardcode; `devFallbackPlan` is dev-only.
 - **Plan type per page**: `subscription` | `trial-then-subscription` | `one-off`. A ticket table with
   a `One Off` column is stating this per slug (`Yes` → `one-off`). It is a panel field *and* a page-code

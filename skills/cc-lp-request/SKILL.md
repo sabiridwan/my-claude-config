@@ -57,14 +57,23 @@ value presented as fact is how another product's merchant identifier ends up in 
    domain. Take it all, then work out what's missing rather than making them recite fields they've
    already given you.
 2. **Look it up before asking.** Pull the product's existing pages and template from the panel, then
-   interview only for what's left, using `references/field-reference.md` as the checklist. Ask in
-   batches grouped by theme, not one question at a time — people answer "what's the gateway, bank
-   name and bank ID?" in one go.
+   interview only for what's left, using `references/field-reference.md` as the checklist. In a LIVE
+   chat, ask ONE question at a time (AskUserQuestion where sensible options exist — offer the
+   sibling/derived value as the recommended option, "paste my own" via Other, and "mark TBC" as the
+   fallback), confirming each answer before the next; Sabi prefers this. Reserve the batch form
+   (`assets/quick-request.md`) for async requests — a pasted form someone fills alone. Related
+   values that are answered in one breath (gateway + bank name + bank ID) may share one question.
 3. **Challenge the values that are usually wrong.** See "Values to interrogate" below. This is where
    the skill earns its keep.
 4. **Produce the ticket** using `assets/ticket-template.md`. Fill every cell you have; mark the rest
    `TBC — <who owns it>` so it's obvious what's blocking and who unblocks it.
-5. **Tell them what is still blocking**, in one short list at the end, and who needs to supply each
+5. **File it to Notion — every LP request gets a CC Tasks ticket.** Follow
+   `references/notion-filing.md`: show the requester the exact title/status/tags/body, get a yes,
+   create the page, hand back the URL. The ticket is the record every later update comments on
+   (see the "Progress comments" section there) — a request that never reaches the board is
+   invisible to the team. Only skip when no Notion MCP is connected; then say so plainly and hand
+   back the markdown.
+6. **Tell them what is still blocking**, in one short list at the end, and who needs to supply each
    item.
 
 If they push back on a question — "just use whatever the other page uses" — explain the specific
