@@ -44,6 +44,26 @@ pdfbrainai). Only if the *push itself* is rejected does project creation need th
 `POST /api/v4/projects` with a PAT. `build:upload` pushes a `vN` tag, so push access must work
 before running it either way.
 
+## 0. Environment preflight — run this BEFORE starting anything
+
+The pipeline runs on very different surfaces (Sabi's Mac, a teammate's machine, a claude.ai chat
+sandbox). Check what THIS environment has, pick the matching tier, and say which tier you're on —
+don't discover a missing credential at step 5.
+
+Check: Node 20.12.2 (`nvm`), SSH to git.sam-media.com, `expect`, `osui_aws_access_key_id` in the
+shell after `source ~/.zshrc`, a browser tool (Claude-in-Chrome / chrome-devtools), the
+`ouisys-panel` MCP server.
+
+| Tier | Have | Path |
+| --- | --- | --- |
+| **FULL** | creds + expect + browser | this document as written, steps 1–7 locally |
+| **CI** | git push + panel MCP, but NO osui creds or expect | scaffold → commit → push branch → **open an MR; the build/template-agent pipeline builds, uploads and registers the version on merge** (that's how Template Versions rows appear without deploy.sh) → resume at step 6 with `create_page_config` via the panel MCP, which is HTTP + API token and works from any surface |
+| **HANDOFF** | not even a browser | interview must capture the brand + footer block in the ticket (prompt-template §7); scaffold; `verify.mjs --handoff` (browser-dependent checks become warnings, everything else still hard-fails); push the branch; a FULL/CI surface finishes build → page → QA |
+
+**Never ask the user to paste AWS keys or any secret into a chat surface.** Missing creds means the
+CI or HANDOFF tier, not a credential request. State the tier and its boundary in the first status
+message and on the Notion ticket.
+
 Announce the plan up front as a short checklist, then walk it. Keep a running status so the user
 always knows which stage they're in and what's left.
 

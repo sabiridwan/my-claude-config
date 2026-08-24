@@ -75,7 +75,11 @@ checkout already reproduces the reference layout (see `cc-payment-integration`'s
 `PaymentPage` + `checkout.scss`); your job is to feed it the *product's real brand*, not a guess.
 
 Do NOT guess colours. Product sites are usually client-rendered SPAs, so `web_fetch` returns only a
-"Loading…" shell — you must render the JS. Use the Claude-in-Chrome tools:
+"Loading…" shell — you must render the JS. **No browser tools on this surface?** Take the brand +
+footer block from the TICKET (prompt-template §7 carries theme/CTA hex/fonts/logo/company
+block/legal paths, filled by whoever has a browser); if the ticket doesn't carry it either, that's a
+named blocker — scaffold with placeholders, verify with `--handoff`, and hand off. Never invent
+brand or footer values. With browser tools, use Claude-in-Chrome:
 
 1. `navigate` to the product site (e.g. `https://www.streamtrainfit.com/`).
 2. `computer` screenshot to see the look (dark/light, logo, vibe).

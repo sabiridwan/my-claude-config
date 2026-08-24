@@ -57,6 +57,22 @@ Create a new cc lp for <domain.com>, slug <...> at <price> <trial|one-off>,
 gateway <x> bank <name/id>, same wallets/MCC as <sibling product>. Requester: <name>.
 ```
 
+## §7 (optional) — brand + footer block, for browserless build surfaces
+
+The builder normally harvests these from the live product site with a browser. If the build will
+run on a surface WITHOUT browser tools (a chat sandbox), paste them into the request/ticket and any
+surface can build green:
+
+```
+7. Brand + footer (optional — fill if the builder has no browser):
+   theme: <light|dark>   CTA color: <#hex>   fonts: <display / body>
+   logo: <URL or "wordmark">
+   company block: <legal entity name>, <address>, <reg no if any>
+   support: <email> <phone if any>
+   copyright line: <verbatim>
+   legal links (site-relative): /terms..., /privacy..., /faq, /contact
+```
+
 ## What happens after you paste it
 
 1. Panel looked up first (existing pages, MCC, template, siblings) — only genuine gaps asked back,
