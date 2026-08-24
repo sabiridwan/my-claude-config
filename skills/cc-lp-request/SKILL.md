@@ -35,7 +35,9 @@ requester's head:
    languages the page must be right in, design reference, publish-or-not)
 
 `assets/quick-request.md` is this list as a paste-able form, with a worked example — hand it to
-anyone who asks what you need.
+anyone who asks what you need. `assets/prompt-template.md` is the fuller single-message version (all
+six answers + deltas in one paste, with a filled example and the classic traps) — a completely
+filled one skips the interview entirely.
 
 Plus one thing you don't have to ask for in the normal case: **the requester's name**. Whoever is
 talking to you is the requester unless they say otherwise, so record them and only ask when they're
