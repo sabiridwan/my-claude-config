@@ -387,6 +387,27 @@ Scope, exactly:
 - `confidence=low` nudges: use judgment, delegating is not mandatory.
 - Never extends to any other agent type, or to spawning without a nudge present.
 
+# z-auto trigger
+
+When a message starts with `z-auto` or `hey z-auto` (case-insensitive), treat that
+as an explicit, standing invocation of the `zync-autopilot` skill for the rest of
+that message — no brainstorming gate, no clarifying questions, no plan-mode
+check-in. Read project context, make every decision myself, execute the task
+fully, verify, then report. This satisfies "unless the user requested it" for
+any rule that would otherwise ask before delegating or before starting
+implementation — the trigger word is that request, every time it appears.
+
+`zync-autopilot`'s own rules still bind in full, unchanged:
+- Never ask a question mid-execution. Resolve it and log the decision instead.
+- Never `git commit` or `git push`, no matter how the task is phrased. Leave
+  everything staged/modified and uncommitted.
+- Report back what was done, what was decided and why, any flags (new deps,
+  deviations, uncertain calls), and what's left uncommitted for review.
+
+Scope: only the literal `z-auto` / `hey z-auto` trigger. A task that merely
+sounds autonomous ("just handle it") without that trigger follows normal
+judgement about whether to ask first.
+
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
