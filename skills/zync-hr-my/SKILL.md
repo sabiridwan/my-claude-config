@@ -17,11 +17,19 @@ compute money. Say so when you quote one.
 | Repo | Path |
 |---|---|
 | `zyncg-server` | `src/modules/hr/payroll/` — the whole engine is Malaysian |
-| `zerp-be` `dev-my` | same, plus MY-only `borang-e/`, `ea-form/`, `company-statutory/`, `payroll-mtd.ts`, `payroll-tax-bands.ts` |
-| `zerp-admin` `dev-my` | `src/modules/hr/payroll/company-statutory/`, `employee-ea-form/` |
+| `zerp-be` `development` | same, plus `borang-e/`, `ea-form/`, `company-statutory/`, `payroll-mtd.ts`, `payroll-tax-bands.ts` |
+| `zerp-admin` `development` | `src/modules/hr/payroll/company-statutory/`, `employee-ea-form/` |
 
-`dev-my` is the Malaysia variant branch. Merging `development` into it must never alter MY
-payroll behaviour — that gate is `zerp-merge-to-my`'s job, and it blocks the push.
+**`development` is the only branch. Malaysia and Nigeria coexist on it**, selected at runtime by
+`resolveTenantPayrollCountry()` (`tenant_country` env, else a `tenant_key` in
+`msgold_seed_tenant_keys`, else NG) — not by branch. Every MY-only path above lives on
+`development` today.
+
+The old `dev-my` variant branch is **dormant and must not be used** (decided 2026-08-26). It sits
+~60 commits behind `development` on `zerp-be` and ~41 on `zerp-admin`, and carries nothing
+MY-specific that `development` lacks — the only commit unique to it is a comment cleanup. Do not
+merge into it, do not branch from it, do not treat it as upstream. The `zerp-merge-to-my` skill
+is deprecated with it.
 
 ## The five statutory deductions
 
