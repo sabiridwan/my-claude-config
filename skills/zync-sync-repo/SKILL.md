@@ -50,7 +50,7 @@ This skill's job is to make every pull/push round-trip provably lossless — dia
 ## Don't
 
 - Run `git pull` or `git pull --rebase` directly — always fetch, diagnose, then integrate deliberately.
-- Rebase a shared/team branch (`development`, `dev-my`, `main`) as a reflex — check this ecosystem's convention first; several branches here are merge-based by design.
+- Rebase a shared/team branch (`development`, `main`) as a reflex — check this ecosystem's convention first; several branches here are merge-based by design.
 - Commit the user's uncommitted work to unblock a pull unless they asked you to commit.
 - Drop a stash before confirming its contents landed somewhere safe.
 - Force-push, hard-reset, or `stash drop`/`clean -f` without explicit per-instance confirmation, even if you did the equivalent last time in this session.

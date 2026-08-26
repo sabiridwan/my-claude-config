@@ -3,7 +3,7 @@
 Jest 28 + `ts-jest`, specs colocated as `*.spec.ts`, mocks not a real DB
 (`Test.createTestingModule({ providers: [{ provide: X, useValue: mockX }] })`).
 
-`zerp-be` `dev-my` already carries ~70 HR specs. **Read and port those before writing new
+`zerp-be` `development` already carries ~70 HR specs. **Read and port those before writing new
 ones** — they encode figures that were verified against published tables once already.
 
 ```bash

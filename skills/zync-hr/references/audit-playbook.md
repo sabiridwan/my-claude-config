@@ -36,7 +36,7 @@ Record: sub-module list, LOC, spec count, spec-to-source ratio, HR migrations.
 A spec count of 0 on a 39k-line money-handling module is itself a **Critical** finding — it
 means no rate change, no refactor and no rerun fix can be shipped with confidence.
 
-Compare against the upstream: `zerp-be` `dev-my` has ~70 HR specs for ~460 files. Anything
+Compare against the upstream: `zerp-be` `development` has ~70 HR specs for ~460 files. Anything
 downstream of it that lost the specs during porting should get them back before new work.
 
 ---

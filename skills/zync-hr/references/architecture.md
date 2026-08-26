@@ -1,20 +1,19 @@
 # ZyncGold / zerp HR — architecture map
 
-Verified against `zyncg-server` @ `dev-v1` and `zerp-be` @ `development` / `dev-my`, 2026-08-21.
-Re-verify with `scripts/hr_audit.sh` before relying on any count.
+Verified against `zyncg-server` @ `dev-v1` and `zerp-be` @ `development`, 2026-08-21; branch
+layout re-checked 2026-08-26. Re-verify with `scripts/hr_audit.sh` before relying on any count.
 
 ## Repos and what HR looks like in each
 
 | Repo | Path to HR | Country | Notes |
 |---|---|---|---|
 | `zyncg-server` | `src/modules/hr/` | Malaysia | ~377 `.ts`, ~39k LOC, **0 `*.spec.ts`** |
-| `zerp-be` (`dev-my`) | `src/modules/hr/` | Malaysia | ~460 `.ts`, **~70 specs** — upstream, richer |
-| `zerp-be` (`development`) | `src/modules/hr/` + `src/plugins/nigeria/` | Nigeria | Nigeria is a seed plugin, not an engine |
-| `zerp-admin` | `src/modules/hr/` | follows BE branch | `dev-my` carries `company-statutory/`, `employee-ea-form/` |
+| `zerp-be` (`development`) | `src/modules/hr/` + `src/plugins/nigeria/` | **Both, runtime-resolved** | ~460 `.ts`, **~70 specs**. MY engine and NG seed plugin ship together; Nigeria is a seed plugin, not an engine |
+| `zerp-admin` | `src/modules/hr/` | follows BE | carries `company-statutory/`, `employee-ea-form/` |
 | `zyncg-admin` | `src/modules/hr/`, `src/modules/ess/`, `src/modules/employees/` | Malaysia | Apollo consumer |
 | `zynchrs-be` | flat `src/modules/*` (`payroll`, `leave`, `attendance`, `claim`, `advance`, `loan`, `onboarding`, `offboarding`) | verify | **No `hr/` folder.** Different generation of the product — never assume path parity |
 
-`zyncg-server` HR is a port of `zerp-be dev-my`. `payroll-country.ts` is byte-identical
+`zyncg-server` HR is a port of `zerp-be`'s Malaysia engine. `payroll-country.ts` is byte-identical
 between them. That means: **zerp-be's HR specs are directly portable to zyncg-server**, and
 a bug fixed in one is almost certainly live in the other.
 

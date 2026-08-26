@@ -1,13 +1,32 @@
 ---
 name: zerp-merge-to-my
-description: Use when merging development branch updates into dev-my on zerp-be and zerp-admin, or when the user says "merge to my", "merge dev to dev-my", "sync dev-my", "update the MY branch", or asks to bring a feature just shipped to development into the Malaysia branch.
+description: DEPRECATED — do not use. The dev-my branch is dormant as of 2026-08-26; development is the only branch on zerp-be and zerp-admin. If the user asks to "merge to my", "sync dev-my" or "update the MY branch", tell them dev-my was retired and that Malaysia now ships on development, resolved at runtime by tenant_country. Kept only so a stale request routes to this explanation instead of silently reviving the branch.
 ---
 
-# Zerp — Merge development into dev-my
+# Zerp — Merge development into dev-my — **DEPRECATED**
 
-## Overview
+> **STOP. Do not run this workflow.**
+>
+> `dev-my` was retired on **2026-08-26**. `development` is the only branch used on `zerp-be`
+> and `zerp-admin`.
+>
+> Malaysia and Nigeria now coexist on `development`, selected **at runtime** by
+> `resolveTenantPayrollCountry()` (`tenant_country` env, else a `tenant_key` in
+> `msgold_seed_tenant_keys`, else NG) — not by branch. Every MY-only path this skill was
+> written to protect (`borang-e/`, `ea-form/`, `company-statutory/`, `payroll-mtd.ts`,
+> `payroll-tax-bands.ts`) already lives on `development`.
+>
+> When this was retired, `dev-my` sat ~60 commits behind `development` on `zerp-be` and ~41 on
+> `zerp-admin`, and held **nothing MY-specific that `development` lacked** — its only unique
+> commit was a comment cleanup. The branch still exists but is dormant: do not merge into it,
+> branch from it, or treat it as upstream.
+>
+> If someone asks to merge to `dev-my`, say it was retired and point them at `development`.
+> The historical procedure below is kept for reference only.
 
-`dev-my` is the **Malaysia variant branch** in both zerp repos. It carries MY-only commits (EA Form, Company Statutory, PCB/tax logic, HRDF, personal reliefs, statutory key mapping) on top of `development`. This skill merges `development` → `dev-my` in **both repos** — the merge is always one-way, and MY-specific behavior must survive every merge.
+## Overview (historical)
+
+`dev-my` was the **Malaysia variant branch** in both zerp repos. It carried MY-only commits (EA Form, Company Statutory, PCB/tax logic, HRDF, personal reliefs, statutory key mapping) on top of `development`. This skill merged `development` → `dev-my` in **both repos** — the merge was always one-way, and MY-specific behavior had to survive every merge.
 
 | Repo | Path | Verify after merge |
 |------|------|--------------------|

@@ -21,11 +21,18 @@ until you know which one you are in.
 | Deployment | Country | Where the statute lives |
 |---|---|---|
 | `zyncg-server` (ZyncGold) | Malaysia | Baked into `payroll-country.ts` (MY-only engine) |
-| `zerp-be` branch `dev-my` | Malaysia | Same engine + `borang-e/`, `ea-form/`, `company-statutory/`, `payroll-mtd.ts`, `payroll-tax-bands.ts` |
-| `zerp-be` branch `development` | Nigeria | `src/plugins/nigeria/seed/` (data-only seed, not an engine) |
+| `zerp-be` branch `development` | **Both** — resolved at RUNTIME | MY engine (`payroll-mtd.ts`, `payroll-tax-bands.ts`, `borang-e/`, `ea-form/`, `company-statutory/`) and NG (`src/plugins/nigeria/seed/`, data-only) ship side by side |
 | `zynchrs-be` | standalone HR product | flat `src/modules/*` — no `hr/` folder; different layout, verify before assuming |
 
-Resolve the country **from the repo and branch**, then read the matching skill:
+On `zerp-be` the country is **not** a branch fact. `resolveTenantPayrollCountry()` picks it per
+process: explicit `tenant_country` wins, else a `tenant_key` listed in `msgold_seed_tenant_keys`
+means MY, else **NG by default**. That default is the trap — a Malaysian tenant missing from
+that list silently runs Nigerian statute. Check the env, never the branch.
+
+(The old `dev-my` variant branch is dormant as of 2026-08-26 — do not use, do not merge into it.
+It holds nothing MY-specific that `development` lacks.)
+
+Resolve the country **from the repo and the tenant env**, then read the matching skill:
 
 - Malaysia statute, filings, EPF/SOCSO/EIS/PCB/HRDF, Employment Act 1955 → **`zync-hr-my`**
 - Nigeria statute, PAYE under NTA 2025, pension/NHF/NSITF/ITF/NHIA, Labour Act → **`zync-hr-ng`**
