@@ -368,6 +368,8 @@ Default to the **chrome-devtools** MCP server (`mcp__chrome-devtools__*` tools) 
 
 Do not use `claude-in-chrome` or `playwright` tools for browser tasks unless the user explicitly asks for one of those by name.
 
+**Identity:** always operate as **sabi@sam-media.com**. The debug Chrome uses its own persistent profile (`~/.chrome-devtools-mcp`) — Chrome blocks remote debugging on the real profile dir, so real-profile sessions can't be attached. If a work site (git.sam-media.com, panel.ouisys.com, Notion, Google) shows a login wall, ask me to sign in once in the debug Chrome (never type credentials yourself); the session persists there for all future runs.
+
 ## model-orch delegation exception
 
 The default "do not call the AgentTool unless the user requested it" rule does not apply
