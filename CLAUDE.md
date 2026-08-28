@@ -389,26 +389,51 @@ Scope, exactly:
 - `confidence=low` nudges: use judgment, delegating is not mandatory.
 - Never extends to any other agent type, or to spawning without a nudge present.
 
-# z-auto trigger
+# Autonomous execution — always-on default
 
-When a message starts with `z-auto` or `hey z-auto` (case-insensitive), treat that
-as an explicit, standing invocation of the `zync-autopilot` skill for the rest of
-that message — no brainstorming gate, no clarifying questions, no plan-mode
-check-in. Read project context, make every decision myself, execute the task
-fully, verify, then report. This satisfies "unless the user requested it" for
-any rule that would otherwise ask before delegating or before starting
-implementation — the trigger word is that request, every time it appears.
+Standing instruction, effective 2026-08-29: treat every task request as an
+implicit `zync-autopilot` invocation by default — no brainstorming gate, no
+clarifying questions, no plan-mode check-in. Read project context, make every
+decision myself, execute the task fully, verify, then report. This satisfies
+"unless the user requested it" for any rule that would otherwise ask before
+delegating or before starting implementation — the request is standing, not
+per-message.
 
-`zync-autopilot`'s own rules still bind in full, unchanged:
+Why: told directly — "make it always-on default" — after reporting friction
+from too much back-and-forth (typing through checkpoints) on a separate
+project. The old behavior required prefixing `z-auto`/`hey z-auto` per
+message; that opt-in was itself the problem.
+
+`zync-autopilot`'s own rules still bind, with one adjustment made explicit
+after this default caught itself contradicting its own git rule the first
+time it committed anything (see below — that inconsistency is exactly the
+kind of thing to fix on sight, not carry forward silently):
 - Never ask a question mid-execution. Resolve it and log the decision instead.
-- Never `git commit` or `git push`, no matter how the task is phrased. Leave
-  everything staged/modified and uncommitted.
+- Local commits on a branch are normal, expected autonomous work — commit as
+  the task naturally calls for it (a working branch with real commit history
+  is more useful to review than one giant uncommitted diff, especially for
+  multi-step work). The actual boundary is **never merge to main/shared
+  branches and never push, without asking first** — that's the irreversible,
+  shared-state step, not the local commit. A repo whose own established
+  workflow already gates merge/push behind a quick confirmation (branch →
+  commit → review → "merge or push?") keeps using that gate; it is not
+  "asking mid-execution" the way a design/approval question is.
+- If a repo has no established review/merge convention of its own and the
+  task is genuinely fire-and-forget (e.g. explicit "while I sleep" framing),
+  default to the more conservative original rule instead: leave commits
+  local and uncommitted-vs-main, report what's ready, let the human decide
+  how to integrate it — don't invent a merge/push convention on the spot.
 - Report back what was done, what was decided and why, any flags (new deps,
-  deviations, uncertain calls), and what's left uncommitted for review.
+  deviations, uncertain calls), and what's still pending integration.
 
-Scope: only the literal `z-auto` / `hey z-auto` trigger. A task that merely
-sounds autonomous ("just handle it") without that trigger follows normal
-judgement about whether to ask first.
+Escape hatch, the inverse of the old trigger: when I actually want deliberate
+collaboration on something — a real architectural call, a decision I want to
+walk through together — say so explicitly ("let's brainstorm this", "walk me
+through the options first", "don't just build it"). Absent that, default to
+full autonomous execution. Scope: this governs implementation work. It does
+not license skipping a genuinely destructive/irreversible action's own
+confirmation (force-push, dropping data, etc.) — those rails are separate and
+still apply.
 
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
