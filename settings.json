@@ -5,6 +5,7 @@
   },
   "permissions": {
     "allow": [
+      "WebFetch",
       "WebFetch(domain:c1.mouisys.com)",
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/logo.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/mobio-plus-2025-08-14t09-13-52-118z.svg-2025-08-14T09-13-52-618Z.svg\")",
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/icon-user-checked.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/user-checked-2025-10-24t06-04-46-115z.svg-2025-10-24T06-04-46-312Z.svg\")",
