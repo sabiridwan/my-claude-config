@@ -100,9 +100,13 @@ console, `Content-Type: application/json`) and check:
 2. **Wallet slug variants resolve?** `ap-validate` with `…-se` should reach Apple's error;
    the `:sek-se` local-currency form 500s when the variant isn't provisioned backend-side even
    though the panel says `isLocalCurrency: true`.
-3. **Card gateway registered for the slug?** `initiate-payment-generic` answering
-   `"Gateway name could not be found!"` means the slug has no card billing configured — a
-   wallet-only page stays wallet-only no matter what the panel checkbox says.
+3. **`"Gateway name could not be found!"` from `initiate-payment-generic` is NOT a slug problem.**
+   Verified 2026-08-31: a dummy 4111… card returns this identical 422 for EVERY slug family —
+   live celerispay card pages, acquired, maxpay — regardless of landing_page_url or
+   Origin/Referer, with a body byte-equivalent to ouisys-engine's own. The backend routes the
+   charge per card BIN/country, and a non-gateway test card has no route (same WARN logged in
+   cc-qa-report-gent7165-2026-08-19). Reaching this 422 IS the card dry-run PASS; capturing a
+   real response needs the gateway's own test card from the billing team.
 4. **`merchantIdentifier` belongs to THIS domain?** Cloned pages inherit another product's
    (e.g. `merchant.com.xracademy.online.2` on docpilotai) — Apple validation fails live.
 5. **Panel edit really saved?** Credit-card pages edit at
