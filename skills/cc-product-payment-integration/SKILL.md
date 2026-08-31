@@ -29,12 +29,12 @@ src/components/Analytics/TrackerBootstrap.tsx   (registers the direct tracker)
 | --- | --- | --- |
 | `pageConfigs` source | server-injected `window.configJson` | **fetch the published panel page** `GET ${API_BASE}/<xcid>` and scrape `window.configJson` from its HTML (same scrape the widget did). Snapshot ONCE, deep-clone. See `configStore.ts`. |
 | API base | same origin `''` | **`/ous` same-origin proxy** → `c1.mouisys.com`. Dev: Next rewrite (`next.config.ts`); prod: nginx on the product vhost. Reuse env `NEXT_PUBLIC_CC_WIDGET_API_BASE_URL`. |
-| rockmanId | widget/pac_analytics | **the app's own localStorage visitor id** (e.g. `lib/visitorId.ts`). Never mint a second id — charges and events must share one key. |
+| rockmanId | server-injected `window.pac_analytics.visitor.rockmanId` (the id the pageview's impression was recorded under) | **derived from pac_analytics too** — the config fetch of `/ous/<xcid>` returns the published page HTML, which carries a fresh server-minted `pac_analytics` for that pageview. Scrape its `visitor` block (`rockmanId`, `ip`, `ip_range_name`, `impressionNumber`) alongside `configJson` and use THAT id on every charge and mstore event; mirror it onto `window.pac_analytics.visitor` and into the `?r_=` session mirror. Precedence: explicit `?rockmanId=`/`?rockman_id=` pin → scraped pac id → app-local id (last-resort fallback only). Trap: if the app self-mirrors its local id into `?r_=` on every load (AnalyticsProvider pattern), do NOT treat `?r_=` as an override — the stale self-written id beats the server one forever. `visitor.ip` rides the non-maxpay card body; `ip_range_name` is the wallet-country fallback; `impressionNumber` keys mstore batches. |
 | Tracker | Pacman via engine/widget | direct mstore POST to `${API_BASE}/analytickz/api/v2/mstore` (`tracker.ts`), same wire contract, registered into the app's analytics layer (`setSamMediaTracker`-style — the WidgetTracker interface matches exactly). No hidden widget mount needed. |
 | Localization | formatjs / `src/localization` rules | the app's own i18n (or none). The LP skill's FormattedMessage rules do NOT apply. |
 | Non-comp creative | yes | **no** — product checkout is comp-only; skip resolveMode/NonComp/Creative. |
 | Post-payment return | `?payment-status=&user-status=` result screens | usually **LC2**: gateway redirects back with `?token=&uid=`, app validates via `/api/validate-access` → LC2 (`cc.tallymans.com`). Don't bolt the LP return-trip on top; verify the app's existing flow instead. |
-| ip field (card body) | `pac_analytics.visitor.ip` | not available client-side — omit; backend geolocates. |
+| ip field (card body) | `pac_analytics.visitor.ip` | same — `visitor.ip` from the scraped pac_analytics block; empty string only if the scrape failed (backend then geolocates). |
 
 ## THE slug rules — two different rules, both mandatory
 
