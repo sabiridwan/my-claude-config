@@ -71,6 +71,10 @@ it ("slug format invalid"), and behavior differs per endpoint. Implement `resolv
   `createButton()` can't take disabled, and a click-handler consent guard that calls onError fires
   a FALSE `payment-submission-failed` recede — consent blocking is not a payment failure and must
   emit nothing.
+- **Consent sits directly BEFORE the CTA button — never above the form** (house rule from Sabi,
+  2026-08-31). Card tab: consent element passed into the form, rendered between the error line and
+  the submit button. Wallet views: consent immediately above the wallet button stack. One shared
+  consent state across tabs.
 - **One error display owner.** Services/components bubble messages up; only the page-level error
   box renders them. Inline + page box = every decline shown twice (shipped, caught in E2E).
 - **Parse error bodies:** on `!res.ok` try `res.json()` and return it (`{...err, success:false}`) —
