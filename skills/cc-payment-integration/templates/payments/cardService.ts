@@ -1,7 +1,7 @@
 // Direct card submit — replaces ouisys-engine/creditCardFlow.
 // POST /api/v1/frontend/initiate-payment-generic  (see references/payment-architecture.md §2)
 import { getSlug, getBankId, getRockmanId, getVisitorIp, getPlan } from './paymentConfig';
-import { searchParams } from './params';
+import { searchParams, isPreauth } from './params';
 import { tracker } from './tracker';
 import type { CardUserDetails, PaymentResult } from './types';
 
@@ -45,10 +45,7 @@ function browserFingerprint() {
   };
 }
 
-export async function submitCard(
-  userDetails: CardUserDetails,
-  opts: { serviceId?: string } = {}
-): Promise<PaymentResult> {
+export async function submitCard(userDetails: CardUserDetails): Promise<PaymentResult> {
   const host = window.DEV_BASE_URL_CREDIT_CARD || '';
   const url = `${host}/api/v1/frontend/initiate-payment-generic`;
   const isMaxPay = 'cc_number' in userDetails;
@@ -57,10 +54,12 @@ export async function submitCard(
   const body: Record<string, unknown> = {
     rockman_id: getRockmanId(),
     landing_page_url: window.location.href,
-    service_id: isMaxPay ? opts.serviceId : '2',
     slug: resolveSlug(),
     browserFingerprint: browserFingerprint(),
-    ...(isMaxPay ? {} : { user_agent: navigator.userAgent, ip: getVisitorIp() }),
+    // Always present, 0 or 1 — the live ccsubmit bundles send it unconditionally.
+    is_preauth: isPreauth() ? 1 : 0,
+    // Maxpay omits service_id/user_agent/ip ENTIRELY (no key at all).
+    ...(isMaxPay ? {} : { service_id: '2', user_agent: navigator.userAgent, ip: getVisitorIp() }),
     ...userDetails,
     ...(bankId != null ? { bankId } : {})
   };
@@ -110,21 +109,34 @@ export function handleCardResult(
     return;
   }
 
-  // Engine parity: an explicit `redirect_url` overrides whatever `method` says.
+  // An explicit `redirect_url` overrides whatever `method` says.
   const method = result.redirect_url ? 'redirection' : result.method;
+  const target = result.gateway_url || result.redirect_url || result.product_url;
 
-  if (method === 'html' && result.html) {
+  // 3-DS html: declared (`method: 'html'`), or the live-bundle fallback —
+  // html present with NO redirect target at all.
+  if (result.html && (method === 'html' || !target)) {
     tracker.advancedInFlow(CC_FLOW, 'get-html-success');
     cb.onHtml?.(result.html); // render inline 3-DS iframe; do NOT navigate away
     return;
   }
 
-  const target = result.gateway_url || result.redirect_url || result.product_url;
+  // Success with nowhere to go is a failure, not a success (live bundles
+  // return 'no-redirect-url' here rather than showing a paid state).
+  if (!target) {
+    tracker.recedeInFlow('Flow', 'payment-submission-failed');
+    tracker.recedeInFlow(CC_FLOW, 'cc-form-submission-failure', {
+      errorType: 'Generic',
+      errorId: 'no-redirect-url'
+    });
+    cb.onError?.({ ...result, success: false, message: result.message || 'no-redirect-url' });
+    return;
+  }
 
   // `jslink` hands back a SCRIPT url, not a page. Assigning it to location.href
   // downloads a file or shows a blank page — which reads to the customer exactly
   // like "payment succeeded but nothing happened". Inject it as a <script src>.
-  if (method === 'jslink' && target) {
+  if (method === 'jslink') {
     tracker.advancedInFlow(CC_FLOW, 'load-script-start', { gateway_url: target });
     cb.onScript?.(target);
     return;
@@ -133,5 +145,5 @@ export function handleCardResult(
   tracker.advancedInFlow('Flow', 'payment-submitted');
   tracker.advancedInFlow(CC_FLOW, 'cc-form-submission-success', { gateway_url: target });
   cb.onSuccess?.(result);
-  if (target) window.location.href = target;
+  window.location.href = target;
 }

@@ -86,6 +86,9 @@ override in dev. Body:
 }
 ```
 
+The body also ALWAYS carries `is_preauth: 0|1` (from `?is_preauth=1` / `?preauth=true`) — the
+live ccsubmit bundles send it unconditionally.
+
 **Gateway detection:** `isMaxPay = 'cc_number' in userDetails`. Maxpay/card-flow **omits
 `service_id` entirely** — nothing in `ouisys-engine` ever populates a maxpay `serviceId`, so the key
 must resolve to `undefined` and be dropped by `JSON.stringify`, never a synthesized value. Verified
@@ -129,8 +132,11 @@ Response JSON: `{ success, message, method, gateway_url?, html? }`.
 
 - `success === false` → surface `message`. `'ALREADY SUBSCRIBED'` maps to an "AlreadySubscribed"
   error type; otherwise show the message.
-- Success + `method === 'html'` → render `html` in a 3-DS iframe (do not navigate away).
-- Success otherwise → redirect to `gateway_url`.
+- Success + `method === 'html'` → render `html` in a 3-DS iframe (do not navigate away). The live
+  bundles ALSO fall back to the html branch whenever `html` is present and there is no redirect
+  target at all, whatever `method` says.
+- Success otherwise → redirect to `gateway_url`. Success with NO target and NO html is an error
+  (`no-redirect-url`), never a shown success.
 - Fire the host `onSuccess` / `onError` callback **before** the redirect (advisory), then redirect.
 
 ## 3. Apple Pay

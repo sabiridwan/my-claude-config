@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { submitCard, handleCardResult } from '../payments/cardService';
 import { tracker } from '../payments/tracker';
-import { getService } from '../payments/paymentConfig';
 import { REQUIRE_CONSENT, CHECK_CONSENT_BY_DEFAULT } from '../payments/settings';
 import type { CardUserDetails, PaymentResult } from '../payments/types';
 import { FormattedMessage, useTranslate } from '../../localization';
@@ -20,7 +19,6 @@ export default function CardForm({ onSuccess, onError }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [threeDsHtml, setThreeDsHtml] = useState<string | null>(null);
   const [scriptUrl, setScriptUrl] = useState<string | null>(null);
-  const service = getService();
 
   // `jslink` gateways return a SCRIPT url. It must be injected, not navigated to —
   // assigning it to location.href downloads a file or blanks the page, which looks
@@ -75,7 +73,7 @@ export default function CardForm({ onSuccess, onError }: Props) {
       email: userDetails.email
     });
     try {
-      const result = await submitCard(userDetails, { serviceId: service.id });
+      const result = await submitCard(userDetails);
       handleCardResult(result, {
         onSuccess: (r) => onSuccess?.(r),
         onError: (r) => { setError(r.message || t('checkout.paymentFailedDefault')); onError?.(r); },
