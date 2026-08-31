@@ -48,6 +48,16 @@ new product checkout, "wire up payments", "replace the widget", scaffolding a `/
 anything that posts to `initiate-payment-generic` / `ap-payment` / `gp-payment`. If the user only
 gives a product name and a domain, that's enough — proceed.
 
+**If the target is a PRODUCT APPLICATION (a Next.js/React SaaS app with its own `/checkout` —
+docpilotai/snappdf, pdfswitch, etc.), not a cc-dynamic LP: use `cc-product-payment-integration`
+instead.** It shares this skill's payment contract (its references still apply) but replaces the
+LP-specific parts — config comes from fetching the published panel page through the app's `/ous`
+proxy instead of injected `window.configJson`, the app owns its rockmanId and analytics, there is
+no non-comp creative, no formatjs localization layer, and the return trip is LC2 `?token=&uid=`.
+Canonical reference: `~/SamMedia/products/snappdf-ai`. CRITICAL if adapting these templates by hand
+anyway: wallets post the widget's country/currency-suffixed slug (`resolveProductSlug().final`),
+which is a DIFFERENT rule from the card slug in `cardService.ts` — see that skill's slug section.
+
 ## The workflow
 
 Follow these steps in order. Read the reference files when the step says to.

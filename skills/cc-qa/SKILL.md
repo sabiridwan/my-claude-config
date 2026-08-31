@@ -34,6 +34,13 @@ This is the QA counterpart to `cc-dynamic-lp` (builds the page) and `cc-payment-
   mark a ticket "done" / change its status if the user explicitly asked, and never when there
   is an open FAIL or an unverified item.
 
+**Product-app checkouts** (a SaaS app's own `/checkout` built with `cc-product-payment-integration`,
+e.g. docpilotai/snappdf — not a cc-dynamic LP): run this checklist with that skill's "E2E testing"
+deltas — 3b/4b/1b are N/A (comp-only, the checkout IS the product app, return trip is LC2
+`?token=&uid=`), `window.configJson` is absent (config is fetched from `/ous/<xcid>` into a module
+snapshot — read it from the network request or the panel MCP), and funnel milestones dedupe per tab
+session (`sessionStorage.clear()` before asserting the event chain).
+
 ## Inputs
 
 Ask only for what you can't infer:
