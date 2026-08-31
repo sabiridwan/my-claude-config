@@ -235,6 +235,12 @@
             "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
             "timeout": 10,
             "statusMessage": "Restoring MCP server entries..."
+          },
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/dreaming.sh",
+            "timeout": 5,
+            "statusMessage": "Dreaming..."
           }
         ]
       }
