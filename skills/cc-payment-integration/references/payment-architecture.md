@@ -126,6 +126,18 @@ Collected by the card form; merged last into the body. Names seen in the flow: `
 `year`, `cvv`, `email` (+ `bankId`). Maxpay variant uses `cc_number`. Keep field names aligned with
 the target gateway.
 
+**Maxpay's real field set (probed live 2026-09-01):** the backend validates
+`cc_number`, `cc_holder`, `cc_exp_month`, `cc_exp_year`, `country_code` — NOT the generic
+`month`/`year`/`name`. A maxpay integration must map its form fields to these names.
+
+**`service_id: "2"` is required but inert (probed live 2026-09-01):** omitting it fails validation
+("Slug is not valid!"), while ANY value (1/2/3/8, string or number) yields the same downstream
+result — it does not select the gateway. "Gateway name could not be found!" on the generic
+(non-maxpay) path means the backend's redirect-card gateway registry has no entry for the slug:
+a maxpay-shaped probe against a maxpay slug resolves its gateway fine and proceeds to field
+validation. Card-via-celeris/acquired therefore needs backend provisioning per slug — no request
+shape fixes it client-side.
+
 ### 2.3 Response + result handling
 
 Response JSON: `{ success, message, method, gateway_url?, html? }`.
