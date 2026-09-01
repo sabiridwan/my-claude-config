@@ -173,6 +173,7 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
+  "model": "sonnet[1m]",
   "hooks": {
     "Stop": [
       {
@@ -292,5 +293,5 @@
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
   "voiceEnabled": true,
-  "model": "sonnet[1m]"
+  "theme": "winter"
 }
