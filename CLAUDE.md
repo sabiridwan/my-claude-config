@@ -435,6 +435,27 @@ not license skipping a genuinely destructive/irreversible action's own
 confirmation (force-push, dropping data, etc.) — those rails are separate and
 still apply.
 
+# Spec/plan doc per request — track what's incomplete
+
+For any real task (implementation, fix, audit, design, multi-step
+investigation) in a project, create or update a checklist-based spec/plan
+doc under that project's `docs/superpowers/specs/` (design/analysis docs)
+or `docs/superpowers/plans/` (execution plans) — same convention already
+in use in msb-be and zyncai. Filename: `<date>-<slug>-design.md` (or
+`-plan.md`). Body: requirements/steps as `- [ ]` checkboxes; tick them off
+as work completes; leave unticked items as the visible backlog for later.
+
+Skip it only for genuinely trivial asks: one-off lookups, pure Q&A,
+read-only checks, single-line typo fixes — nothing a future session would
+need to reconstruct "what was asked and what's still open" for.
+
+Before writing a new doc, grep `docs/superpowers/{specs,plans}/` for an
+existing one covering the same feature/line of work — extend it instead of
+fragmenting into duplicates.
+
+Why: told directly — want a durable per-project record of what was asked
+and what remains undone, not just chat history that scrolls away.
+
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
