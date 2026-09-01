@@ -435,6 +435,32 @@ not license skipping a genuinely destructive/irreversible action's own
 confirmation (force-push, dropping data, etc.) — those rails are separate and
 still apply.
 
+# Auto plan-handoff — opencode executes, Claude plans
+
+Standing instruction, effective 2026-09-01: once `superpowers:writing-plans`
+produces an implementation plan bigger than a 1-2 file change, automatically
+invoke `zyncai:plan-handoff` to execute it — don't ask first, don't
+implement it in Claude directly. This is the always-on default for every
+sizeable plan, not just when quota pressure is visible.
+
+- Skip the handoff only for genuinely tiny work (1-2 files) — `plan-handoff`'s
+  own threshold — where the handoff/review overhead isn't worth it; Claude
+  implements those directly, same as always.
+- `plan-handoff` already carries its own guaranteed fallback: if opencode is
+  unavailable/unauthenticated or every model in its fallback list fails,
+  Claude implements the plan itself — the task never stalls on the tool
+  being down.
+- After opencode (or the fallback) finishes, Claude re-enters for `git diff`
+  + a `code-review` pass, not full re-implementation.
+- This governs the *implementation* step only. Planning itself
+  (`superpowers:writing-plans`) and any brainstorming/design work before it
+  always happens in Claude — only the mechanical execution moves off-quota.
+
+Why: told directly — every sizeable plan should default to opencode
+execution, maximizing quota savings, regardless of whether usage pressure is
+visible yet. See [[workflow_claude_opencode_handoff]] for the full pattern
+and model fallback order.
+
 # Spec/plan doc per request — track what's incomplete
 
 For any real task (implementation, fix, audit, design, multi-step
