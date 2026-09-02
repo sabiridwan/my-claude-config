@@ -577,6 +577,35 @@ cc-payment-integration's `checkout.*` id set for the pattern.
    entry-file edits don't hot-reload in this webpack, and NOT injected into `index.html` because
    HtmlWebpackPlugin template edits don't hot-reload either — a regular module import does.
 
+## Chain sales (one-off products) — the success redirect is configurable
+
+One-off products chain: after a successful sale the visitor goes to the NEXT one-off LP instead
+of the thank-you/product redirect, because the card daily cap (~4 charges / ~100 EUR) leaves room
+for more sales in the same session (CC-458). How it works end to end:
+
+- The **campaign** row in the panel has a `chain_link` field (campaign edit screen — it is NOT part
+  of `pageConfigs`, and the ouisys-panel MCP has no write for it). Value: the next LP's xcid, or a
+  full URL.
+- The serving layer injects it as `window.pac_analytics.visitor.chainRedirectUrl` (inline in the
+  HTML, before the deferred bundles — no async race).
+- The template consumes it via `src/utils/chainRedirect.ts` (in
+  `cc-dynamic-template-download-nid-gcomp` since v35): on **final payment success only** —
+  `UserPaymentStatus` with `?user-status=paymentSuccess`, or an Apple/Google Pay response carrying
+  only `product_url` — it fires a `<flow>/redirect/chain-redirect` tracker event and redirects.
+  Gateway continuations (`redirect_url`/`gateway_url`, 3-DS) and `alreadySubscribed` are never
+  chained.
+- **Bare xcid resolution is a path swap, not resolve-wfl.** `/api/v1/resolve-wfl?token=<xcid>`
+  returns 400 "Invalid token" — it only accepts DCB waterfall tokens. `chainRedirect.ts` swaps the
+  last segment of the current path instead, which follows each domain's LP shape
+  (`vreducationlab.com/lp/<xcid>` vs `c1.mouisys.com/<xcid>`). Full URLs redirect directly.
+
+A new LP cloned from the base template inherits all of this. If you clone from an older base
+(≤ v34), port `src/utils/chainRedirect.ts` and its three call sites (`UserPaymentStatus`,
+`useApplePay`, `useGooglePay`).
+
+Test without paying: `<lp-url>?payment-status=true&user-status=paymentSuccess&product-url=<domain>`
+— with `chain_link` set you must land on the chain LP, not the product domain.
+
 ## Non-negotiables
 
 - **`page` (.env) must equal the git repo name** — otherwise `pre:build` aborts the upload.

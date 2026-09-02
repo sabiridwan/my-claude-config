@@ -219,6 +219,25 @@ correctly-formed name was still available. Don't "fix" an existing page's name; 
 When creating pages from a ticket, generate the name from this formula, validate it against these
 rules, and read it back to the user before creating.
 
+## Chain link (chain sales) — a CAMPAIGN field, not a page config field
+
+One-off chain sales (CC-458) are configured per campaign: the campaign row's **`chain_link`** column
+holds the next LP's xcid (or a full URL). The serving layer injects it into the page as
+`window.pac_analytics.visitor.chainRedirectUrl`; templates ≥ v35 of
+`cc-dynamic-template-download-nid-gcomp` redirect there on payment success.
+
+- **Where to set it:** the campaign edit screen (campaigns grid → row → edit → Chain link). It is
+  NOT in the dynamic page config editor, and editing the page config does not touch it.
+- **MCP:** `get_campaign` shows `chain_link` (read); there is **no MCP write** for it — setting it
+  is a panel-browser step, hand it to the user if you can't drive the browser.
+- **Verify after setting:** `get_campaign` shows the value AND the served HTML contains
+  `chainRedirectUrl":"<value>"` (curl the campaign URL). A save that doesn't show up in
+  `get_campaign` didn't land — the field is easy to edit on the wrong screen.
+- **Split traffic caveat:** a campaign with `split_traffic_id` rotates several page configs (one per
+  MID). Template-version bumps must cover EVERY leg or part of the traffic keeps the old bundle —
+  this exactly bit CC-458 QA: the thinkpdfai leg was bumped, the talentyai legs still served v31
+  and never chained.
+
 ## Safety rules (non-negotiable)
 
 - **Confirm before committing.** Before clicking Submit, Next → Confirm & Save, Update, Clone, Hide,

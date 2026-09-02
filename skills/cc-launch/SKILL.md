@@ -95,6 +95,15 @@ Collect the union of what the downstream skills need, so the user answers once:
 
 If a `product.json` already exists, read it and only ask for gaps.
 
+### Chain sale input (one-off plans only)
+
+If `plan.type` is `one-off`, ask for the **chain target** — the xcid (or URL) of the next one-off
+LP to send the buyer to after a successful sale (CC-458 pattern; daily card cap allows ~4 one-off
+charges). If given: after the campaign exists, `chain_link` must be set on the **campaign edit
+screen** (no MCP write exists for it — hand that click to the user if you can't drive the browser),
+and the QA step must include cc-qa's chain redirect check. If the user doesn't want chaining, note
+"no chain" and move on — templates ≥ v35 no-op cleanly when `chain_link` is empty.
+
 ## 2. Create the Template in the panel (not the page yet)
 
 Invoke **cc-ouisys-panel** → `cc-ouisys-panel/references/templates.md`. Create a Template whose name is **exactly the

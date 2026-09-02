@@ -302,6 +302,24 @@ Fix any failure before handing off. Then tell the user which backend keys they s
 (`slug`, `bankId`s, `merchantIdentifier`, `gatewayMerchantId`) and that Apple Pay needs the domain
 registered.
 
+## Chain sales — check `visitor.chainRedirectUrl` before the product redirect
+
+One-off pages chain sales (CC-458): when the campaign has a `chain_link`, the serving layer injects
+`window.pac_analytics.visitor.chainRedirectUrl` (bare xcid or full URL) and the checkout must send
+the buyer there on **final payment success** instead of the product portal / thank-you view. Rules:
+
+- Chain only on final success: a card/wallet response that carries only `product_url`, or the
+  gateway return with `?user-status=paymentSuccess`. Never hijack `redirect_url`/`gateway_url`
+  (3-DS/gateway continuation) and never chain `alreadySubscribed`.
+- Fire `tracker.customEvent(flow, 'redirect', 'chain-redirect', { redirect_url })` before
+  redirecting — SAMTQCC chain reporting reads it.
+- Bare xcid → same-origin **path swap** (`location.pathname.replace(/[^/]*$/, xcid)`), NOT
+  `/api/v1/resolve-wfl` (400s on xcids — DCB waterfall tokens only). Full URL → direct redirect.
+- No chain value → existing product-url behaviour, unchanged.
+
+Reference implementation: `cc-dynamic-template-download-nid-gcomp/src/utils/chainRedirect.ts`
+(v35) — `triggerChainRedirect(flow)` returns false when no chain is set so callers fall through.
+
 ## Non-negotiables (why they matter)
 
 - **Never hardcode checkout copy in English.** Every string renders through

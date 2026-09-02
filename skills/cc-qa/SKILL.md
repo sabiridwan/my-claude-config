@@ -612,6 +612,32 @@ Map each ticket acceptance item to a check above (or run the extra step it asks 
 must resolve to PASS/FAIL/BLOCKED/N/A — if one isn't covered by 1–6 (incl. 4b, 6b and 6c), test it explicitly. Report
 any requirement left unverified as an open item.
 
+## Chain redirect check (run when the campaign has a chain_link)
+
+Read the campaign first (`mcp__ouisys-panel__get_campaign` with the xcid): if `chain_link` is set,
+the page must chain on success; if null, skip this section (and flag it if the ticket expected a
+chain).
+
+1. **Injection:** the served HTML must contain `chainRedirectUrl":"<chain_link>"` inside
+   `pac_analytics.visitor` (curl is enough). Missing → the campaign save didn't land or the wrong
+   campaign was edited — that's a config FAIL, not a template bug.
+2. **Success return:** load
+   `<lp-url>?payment-status=true&user-status=paymentSuccess&product-url=<product-domain>`.
+   PASS = browser ends on the chain LP (same origin, last path segment = chain xcid — e.g.
+   `c1.mouisys.com/<xcid>`; on product domains `/lp/<xcid>`), and the target page's `configJson`
+   shows the expected next product's slug. FAIL = ending on the product domain root (old bundle or
+   chain not consumed) or on `/api/v1/resolve-wfl?...` returning 400 (pre-v35 resolver — the
+   endpoint only accepts DCB waterfall tokens, never xcids).
+3. **No chain on failure/alreadySubscribed:** `?payment-status=true&user-status=paymentFailed`
+   must show the failure view (no redirect); `alreadySubscribed` must still go to the product url.
+4. **Tracker:** the dataLayer must carry a `redirect`/`chain-redirect` event before the redirect
+   (`(window.dataLayer||[]).filter(x=>x.event==='gaEvent')`).
+5. **Split traffic:** if the campaign has `split_traffic_id`, repeat the fetch several times —
+   every leg (each MID's page config) must serve a template version ≥ v35, or part of traffic
+   silently never chains. One mixed leg = FAIL for the chain feature.
+6. **Template floor:** chain consumption exists in `cc-dynamic-template-download-nid-gcomp` v35+.
+   A page pinned below that cannot chain regardless of config.
+
 ## Output — pass/fail report
 
 Write a Markdown report to the workspace folder named
