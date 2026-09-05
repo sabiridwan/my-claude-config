@@ -1,3 +1,11 @@
+# Agent concurrency limit
+
+Standing cap, effective 2026-09-05: never run more than 5 parallel agents/subagents at once. Prefer 3-4. Applies to Agent tool fan-out and Workflow tool spawns alike.
+
+Why: told directly — laptop freezes when too many agent processes run concurrently at once (RAM/CPU exhaustion).
+
+How to apply: when a task would naturally fan out wider (many independent files/checks), batch it — run up to 5 at a time, wait for that batch, then launch the next batch — instead of spawning them all at once. Don't invoke the Workflow tool for wide fan-out unless the user explicitly asks for it.
+
 # Global conventions (Sabir / ZyncGold)
 
 I work across the **ZyncGold ERP** ecosystem. New projects should pick one of the four standards below and mirror the canonical reference repo. Don't reinvent patterns per project.
