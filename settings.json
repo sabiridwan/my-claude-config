@@ -13,9 +13,7 @@
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/clicnscores-logo.png \"https://www.clicnscores.com/images/logo-clicnscores-white.png\")",
       "WebFetch(domain:localhost)",
       "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/clicnscores-logo.svg \"https://clicnscores.com/favicon.ico\")",
-      "Bash(node -e ':*)",
       "Read(//Users/sabiridwan/SamMedia/templates/**)",
-      "Bash(npm run:*)",
       "Bash(NODE_ENV=production webpack --config ./node_modules/ouisys-clients/webpack/webpack.config.prod.babel.js)",
       "Bash(npx tsc:*)",
       "Bash(grep -E \"\\\\.\\(scss|css\\)$\")",
@@ -46,7 +44,6 @@
       "Bash(mv server/inventory/adjustment/adjustment-item.repository.ts server/inventory/adjustment/item/item.repository.ts)",
       "Bash(mv server/inventory/transfer/transfer-item.schema.ts server/inventory/transfer/item/item.schema.ts)",
       "Bash(npx jest:*)",
-      "Bash(python3 -c ':*)",
       "Bash(yarn build:*)",
       "Bash(yarn start:*)",
       "Bash(pnpm jest:*)",
@@ -83,7 +80,6 @@
       "Read(//Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/subagent-driven-development/**)",
       "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be rev-parse HEAD)",
       "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-admin rev-parse HEAD)",
-      "Bash(pnpm run:*)",
       "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be diff d13375f58e7a5db24d404e069ca3bd7cbb691863..HEAD --name-only)",
       "Bash(grep -n 'UpdateGoldInvoiceItemInput\\\\|PartialType\\\\|$lookupGoldInvoiceItems\\\\|GoldInvoiceItemSchema.index' /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/plans/2026-04-10-invoice-generator.md)",
       "Bash(grep -n '$lookupGoldInvoiceItems' /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/src/modules/gold-invoice/item/item.schema.ts)",
@@ -113,7 +109,6 @@
       "mcp__plugin_playwright_playwright__browser_snapshot",
       "Read(//Users/sabiridwan/.claude/**)",
       "WebFetch(domain:api.anthropic.com)",
-      "Bash(env)",
       "Bash(pkill -f \"npm run start:dev\")",
       "Bash(git pull *)",
       "Bash(lsof -ti:3651)",
@@ -130,7 +125,6 @@
       "Bash(mkdir -p /Users/sabiridwan/.claude/memory && ls /Users/sabiridwan/.claude/projects/)",
       "Skill(superpowers:writing-skills)",
       "Skill(superpowers:writing-skills:*)",
-      "Bash(node -e ' *)",
       "Bash(git remote *)",
       "Bash(git ls-remote *)",
       "Bash(ls /Users/sabiridwan/SamMedia/credit-card/ 2>/dev/null || echo \"Directory not found\")",
@@ -294,7 +288,6 @@
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
   "agentPushNotifEnabled": true,
-  "voiceEnabled": true,
   "autoMode": {
     "environment": [
       "### Org-wide",
@@ -322,5 +315,6 @@
       "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold — this repo has no remotes configured, so scope is limited to the local working directory",
       "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) — routine under this repo's Makefile/justfile targets"
     ]
-  }
+  },
+  "voiceEnabled": true
 }
