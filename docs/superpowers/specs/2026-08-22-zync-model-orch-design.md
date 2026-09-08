@@ -325,7 +325,7 @@ Three agent definitions have no `model:` line and therefore inherit the session 
 for work that does not need it:
 
 - `~/.claude/plugins/cache/caveman/caveman/*/agents/cavecrew-builder.md` (plugin-owned)
-- `~/.claude/agents/zync-gold-finance.md`
+- `~/.claude/agents/zync-finance.md`
 - `~/.claude/agents/zync-supervision.md`
 
 `cavecrew-builder` is the notable one: the bounded-edit agent runs on the session

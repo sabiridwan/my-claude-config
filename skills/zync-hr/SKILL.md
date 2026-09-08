@@ -11,7 +11,7 @@ modelled in this codebase.
 
 Scope is **HR and payroll**. Non-HR backend work hands off to `zync-be-standard`; gold/
 jewellery domain hands off to `zync-gold`; accounting postings hand off to
-`zync-gold-finance` once the payroll journal leaves HR.
+`zync-finance` once the payroll journal leaves HR.
 
 ## Country routing — do this first, always
 
