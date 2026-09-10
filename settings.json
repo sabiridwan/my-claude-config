@@ -168,7 +168,7 @@
       "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
-  "model": "sonnet[1m]",
+  "model": "opus",
   "hooks": {
     "Stop": [
       {
@@ -188,7 +188,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request — use find/aggregate/count only.\"}}'; fi",
+            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request \u2014 use find/aggregate/count only.\"}}'; fi",
             "timeout": 10,
             "statusMessage": "Checking DB read-only guard..."
           }
@@ -293,27 +293,27 @@
       "### Org-wide",
       "**Organization**: None configured",
       "**Cloud provider(s)**: None configured",
-      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public — could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
-      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public \u2014 could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
+      "**Internal sharing / snippet hosting**: None configured \u2014 treat public paste/gist services as outside the trust boundary",
       "**Secrets management**: None configured",
-      "**Default / protected branches**: unknown — no remotes configured, origin/HEAD unset, and gh check not queryable here",
+      "**Default / protected branches**: unknown \u2014 no remotes configured, origin/HEAD unset, and gh check not queryable here",
       "**CI/CD deploy targets**: None configured",
       "**Network posture**: None configured",
-      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
-      "**Source control**: The trusted repo (this repo) only — no remotes are currently configured",
+      "**Host containment**: None configured \u2014 assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo (this repo) only \u2014 no remotes are currently configured",
       "**Trusted internal domains**: None configured",
       "**Trusted cloud buckets**: None configured",
       "**Key internal services**: None configured",
       "**Internal package registry**: None configured",
-      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar — includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery/.env, msgd-kiosk/credentials.json, msgld-be/credentials.json, and similar .env/.env.example files across msgd-*/msgld-* subprojects)",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar \u2014 includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery/.env, msgd-kiosk/credentials.json, msgld-be/credentials.json, and similar .env/.env.example files across msgd-*/msgld-* subprojects)",
       "**Data retention / declassification**: None configured",
       "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
-      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected deployment namespaces / environments**: None configured \u2014 fall back to the Sensitive remote targets heuristic",
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
       "### User-specific",
       "**Primary use of Claude Code**: software development",
-      "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold — this repo has no remotes configured, so scope is limited to the local working directory",
-      "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) — routine under this repo's Makefile/justfile targets"
+      "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold \u2014 this repo has no remotes configured, so scope is limited to the local working directory",
+      "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) \u2014 routine under this repo's Makefile/justfile targets"
     ]
   },
   "voiceEnabled": true
