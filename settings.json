@@ -377,7 +377,7 @@
   },
   "tui": "fullscreen",
   "voice": {
-    "enabled": true,
+    "enabled": false,
     "mode": "hold",
     "autoSubmit": false
   },
@@ -416,5 +416,5 @@
       "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) — routine under this repo's Makefile/justfile targets"
     ]
   },
-  "voiceEnabled": true
+  "voiceEnabled": false
 }
