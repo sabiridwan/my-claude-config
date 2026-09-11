@@ -1,261 +1,10 @@
 {
-  "agentPushNotifEnabled": true,
-  "autoCompactEnabled": true,
-  "autoMode": {
-    "environment": [
-      "### Org-wide",
-      "**Organization**: None configured",
-      "**Cloud provider(s)**: None configured",
-      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public \u2014 could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
-      "**Internal sharing / snippet hosting**: None configured \u2014 treat public paste/gist services as outside the trust boundary",
-      "**Secrets management**: None configured",
-      "**Default / protected branches**: unknown \u2014 no remotes configured, origin/HEAD unset, and gh check not queryable here",
-      "**CI/CD deploy targets**: None configured",
-      "**Network posture**: None configured",
-      "**Host containment**: None configured \u2014 assume Claude Code runs on an ordinary developer machine with open internet",
-      "**Source control**: The trusted repo (this repo) only \u2014 no remotes are currently configured",
-      "**Trusted internal domains**: None configured",
-      "**Trusted cloud buckets**: None configured",
-      "**Key internal services**: None configured",
-      "**Internal package registry**: None configured",
-      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar \u2014 includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery/.env, msgd-kiosk/credentials.json, msgld-be/credentials.json, and similar .env/.env.example files across msgd-*/msgld-* subprojects)",
-      "**Data retention / declassification**: None configured",
-      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
-      "**Protected deployment namespaces / environments**: None configured \u2014 fall back to the Sensitive remote targets heuristic",
-      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
-      "### User-specific",
-      "**Primary use of Claude Code**: software development",
-      "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold \u2014 this repo has no remotes configured, so scope is limited to the local working directory",
-      "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) \u2014 routine under this repo's Makefile/justfile targets"
-    ]
-  },
-  "enabledPlugins": {
-    "caveman@caveman": true,
-    "commit-commands@claude-plugins-official": true,
-    "feature-dev@claude-plugins-official": true,
-    "firecrawl@claude-plugins-official": true,
-    "frontend-design@claude-plugins-official": true,
-    "notion@claude-plugins-official": true,
-    "playwright@claude-plugins-official": false,
-    "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
-  },
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000",
     "OUISYS_PANEL_TOKEN": "osp_e51f1c586e0b46d72f869ededc24cc0ca9a3901b"
   },
-  "extraKnownMarketplaces": {
-    "caveman": {
-      "source": {
-        "repo": "JuliusBrussee/caveman",
-        "source": "github"
-      }
-    }
-  },
-  "hooks": {
-    "Notification": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "PermissionRequest": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "PostToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "PreToolUse": [
-      {
-        "hooks": [
-          {
-            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request \u2014 use find/aggregate/count only.\"}}'; fi",
-            "statusMessage": "Checking DB read-only guard...",
-            "timeout": 10,
-            "type": "command"
-          }
-        ],
-        "matcher": "Bash"
-      },
-      {
-        "hooks": [
-          {
-            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: MCP write tool disabled for this session (read-only database access by request).\"}}'",
-            "timeout": 10,
-            "type": "command"
-          }
-        ],
-        "matcher": "mcp__msgld__user_update_my_profile|mcp__msgld__estimate_approve|mcp__msgld__estimate_reject"
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "SessionEnd": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.claude/scripts/playwright-reaper.sh reap-session 2>/dev/null || true",
-            "statusMessage": "Closing Playwright browser...",
-            "timeout": 15,
-            "type": "command"
-          },
-          {
-            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
-            "statusMessage": "Restoring MCP server entries...",
-            "timeout": 10,
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "SessionStart": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
-            "statusMessage": "Checking MCP server entries...",
-            "timeout": 10,
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "Stop": [
-      {
-        "hooks": [
-          {
-            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true\n # skills/ are committed deliberately with real messages during the session; this only catches edits that were never committed, so history keeps its \"why\".\nif ! git diff --quiet -- skills/ || [ -n \"$(git ls-files -o --exclude-standard skills/)\" ]; then git add skills/ && git commit -m \"chore: auto-sync uncommitted skill edits $(date '+%Y-%m-%d %H:%M')\" && git push origin main; fi 2>/dev/null || true",
-            "statusMessage": "Syncing Claude config to GitHub...",
-            "timeout": 30,
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "/Users/sabiridwan/Projects/zyncai/tools/voice-out/speak-last-reply",
-            "statusMessage": "Speaking reply"
-          }
-        ]
-      }
-    ],
-    "StopFailure": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "SubagentStop": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit": [
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.claude/hooks/model-orch.sh",
-            "timeout": 5,
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-ai/scripts/lp-request-trigger.sh",
-            "statusMessage": "Checking for CC page request...",
-            "timeout": 5,
-            "type": "command"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
-            "type": "command"
-          }
-        ]
-      }
-    ]
-  },
-  "inputNeededNotifEnabled": true,
-  "model": "opus",
   "permissions": {
-    "additionalDirectories": [
-      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
-      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
-      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission",
-      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/category",
-      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/account",
-      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/specs",
-      "/Users/sabiridwan/.claude",
-      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/plans",
-      "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
-      "/Users/sabiridwan/.claude/skills",
-      "/Users/sabiridwan/.claude/skills/zync_expo_standard"
-    ],
     "allow": [
       "WebFetch",
       "WebFetch(domain:c1.mouisys.com)",
@@ -399,22 +148,273 @@
       "Bash(kill %1)",
       "Bash(curl -s http://localhost:3000/graphql)"
     ],
-    "defaultMode": "bypassPermissions",
     "deny": [
       "mcp__msgld__user_update_my_profile",
       "mcp__msgld__estimate_approve",
       "mcp__msgld__estimate_reject"
+    ],
+    "defaultMode": "bypassPermissions",
+    "additionalDirectories": [
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/category",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/account",
+      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/specs",
+      "/Users/sabiridwan/.claude",
+      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/plans",
+      "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
+      "/Users/sabiridwan/.claude/skills",
+      "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ]
   },
-  "remoteControlAtStartup": true,
-  "skipDangerousModePermissionPrompt": true,
-  "skipWorkflowUsageWarning": true,
-  "switchModelsOnFlag": true,
+  "model": "opus",
+  "hooks": {
+    "Notification": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "PermissionRequest": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request — use find/aggregate/count only.\"}}'; fi",
+            "timeout": 10,
+            "statusMessage": "Checking DB read-only guard..."
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__msgld__user_update_my_profile|mcp__msgld__estimate_approve|mcp__msgld__estimate_reject",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: MCP write tool disabled for this session (read-only database access by request).\"}}'",
+            "timeout": 10
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "SessionEnd": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/playwright-reaper.sh reap-session 2>/dev/null || true",
+            "timeout": 15,
+            "statusMessage": "Closing Playwright browser..."
+          },
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "timeout": 10,
+            "statusMessage": "Restoring MCP server entries..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "timeout": 10,
+            "statusMessage": "Checking MCP server entries..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true\n # skills/ are committed deliberately with real messages during the session; this only catches edits that were never committed, so history keeps its \"why\".\nif ! git diff --quiet -- skills/ || [ -n \"$(git ls-files -o --exclude-standard skills/)\" ]; then git add skills/ && git commit -m \"chore: auto-sync uncommitted skill edits $(date '+%Y-%m-%d %H:%M')\" && git push origin main; fi 2>/dev/null || true",
+            "timeout": 30,
+            "statusMessage": "Syncing Claude config to GitHub..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/Projects/zyncai/tools/voice-out/speak-last-reply",
+            "statusMessage": "Speaking reply"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/model-orch.sh",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-ai/scripts/lp-request-trigger.sh",
+            "timeout": 5,
+            "statusMessage": "Checking for CC page request..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      }
+    ]
+  },
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "commit-commands@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "firecrawl@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "notion@claude-plugins-official": true,
+    "playwright@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
+  },
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "source": "github",
+        "repo": "JuliusBrussee/caveman"
+      }
+    }
+  },
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
     "mode": "hold",
     "autoSubmit": false
+  },
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "autoCompactEnabled": true,
+  "switchModelsOnFlag": true,
+  "remoteControlAtStartup": true,
+  "inputNeededNotifEnabled": true,
+  "agentPushNotifEnabled": true,
+  "autoMode": {
+    "environment": [
+      "### Org-wide",
+      "**Organization**: None configured",
+      "**Cloud provider(s)**: None configured",
+      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public — could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
+      "**Internal sharing / snippet hosting**: None configured — treat public paste/gist services as outside the trust boundary",
+      "**Secrets management**: None configured",
+      "**Default / protected branches**: unknown — no remotes configured, origin/HEAD unset, and gh check not queryable here",
+      "**CI/CD deploy targets**: None configured",
+      "**Network posture**: None configured",
+      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo (this repo) only — no remotes are currently configured",
+      "**Trusted internal domains**: None configured",
+      "**Trusted cloud buckets**: None configured",
+      "**Key internal services**: None configured",
+      "**Internal package registry**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar — includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery/.env, msgd-kiosk/credentials.json, msgld-be/credentials.json, and similar .env/.env.example files across msgd-*/msgld-* subprojects)",
+      "**Data retention / declassification**: None configured",
+      "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
+      "**Protected deployment namespaces / environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "### User-specific",
+      "**Primary use of Claude Code**: software development",
+      "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold — this repo has no remotes configured, so scope is limited to the local working directory",
+      "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) — routine under this repo's Makefile/justfile targets"
+    ]
   },
   "voiceEnabled": true
 }
