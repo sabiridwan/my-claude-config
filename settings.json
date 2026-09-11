@@ -413,8 +413,8 @@
   "tui": "fullscreen",
   "voice": {
     "enabled": true,
-    "mode": "tap",
-    "autoSubmit": true
+    "mode": "hold",
+    "autoSubmit": false
   },
   "voiceEnabled": true
 }
