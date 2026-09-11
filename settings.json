@@ -1,290 +1,299 @@
 {
-  "agentPushNotifEnabled" : true,
-  "autoCompactEnabled" : true,
-  "autoMode" : {
-    "environment" : [
+  "agentPushNotifEnabled": true,
+  "autoCompactEnabled": true,
+  "autoMode": {
+    "environment": [
       "### Org-wide",
       "**Organization**: None configured",
       "**Cloud provider(s)**: None configured",
-      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public — could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
-      "**Internal sharing \/ snippet hosting**: None configured — treat public paste\/gist services as outside the trust boundary",
+      "**Repository visibility**: assume private unless the remote host and repo name indicate otherwise, or a visibility check in the transcript shows public \u2014 could not be checked (no remotes configured on this repo, and gh lookup not queryable)",
+      "**Internal sharing / snippet hosting**: None configured \u2014 treat public paste/gist services as outside the trust boundary",
       "**Secrets management**: None configured",
-      "**Default \/ protected branches**: unknown — no remotes configured, origin\/HEAD unset, and gh check not queryable here",
-      "**CI\/CD deploy targets**: None configured",
+      "**Default / protected branches**: unknown \u2014 no remotes configured, origin/HEAD unset, and gh check not queryable here",
+      "**CI/CD deploy targets**: None configured",
       "**Network posture**: None configured",
-      "**Host containment**: None configured — assume Claude Code runs on an ordinary developer machine with open internet",
-      "**Source control**: The trusted repo (this repo) only — no remotes are currently configured",
+      "**Host containment**: None configured \u2014 assume Claude Code runs on an ordinary developer machine with open internet",
+      "**Source control**: The trusted repo (this repo) only \u2014 no remotes are currently configured",
       "**Trusted internal domains**: None configured",
       "**Trusted cloud buckets**: None configured",
       "**Key internal services**: None configured",
       "**Internal package registry**: None configured",
-      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar — includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery\/.env, msgd-kiosk\/credentials.json, msgld-be\/credentials.json, and similar .env\/.env.example files across msgd-*\/msgld-* subprojects)",
-      "**Data retention \/ declassification**: None configured",
+      "**Sensitive data locations & audiences**: any file or store holding personal data, confidential business data, credentials, regulated data, or similarly sensitive material; preserve exact handles when known and share only with audiences cleared at the [named+specifics] bar \u2014 includes .env and credentials.json files found under this repo tree (e.g. msgd-gallery/.env, msgd-kiosk/credentials.json, msgld-be/credentials.json, and similar .env/.env.example files across msgd-*/msgld-* subprojects)",
+      "**Data retention / declassification**: None configured",
       "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
-      "**Protected deployment namespaces \/ environments**: None configured — fall back to the Sensitive remote targets heuristic",
+      "**Protected deployment namespaces / environments**: None configured \u2014 fall back to the Sensitive remote targets heuristic",
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
       "### User-specific",
       "**Primary use of Claude Code**: software development",
-      "**Trusted repo**: \/Users\/sabiridwan\/Projects\/MalikStreams\/msgold — this repo has no remotes configured, so scope is limited to the local working directory",
-      "**Org-specific CLIs**: higgsfield (seen as Makefile\/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) — routine under this repo's Makefile\/justfile targets"
+      "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold \u2014 this repo has no remotes configured, so scope is limited to the local working directory",
+      "**Org-specific CLIs**: higgsfield (seen as Makefile/justfile targets: higgsfield-auth, higgsfield-auth-callback, higgsfield-doctor, higgsfield-install, higgsfield-mcp-auth, higgsfield-mcp-doctor, higgsfield-setup, higgsfield-uninstall, higgsfield-workspace-select) \u2014 routine under this repo's Makefile/justfile targets"
     ]
   },
-  "enabledPlugins" : {
-    "caveman@caveman" : true,
-    "commit-commands@claude-plugins-official" : true,
-    "feature-dev@claude-plugins-official" : true,
-    "firecrawl@claude-plugins-official" : true,
-    "frontend-design@claude-plugins-official" : true,
-    "notion@claude-plugins-official" : true,
-    "playwright@claude-plugins-official" : false,
-    "skill-creator@claude-plugins-official" : true,
-    "superpowers@claude-plugins-official" : true
+  "enabledPlugins": {
+    "caveman@caveman": true,
+    "commit-commands@claude-plugins-official": true,
+    "feature-dev@claude-plugins-official": true,
+    "firecrawl@claude-plugins-official": true,
+    "frontend-design@claude-plugins-official": true,
+    "notion@claude-plugins-official": true,
+    "playwright@claude-plugins-official": false,
+    "skill-creator@claude-plugins-official": true,
+    "superpowers@claude-plugins-official": true
   },
-  "env" : {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS" : "1",
-    "CLAUDE_CODE_MAX_OUTPUT_TOKENS" : "64000",
-    "OUISYS_PANEL_TOKEN" : "osp_e51f1c586e0b46d72f869ededc24cc0ca9a3901b"
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
+    "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000",
+    "OUISYS_PANEL_TOKEN": "osp_e51f1c586e0b46d72f869ededc24cc0ca9a3901b"
   },
-  "extraKnownMarketplaces" : {
-    "caveman" : {
-      "source" : {
-        "repo" : "JuliusBrussee\/caveman",
-        "source" : "github"
+  "extraKnownMarketplaces": {
+    "caveman": {
+      "source": {
+        "repo": "JuliusBrussee/caveman",
+        "source": "github"
       }
     }
   },
-  "hooks" : {
-    "Notification" : [
+  "hooks": {
+    "Notification": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "PermissionRequest" : [
+    "PermissionRequest": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "PostToolUse" : [
+    "PostToolUse": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "PreToolUse" : [
+    "PreToolUse": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "cmd=$(jq -r '.tool_input.command \/\/ \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request — use find\/aggregate\/count only.\"}}'; fi",
-            "statusMessage" : "Checking DB read-only guard...",
-            "timeout" : 10,
-            "type" : "command"
+            "command": "cmd=$(jq -r '.tool_input.command // \"\"'); if printf '%s' \"$cmd\" | grep -qiE 'mongoimport|mongorestore' || { printf '%s' \"$cmd\" | grep -qiE 'mongodb|mongoclient|mongosh|mongodb_url|:27017|pymongo' && printf '%s' \"$cmd\" | grep -qiE '(insertOne|insertMany|updateOne|updateMany|replaceOne|deleteOne|deleteMany|findOneAndUpdate|findOneAndReplace|findOneAndDelete|bulkWrite|findAndModify|dropDatabase|dropCollection|createCollection|renameCollection|createIndexes?|dropIndexes?|createUser|dropUser|insert_one|insert_many|update_one|update_many|replace_one|delete_one|delete_many|find_one_and_update|find_one_and_replace|find_one_and_delete|bulk_write|drop_database|drop_collection|create_collection|rename_collection|create_index|create_indexes|drop_index|drop_indexes|create_user|drop_user|find_and_modify)[[:space:]]*[(]|[.]drop[[:space:]]*[(]'; }; then printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: this MongoDB write was prevented. This session has read-only database access by request \u2014 use find/aggregate/count only.\"}}'; fi",
+            "statusMessage": "Checking DB read-only guard...",
+            "timeout": 10,
+            "type": "command"
           }
         ],
-        "matcher" : "Bash"
+        "matcher": "Bash"
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: MCP write tool disabled for this session (read-only database access by request).\"}}'",
-            "timeout" : 10,
-            "type" : "command"
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"Blocked: MCP write tool disabled for this session (read-only database access by request).\"}}'",
+            "timeout": 10,
+            "type": "command"
           }
         ],
-        "matcher" : "mcp__msgld__user_update_my_profile|mcp__msgld__estimate_approve|mcp__msgld__estimate_reject"
+        "matcher": "mcp__msgld__user_update_my_profile|mcp__msgld__estimate_approve|mcp__msgld__estimate_reject"
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "SessionEnd" : [
+    "SessionEnd": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.claude\/scripts\/playwright-reaper.sh reap-session 2>\/dev\/null || true",
-            "statusMessage" : "Closing Playwright browser...",
-            "timeout" : 15,
-            "type" : "command"
+            "command": "/Users/sabiridwan/.claude/scripts/playwright-reaper.sh reap-session 2>/dev/null || true",
+            "statusMessage": "Closing Playwright browser...",
+            "timeout": 15,
+            "type": "command"
           },
           {
-            "command" : "\/Users\/sabiridwan\/.claude\/scripts\/ensure-mcp-servers.sh",
-            "statusMessage" : "Restoring MCP server entries...",
-            "timeout" : 10,
-            "type" : "command"
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "statusMessage": "Restoring MCP server entries...",
+            "timeout": 10,
+            "type": "command"
           }
         ]
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "SessionStart" : [
+    "SessionStart": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.claude\/scripts\/ensure-mcp-servers.sh",
-            "statusMessage" : "Checking MCP server entries...",
-            "timeout" : 10,
-            "type" : "command"
+            "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
+            "statusMessage": "Checking MCP server entries...",
+            "timeout": 10,
+            "type": "command"
           }
         ]
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ],
-    "Stop" : [
+    "Stop": [
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "cd \/Users\/sabiridwan\/.claude && git add CLAUDE.md settings.json memory\/ plugins\/installed_plugins.json plugins\/ouisys-design-plugin\/ 2>\/dev\/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>\/dev\/null || true\n # skills\/ are committed deliberately with real messages during the session; this only catches edits that were never committed, so history keeps its \"why\".\nif ! git diff --quiet -- skills\/ || [ -n \"$(git ls-files -o --exclude-standard skills\/)\" ]; then git add skills\/ && git commit -m \"chore: auto-sync uncommitted skill edits $(date '+%Y-%m-%d %H:%M')\" && git push origin main; fi 2>\/dev\/null || true",
-            "statusMessage" : "Syncing Claude config to GitHub...",
-            "timeout" : 30,
-            "type" : "command"
+            "command": "cd /Users/sabiridwan/.claude && git add CLAUDE.md settings.json memory/ plugins/installed_plugins.json plugins/ouisys-design-plugin/ 2>/dev/null; if ! git diff --cached --quiet; then git commit -m \"chore: auto-sync $(date '+%Y-%m-%d %H:%M')\"; git push origin main; fi 2>/dev/null || true\n # skills/ are committed deliberately with real messages during the session; this only catches edits that were never committed, so history keeps its \"why\".\nif ! git diff --quiet -- skills/ || [ -n \"$(git ls-files -o --exclude-standard skills/)\" ]; then git add skills/ && git commit -m \"chore: auto-sync uncommitted skill edits $(date '+%Y-%m-%d %H:%M')\" && git push origin main; fi 2>/dev/null || true",
+            "statusMessage": "Syncing Claude config to GitHub...",
+            "timeout": 30,
+            "type": "command"
           }
         ]
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "StopFailure" : [
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "SubagentStop" : [
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
-          }
-        ]
-      }
-    ],
-    "UserPromptSubmit" : [
-      {
-        "hooks" : [
-          {
-            "command" : "\/Users\/sabiridwan\/.claude\/hooks\/model-orch.sh",
-            "timeout" : 5,
-            "type" : "command"
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/SamMedia\/credit-card\/cc-template\/cc-ai\/scripts\/lp-request-trigger.sh",
-            "statusMessage" : "Checking for CC page request...",
-            "timeout" : 5,
-            "type" : "command"
+            "type": "command",
+            "command": "/Users/sabiridwan/Projects/zyncai/tools/voice-out/speak-last-reply",
+            "statusMessage": "Speaking reply"
+          }
+        ]
+      }
+    ],
+    "StopFailure": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
+          }
+        ]
+      }
+    ],
+    "UserPromptSubmit": [
+      {
+        "hooks": [
+          {
+            "command": "/Users/sabiridwan/.claude/hooks/model-orch.sh",
+            "timeout": 5,
+            "type": "command"
           }
         ]
       },
       {
-        "hooks" : [
+        "hooks": [
           {
-            "command" : "\/Users\/sabiridwan\/.config\/iterm2\/cc-status",
-            "type" : "command"
+            "command": "/Users/sabiridwan/SamMedia/credit-card/cc-template/cc-ai/scripts/lp-request-trigger.sh",
+            "statusMessage": "Checking for CC page request...",
+            "timeout": 5,
+            "type": "command"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "command": "/Users/sabiridwan/.config/iterm2/cc-status",
+            "type": "command"
           }
         ]
       }
     ]
   },
-  "inputNeededNotifEnabled" : true,
-  "model" : "opus",
-  "permissions" : {
-    "additionalDirectories" : [
-      "\/Users\/sabiridwan\/Projects\/zyncgold\/zyncg-be\/packages\/modules\/src\/permission\/action",
-      "\/Users\/sabiridwan\/Projects\/zyncgold\/zyncg-be\/packages\/modules\/src\/permission\/module",
-      "\/Users\/sabiridwan\/Projects\/zyncgold\/zyncg-be\/packages\/modules\/src\/permission",
-      "\/Users\/sabiridwan\/Projects\/zyncgold\/zyncg-be\/packages\/modules\/src\/finance\/category",
-      "\/Users\/sabiridwan\/Projects\/zyncgold\/zyncg-be\/packages\/modules\/src\/finance\/account",
-      "\/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be\/docs\/superpowers\/specs",
-      "\/Users\/sabiridwan\/.claude",
-      "\/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be\/docs\/superpowers\/plans",
-      "\/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be\/docs\/superpowers\/specs",
-      "\/Users\/sabiridwan\/.claude\/skills",
-      "\/Users\/sabiridwan\/.claude\/skills\/zync_expo_standard"
+  "inputNeededNotifEnabled": true,
+  "model": "opus",
+  "permissions": {
+    "additionalDirectories": [
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/action",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission/module",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/permission",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/category",
+      "/Users/sabiridwan/Projects/zyncgold/zyncg-be/packages/modules/src/finance/account",
+      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/specs",
+      "/Users/sabiridwan/.claude",
+      "/Users/sabiridwan/Projects/zyncount/zyncount-be/docs/superpowers/plans",
+      "/Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/specs",
+      "/Users/sabiridwan/.claude/skills",
+      "/Users/sabiridwan/.claude/skills/zync_expo_standard"
     ],
-    "allow" : [
+    "allow": [
       "WebFetch",
       "WebFetch(domain:c1.mouisys.com)",
-      "Bash(curl -L -o \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/src\/assets\/imgs\/logo.svg \"https:\/\/c1.mouisys.com\/os-ui\/static\/dynamic-template-images\/mobio-plus-2025-08-14t09-13-52-118z.svg-2025-08-14T09-13-52-618Z.svg\")",
-      "Bash(curl -L -o \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/src\/assets\/imgs\/icon-user-checked.svg \"https:\/\/c1.mouisys.com\/os-ui\/static\/dynamic-template-images\/user-checked-2025-10-24t06-04-46-115z.svg-2025-10-24T06-04-46-312Z.svg\")",
-      "Bash(curl -L -o \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/src\/assets\/imgs\/clicnscores-logo.png \"https:\/\/www.clicnscores.com\/images\/logo-clicnscores-white.png\")",
+      "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/logo.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/mobio-plus-2025-08-14t09-13-52-118z.svg-2025-08-14T09-13-52-618Z.svg\")",
+      "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/icon-user-checked.svg \"https://c1.mouisys.com/os-ui/static/dynamic-template-images/user-checked-2025-10-24t06-04-46-115z.svg-2025-10-24T06-04-46-312Z.svg\")",
+      "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/clicnscores-logo.png \"https://www.clicnscores.com/images/logo-clicnscores-white.png\")",
       "WebFetch(domain:localhost)",
-      "Bash(curl -L -o \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/src\/assets\/imgs\/clicnscores-logo.svg \"https:\/\/clicnscores.com\/favicon.ico\")",
-      "Read(\/\/Users\/sabiridwan\/SamMedia\/templates\/**)",
-      "Bash(NODE_ENV=production webpack --config .\/node_modules\/ouisys-clients\/webpack\/webpack.config.prod.babel.js)",
+      "Bash(curl -L -o /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/src/assets/imgs/clicnscores-logo.svg \"https://clicnscores.com/favicon.ico\")",
+      "Read(//Users/sabiridwan/SamMedia/templates/**)",
+      "Bash(NODE_ENV=production webpack --config ./node_modules/ouisys-clients/webpack/webpack.config.prod.babel.js)",
       "Bash(npx tsc:*)",
       "Bash(grep -E \"\\\\.\\(scss|css\\)$\")",
       "Bash(npx nextron:*)",
       "Bash(lsof -ti:8888)",
       "Bash(xargs kill:*)",
-      "Bash(grep -r \"rendererPort\\\\|8888\\\\|PORT\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/node_modules\/.pnpm\/nextron*\/node_modules\/nextron\/lib\/)",
-      "Read(\/\/Users\/sabiridwan\/Projects\/zyncount\/**)",
+      "Bash(grep -r \"rendererPort\\\\|8888\\\\|PORT\" /Users/sabiridwan/Projects/zyncount/zyncount-pos/node_modules/.pnpm/nextron*/node_modules/nextron/lib/)",
+      "Read(//Users/sabiridwan/Projects/zyncount/**)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); [print\\(f'{k}: {v}'\\) for k,v in d.get\\('scripts',{}\\).items\\(\\)]\")",
       "Bash(npx sass:*)",
       "Bash(grep -E \"\\\\.scss$\")",
-      "Bash(find \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/node_modules\/ouisys-css-library\/styles\/themes -name \"*.scss\" -exec grep -l \"generic-theme\" {} \\\\;)",
-      "Bash(ls -la \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/input\/*.tsx)",
-      "Bash(ls \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/input\/*.tsx)",
-      "Bash(ls \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/container\/*.tsx)",
-      "Bash(grep -h \"^export\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/modal\/*.tsx)",
-      "Bash(grep -h \"^export\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/input\/*.tsx)",
-      "Bash(grep -h \"^export\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/container\/*.tsx)",
-      "Bash(grep -h \"^export\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-pos\/renderer\/src\/components\/typography\/*.tsx)",
+      "Bash(find /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/node_modules/ouisys-css-library/styles/themes -name \"*.scss\" -exec grep -l \"generic-theme\" {} \\\\;)",
+      "Bash(ls -la /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/input/*.tsx)",
+      "Bash(ls /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/input/*.tsx)",
+      "Bash(ls /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/container/*.tsx)",
+      "Bash(grep -h \"^export\" /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/modal/*.tsx)",
+      "Bash(grep -h \"^export\" /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/input/*.tsx)",
+      "Bash(grep -h \"^export\" /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/container/*.tsx)",
+      "Bash(grep -h \"^export\" /Users/sabiridwan/Projects/zyncount/zyncount-pos/renderer/src/components/typography/*.tsx)",
       "Bash(xxd)",
       "Bash(git worktree:*)",
       "Bash(git branch:*)",
       "Bash(kill 64108)",
       "Bash(grep -E \"\\\\.\\(tsx|ts\\)$\")",
-      "Bash(mv server\/inventory\/order\/order-item.schema.ts server\/inventory\/order\/item\/item.schema.ts)",
-      "Bash(mv server\/inventory\/order\/order-item.repository.ts server\/inventory\/order\/item\/item.repository.ts)",
-      "Bash(mv server\/inventory\/adjustment\/adjustment-item.schema.ts server\/inventory\/adjustment\/item\/item.schema.ts)",
-      "Bash(mv server\/inventory\/adjustment\/adjustment-item.repository.ts server\/inventory\/adjustment\/item\/item.repository.ts)",
-      "Bash(mv server\/inventory\/transfer\/transfer-item.schema.ts server\/inventory\/transfer\/item\/item.schema.ts)",
+      "Bash(mv server/inventory/order/order-item.schema.ts server/inventory/order/item/item.schema.ts)",
+      "Bash(mv server/inventory/order/order-item.repository.ts server/inventory/order/item/item.repository.ts)",
+      "Bash(mv server/inventory/adjustment/adjustment-item.schema.ts server/inventory/adjustment/item/item.schema.ts)",
+      "Bash(mv server/inventory/adjustment/adjustment-item.repository.ts server/inventory/adjustment/item/item.repository.ts)",
+      "Bash(mv server/inventory/transfer/transfer-item.schema.ts server/inventory/transfer/item/item.schema.ts)",
       "Bash(npx jest:*)",
       "Bash(yarn build:*)",
       "Bash(yarn start:*)",
@@ -293,63 +302,63 @@
       "Bash(git add:*)",
       "Bash(git commit -m ':*)",
       "Bash(git push:*)",
-      "Bash(grep -r \"callback\\\\|redirect\\\\|google\" \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/src --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.json\" ! -path \"*\/node_modules\/*\")",
-      "Read(\/\/private\/var\/folders\/x5\/jksndw3n02d3wl0dv5hln5v80000gn\/T\/**)",
-      "Bash(head -5 \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/src\/app\/dashboard\/[folderId]\/page.tsx)",
-      "Bash(head -5 \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/src\/app\/admin\/wallets\/[userId]\/page.tsx)",
-      "Bash(head -5 \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/src\/app\/admin\/folders\/[id]\/page.tsx)",
-      "Bash(curl -s \"http:\/\/localhost:62000\/api\/images?folderId=test\" -H \"Cookie: \")",
-      "Bash(curl -s \"http:\/\/localhost:62000\/api\/debug-image?id=69d0d99013f384902822947c\")",
-      "Bash(ls -la \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/public\/*.json)",
-      "Bash(ls -lh \/Users\/sabiridwan\/Projects\/Playground\/gemflow\/public\/icon-*.png)",
-      "Bash(ls \/Users\/sabiridwan\/SamMedia\/templates\/xx-dynamic-template\/webpack*)",
-      "Bash(curl -s 'https:\/\/v3.football.api-sports.io\/fixtures?date=2026-04-08' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
-      "Bash(grep -n 'commonLookup\\\\|$lookup' \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be\/src\/modules\/permission\/permission.schema.ts)",
-      "Read(\/\/Users\/sabiridwan\/Projects\/**)",
+      "Bash(grep -r \"callback\\\\|redirect\\\\|google\" /Users/sabiridwan/Projects/Playground/gemflow/src --include=\"*.ts\" --include=\"*.tsx\" --include=\"*.js\" --include=\"*.json\" ! -path \"*/node_modules/*\")",
+      "Read(//private/var/folders/x5/jksndw3n02d3wl0dv5hln5v80000gn/T/**)",
+      "Bash(head -5 /Users/sabiridwan/Projects/Playground/gemflow/src/app/dashboard/[folderId]/page.tsx)",
+      "Bash(head -5 /Users/sabiridwan/Projects/Playground/gemflow/src/app/admin/wallets/[userId]/page.tsx)",
+      "Bash(head -5 /Users/sabiridwan/Projects/Playground/gemflow/src/app/admin/folders/[id]/page.tsx)",
+      "Bash(curl -s \"http://localhost:62000/api/images?folderId=test\" -H \"Cookie: \")",
+      "Bash(curl -s \"http://localhost:62000/api/debug-image?id=69d0d99013f384902822947c\")",
+      "Bash(ls -la /Users/sabiridwan/Projects/Playground/gemflow/public/*.json)",
+      "Bash(ls -lh /Users/sabiridwan/Projects/Playground/gemflow/public/icon-*.png)",
+      "Bash(ls /Users/sabiridwan/SamMedia/templates/xx-dynamic-template/webpack*)",
+      "Bash(curl -s 'https://v3.football.api-sports.io/fixtures?date=2026-04-08' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
+      "Bash(grep -n 'commonLookup\\\\|$lookup' /Users/sabiridwan/Projects/zyncount/zyncount-be/src/modules/permission/permission.schema.ts)",
+      "Read(//Users/sabiridwan/Projects/**)",
       "WebFetch(domain:lp.ai-mobilestore.com)",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/\")",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/js\/main.e498959cdc06f6b49796.js\")",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/css\/main.8d91f251.css\")",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/js\/vendors.b0992adf06931a9df640.js\")",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/js\/ouisys-engine.e576cc8ad63dd763a61d.js\")",
-      "Bash(python3 \/tmp\/analyze.py)",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/js\/377.d5c8ddf428bdfec2d413.js\")",
-      "Bash(curl -s \"https:\/\/lp.ai-mobilestore.com\/static\/striker_lp_prototype\/js\/reduxjs.7a98eb76ccf02bf32cf6.js\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/js/main.e498959cdc06f6b49796.js\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/css/main.8d91f251.css\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/js/vendors.b0992adf06931a9df640.js\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/js/ouisys-engine.e576cc8ad63dd763a61d.js\")",
+      "Bash(python3 /tmp/analyze.py)",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/js/377.d5c8ddf428bdfec2d413.js\")",
+      "Bash(curl -s \"https://lp.ai-mobilestore.com/static/striker_lp_prototype/js/reduxjs.7a98eb76ccf02bf32cf6.js\")",
       "Bash(npm install:*)",
       "Bash(npx eslint:*)",
-      "Bash(grep -n \"bomNumber\" \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be\/src\/modules\/manufacturing\/bom\/*.ts)",
+      "Bash(grep -n \"bomNumber\" /Users/sabiridwan/Projects/zyncount/zyncount-be/src/modules/manufacturing/bom/*.ts)",
       "Bash(grep -E \"\\\\.\\(tsx|ts|js\\)$\")",
-      "Read(\/\/Users\/sabiridwan\/.claude\/plugins\/cache\/claude-plugins-official\/superpowers\/5.0.7\/skills\/subagent-driven-development\/**)",
-      "Bash(git -C \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be rev-parse HEAD)",
-      "Bash(git -C \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-admin rev-parse HEAD)",
-      "Bash(git -C \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be diff d13375f58e7a5db24d404e069ca3bd7cbb691863..HEAD --name-only)",
-      "Bash(grep -n 'UpdateGoldInvoiceItemInput\\\\|PartialType\\\\|$lookupGoldInvoiceItems\\\\|GoldInvoiceItemSchema.index' \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be\/docs\/superpowers\/plans\/2026-04-10-invoice-generator.md)",
-      "Bash(grep -n '$lookupGoldInvoiceItems' \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be\/src\/modules\/gold-invoice\/item\/item.schema.ts)",
-      "Bash(grep -n '$lookupGoldInvoiceItems\\\\|UpdateGoldInvoiceItemInput' \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-be\/src\/modules\/gold-invoice\/item\/item.dto.ts)",
+      "Read(//Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/subagent-driven-development/**)",
+      "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be rev-parse HEAD)",
+      "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-admin rev-parse HEAD)",
+      "Bash(git -C /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be diff d13375f58e7a5db24d404e069ca3bd7cbb691863..HEAD --name-only)",
+      "Bash(grep -n 'UpdateGoldInvoiceItemInput\\\\|PartialType\\\\|$lookupGoldInvoiceItems\\\\|GoldInvoiceItemSchema.index' /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/docs/superpowers/plans/2026-04-10-invoice-generator.md)",
+      "Bash(grep -n '$lookupGoldInvoiceItems' /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/src/modules/gold-invoice/item/item.schema.ts)",
+      "Bash(grep -n '$lookupGoldInvoiceItems\\\\|UpdateGoldInvoiceItemInput' /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-be/src/modules/gold-invoice/item/item.dto.ts)",
       "Bash(git commit:*)",
       "Bash(xargs ls:*)",
-      "Bash(git -C \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be diff 86e47588..dbdf5544)",
-      "Bash(find \/Users\/sabiridwan\/Projects\/zyncount\/zyncount-be\/src\/core -name \"*.ts\" -exec ls {} \\\\;)",
+      "Bash(git -C /Users/sabiridwan/Projects/zyncount/zyncount-be diff 86e47588..dbdf5544)",
+      "Bash(find /Users/sabiridwan/Projects/zyncount/zyncount-be/src/core -name \"*.ts\" -exec ls {} \\\\;)",
       "Bash(sort find:*)",
       "Bash(grep -E \"\\(ts|js\\)$\")",
-      "Bash(node -e \" const mongoose = require\\('mongoose'\\); \/\/ Just check what collection name 'Master' and 'User' would get from NestJS default naming console.log\\('Master collection \\(default\\):', 'masters'\\); console.log\\('User collection \\(default\\):', 'users'\\); \")",
+      "Bash(node -e \" const mongoose = require\\('mongoose'\\); // Just check what collection name 'Master' and 'User' would get from NestJS default naming console.log\\('Master collection \\(default\\):', 'masters'\\); console.log\\('User collection \\(default\\):', 'users'\\); \")",
       "Bash(grep -E \"\\\\.\\(tsx|ts|jsx|js\\)$\")",
       "Bash(pnpm dev:*)",
-      "Read(\/\/tmp\/**)",
+      "Read(//tmp/**)",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(d.get\\('version'\\)\\); print\\(d.get\\('main',''\\)\\)\")",
       "Bash(gh api:*)",
-      "Bash(cat \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-admin\/tailwind.config.*)",
+      "Bash(cat /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-admin/tailwind.config.*)",
       "mcp__plugin_playwright_playwright__browser_navigate",
       "Bash(lsof -ti:3000,3001)",
-      "Read(\/\/Users\/sabiridwan\/.claude\/plugins\/cache\/claude-plugins-official\/superpowers\/5.0.7\/skills\/requesting-code-review\/**)",
+      "Read(//Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/superpowers/5.0.7/skills/requesting-code-review/**)",
       "Bash(git mv:*)",
-      "Bash(find \/Users\/sabiridwan\/Projects\/MalikStreams\/msbullion\/msb-admin\/src -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"Branch\" {} \\\\;)",
+      "Bash(find /Users/sabiridwan/Projects/MalikStreams/msbullion/msb-admin/src -type f \\\\\\( -name \"*.tsx\" -o -name \"*.ts\" \\\\\\) -exec grep -l \"Branch\" {} \\\\;)",
       "mcp__plugin_playwright_playwright__browser_take_screenshot",
       "Bash(npm test:*)",
-      "Bash(find \/Users\/sabiridwan\/Projects\/MalikStreams\/msgold -maxdepth 2 -name \"package.json\" -exec grep -l \"5315\" {} \\\\;)",
+      "Bash(find /Users/sabiridwan/Projects/MalikStreams/msgold -maxdepth 2 -name \"package.json\" -exec grep -l \"5315\" {} \\\\;)",
       "mcp__plugin_playwright_playwright__browser_evaluate",
       "mcp__plugin_playwright_playwright__browser_snapshot",
-      "Read(\/\/Users\/sabiridwan\/.claude\/**)",
+      "Read(//Users/sabiridwan/.claude/**)",
       "WebFetch(domain:api.anthropic.com)",
       "Bash(pkill -f \"npm run start:dev\")",
       "Bash(git pull *)",
@@ -361,50 +370,51 @@
       "Skill(update-config:*)",
       "Skill(superpowers:brainstorming)",
       "Skill(superpowers:brainstorming:*)",
-      "Bash(pnpm --filter @zyncws\/web run hash 'abc123')",
+      "Bash(pnpm --filter @zyncws/web run hash 'abc123')",
       "Bash(openssl rand *)",
-      "Bash(curl -s -o \/dev\/null -w \"%{http_code}\" http:\/\/localhost:3010\/)",
-      "Bash(mkdir -p \/Users\/sabiridwan\/.claude\/memory && ls \/Users\/sabiridwan\/.claude\/projects\/)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3010/)",
+      "Bash(mkdir -p /Users/sabiridwan/.claude/memory && ls /Users/sabiridwan/.claude/projects/)",
       "Skill(superpowers:writing-skills)",
       "Skill(superpowers:writing-skills:*)",
       "Bash(git remote *)",
       "Bash(git ls-remote *)",
-      "Bash(ls \/Users\/sabiridwan\/SamMedia\/credit-card\/ 2>\/dev\/null || echo \"Directory not found\")",
-      "Read(\/\/Users\/sabiridwan\/SamMedia\/credit-card\/**)",
-      "Edit(~\/.claude\/skills\/cc_dev\/**)",
-      "Bash(mkdir -p \/Users\/sabiridwan\/.claude\/skills\/zync_expo_standard)",
-      "Edit(~\/.claude\/skills\/zync_expo_standard\/**)",
-      "Bash(mv \/Users\/sabiridwan\/.claude\/skills\/zync_expo_standard \/Users\/sabiridwan\/.claude\/skills\/zync-expo-standard)",
-      "Edit(~\/.claude\/skills\/zync-expo-standard\/**)",
+      "Bash(ls /Users/sabiridwan/SamMedia/credit-card/ 2>/dev/null || echo \"Directory not found\")",
+      "Read(//Users/sabiridwan/SamMedia/credit-card/**)",
+      "Edit(~/.claude/skills/cc_dev/**)",
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync_expo_standard)",
+      "Edit(~/.claude/skills/zync_expo_standard/**)",
+      "Bash(mv /Users/sabiridwan/.claude/skills/zync_expo_standard /Users/sabiridwan/.claude/skills/zync-expo-standard)",
+      "Edit(~/.claude/skills/zync-expo-standard/**)",
       "WebSearch",
       "Bash(gh repo *)",
       "Bash(gh auth *)",
       "Bash(ps -p 7903 -o pid,command)",
-      "Bash(curl -s 'https:\/\/v3.football.api-sports.io\/fixtures?league=1&year=2026' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
+      "Bash(curl -s 'https://v3.football.api-sports.io/fixtures?league=1&year=2026' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
       "Bash(python3 -m json.tool)",
-      "Bash(curl -s 'https:\/\/v3.football.api-sports.io\/fixtures?league=1&season=2026' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
+      "Bash(curl -s 'https://v3.football.api-sports.io/fixtures?league=1&season=2026' -H 'x-apisports-key: 07155836cf27701bc4a08b9491e123b5')",
       "Bash(python3 -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\('results:', d['results']\\); print\\('errors:', d.get\\('errors',{}\\)\\); print\\('first fixture:', json.dumps\\(d['response'][0]['fixture'] if d['response'] else 'none', indent=2\\)\\)\")",
       "Bash(node fetch-season-fixtures.js)",
       "Bash(git fetch *)",
-      "Bash(mkdir -p \/Users\/sabiridwan\/.claude\/skills\/zync-nextjs-fullstack)",
+      "Bash(mkdir -p /Users/sabiridwan/.claude/skills/zync-nextjs-fullstack)",
       "Bash(kill %1)",
-      "Bash(curl -s http:\/\/localhost:3000\/graphql)"
+      "Bash(curl -s http://localhost:3000/graphql)"
     ],
-    "defaultMode" : "bypassPermissions",
-    "deny" : [
+    "defaultMode": "bypassPermissions",
+    "deny": [
       "mcp__msgld__user_update_my_profile",
       "mcp__msgld__estimate_approve",
       "mcp__msgld__estimate_reject"
     ]
   },
-  "remoteControlAtStartup" : true,
-  "skipDangerousModePermissionPrompt" : true,
-  "skipWorkflowUsageWarning" : true,
-  "switchModelsOnFlag" : true,
-  "tui" : "fullscreen",
-  "voice" : {
-    "enabled" : true,
-    "mode" : "hold"
+  "remoteControlAtStartup": true,
+  "skipDangerousModePermissionPrompt": true,
+  "skipWorkflowUsageWarning": true,
+  "switchModelsOnFlag": true,
+  "tui": "fullscreen",
+  "voice": {
+    "enabled": true,
+    "mode": "tap",
+    "autoSubmit": true
   },
-  "voiceEnabled" : true
+  "voiceEnabled": true
 }
