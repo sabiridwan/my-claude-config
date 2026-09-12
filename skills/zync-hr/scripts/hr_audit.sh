@@ -96,8 +96,18 @@ hr "HR MIGRATIONS"
 ls src/migrations 2>/dev/null | grep -iE "payroll|leave|attendance|employee|statutory|hr|nigeria|malaysia" || echo "(none)"
 
 hr "UPSTREAM SPECS AVAILABLE TO PORT"
-UP=/Users/sabiridwan/Projects/zerp/zerp-be/src/modules/hr
-if [ -d "$UP" ] && [ "$ROOT" != "/Users/sabiridwan/Projects/zerp/zerp-be" ]; then
+# The zerp-be checkout this audit compares against. Defaults under $HOME so
+# this machine is unchanged; any other machine sets ZYNCAI_ZERP_BE.
+_script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=/dev/null
+source "$_script_dir/../../../tools/load-config.sh" 2>/dev/null || true
+if command -v zyncai_config >/dev/null 2>&1; then
+  ZERP_BE="$(zyncai_config ZYNCAI_ZERP_BE "$HOME/Projects/zerp/zerp-be")"
+else
+  ZERP_BE="$HOME/Projects/zerp/zerp-be"
+fi
+UP="$ZERP_BE/src/modules/hr"
+if [ -d "$UP" ] && [ "$ROOT" != "$ZERP_BE" ]; then
   find "$UP" -name "*.spec.ts" | sed "s|$UP/|  |" | sort
 else
   echo "(this is the upstream, or zerp-be not present)"

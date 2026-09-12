@@ -56,6 +56,28 @@ def video_frames(path: str) -> Generator[np.ndarray, None, None]:
         capture.release()
 
 
+def webcam_frames(device_index: int = 0) -> Generator[np.ndarray, None, None]:
+    """Local laptop/USB camera — DEVELOPMENT ONLY, never a production source.
+
+    For sanity-checking the pipeline plumbing (zones drawn correctly, rules fire, events
+    reach the buffer) before you have NVR access or a real shop clip. Fails fast rather
+    than retrying: a dev laptop's webcam not opening is something to fix right now, not a
+    flaky network camera to reconnect to like rtsp_frames does in production.
+    """
+    capture = cv2.VideoCapture(device_index)
+    if not capture.isOpened():
+        raise RuntimeError(f"could not open webcam at device index {device_index}")
+    try:
+        while True:
+            ret, frame = capture.read()
+            if not ret:
+                log.warning("webcam read failed, stopping")
+                return
+            yield frame
+    finally:
+        capture.release()
+
+
 class ClipBuffer:
     """Rolling frame ring so a clip exists at the moment an event fires (recipes 8, 11).
 

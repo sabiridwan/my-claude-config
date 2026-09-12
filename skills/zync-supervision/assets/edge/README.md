@@ -16,6 +16,7 @@ zync_vision/
   events.py            VisionEvent + idempotency key
   sinks.py             JSONL spool, ERP batch POST, heartbeat, remote config
 tests/test_pipeline.py smoke test — synthetic detections, no model, no camera
+tests/test_sources.py  webcam_frames fail-fast contract — mocked capture, no real camera
 ```
 
 ## Setup
@@ -29,6 +30,14 @@ pip install inference          # or: pip install ultralytics
 ## Order of work — do not skip
 
 ```bash
+# 0. OPTIONAL, dev only: sanity-check the plumbing with your own laptop/USB webcam
+#    before you have NVR access — set source.kind: webcam in config.yaml, or:
+python draw_zones.py --source 0 --out zones.json
+python run.py --config config.yaml --annotate --dry-run     # source.kind: webcam
+# This proves zones draw, the detector runs, rules fire and events reach the buffer.
+# It does NOT replace step 3 below — thresholds tuned on your own face at a desk mean
+# nothing for a shop counter. Never point a real deployment at a webcam.
+
 # 1. pull a real peak-hour clip off the NVR, then draw zones on ITS frames
 python draw_zones.py --source footage/peak-hour.mp4 --out zones.json
 
@@ -49,6 +58,7 @@ Hand count and machine count more than ~10% apart → fix before anyone sees a d
 
 ```bash
 python tests/test_pipeline.py     # dwell, unattended rule, line count, buffer, idempotency
+python tests/test_sources.py      # webcam_frames fails fast, releases the capture cleanly
 ```
 
 ## Production

@@ -5,9 +5,10 @@ Jest 28 + `ts-jest`, specs colocated as `*.spec.ts`, mocks not a real DB
 
 `zerp-be` `development` already carries ~70 HR specs. **Read and port those before writing new
 ones** — they encode figures that were verified against published tables once already.
+If no checkout is on this machine, skip straight to writing new specs against the rule below.
 
 ```bash
-find /Users/sabiridwan/Projects/zerp/zerp-be/src/modules/hr -name "*.spec.ts"
+find <path-to-zerp-be-checkout>/src/modules/hr -name "*.spec.ts"
 ```
 
 ---

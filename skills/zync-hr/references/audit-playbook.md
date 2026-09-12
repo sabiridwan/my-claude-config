@@ -141,11 +141,13 @@ Build the table:
 | Behaviour | Money at risk if wrong | Spec exists? | Upstream spec to port |
 |---|---|---|---|
 
-Check what `zerp-be` already has and can be lifted:
+Check what `zerp-be` already has and can be lifted, if a checkout is on this machine:
 
 ```bash
-find /Users/sabiridwan/Projects/zerp/zerp-be/src/modules/hr -name "*.spec.ts" | sed 's|.*/hr/||'
+find <path-to-zerp-be-checkout>/src/modules/hr -name "*.spec.ts" | sed 's|.*/hr/||'
 ```
+
+No checkout available? Skip straight to the known list below — it covers what matters most.
 
 Known upstream specs worth porting first: `payroll-country.spec.ts`, `payroll-mtd.spec.ts`,
 `payroll-statutory-tables.spec.ts`, `payroll-statutory-schedule.spec.ts`,

@@ -9,7 +9,9 @@ description: Use when building, extending, or creating new features in any ZyncG
 
 **Feature-based modules. Context owns state. Components are dumb. Data-fetching (Apollo or Axios/fetch) only inside `context.tsx` or `service.ts` — never in components or screens.**
 
-Canonical reference: `/Users/sabiridwan/Projects/MalikStreams/msgold/msgld-app/`
+Canonical pattern: `msgld-app`. Every rule below is copied from it — this skill is
+self-contained, no checkout required. Reading `msgld-app` directly on a machine that has
+it is a free freshness check, never a requirement.
 
 ---
 

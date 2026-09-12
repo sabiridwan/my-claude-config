@@ -5,11 +5,13 @@ camera_id: cam-03-counter          # must match the Device.deviceId in zyncg-ser
 branch: KL-Main
 
 source:
-  kind: rtsp                       # rtsp | video
+  kind: rtsp                       # rtsp | video | webcam
   # Hikvision substream = channel 102, Dahua = subtype=1. NEVER the main stream.
   url: rtsp://viewer:pass@192.168.1.64:554/Streaming/Channels/102
   # kind: video
   # path: ./footage/peak-hour.mp4
+  # kind: webcam                   # DEV ONLY — laptop/USB camera, never a real deployment
+  # device_index: 0
 
 detector:
   kind: inference                  # inference | ultralytics | stub
@@ -58,6 +60,12 @@ zones:
     min_dwell_s: 10
     polygon: [[1100, 400], [1500, 400], [1500, 760], [1080, 760]]
 
+  # recipe 9 — needs the custom `helmet` class (see gold-shop-recipes.md's Path A/Path B)
+  # - key: entrance_zone
+  #   anchor: bottom_center
+  #   min_dwell_s: 2
+  #   polygon: [[280, 550], [1020, 550], [1020, 780], [280, 780]]
+
 lines:
   - key: entrance                  # recipe 1 — INSIDE the shop, past the mat
     anchor: bottom_center
@@ -76,6 +84,18 @@ rules:
     cooldown: 900
     hours: business
     message: "Bridal counter unattended with a customer present"
+
+  # recipe 9 — needs the custom `helmet` class and the entrance_zone above; silent alert
+  # only, never a loud alarm (see gold-shop-recipes.md for the discrimination caveat)
+  # - key: helmet_at_entrance
+  #   type: HELMET_AT_ENTRANCE
+  #   zone_key: entrance_zone
+  #   when: "entrance_zone_helmet >= 1"
+  #   severity: HIGH
+  #   min_duration: 2
+  #   cooldown: 120
+  #   hours: any
+  #   message: "Helmet or face covering worn at the entrance"
 
   # recipe 6 — needs the custom `tray` class; highest-value rule in the shop
   # - key: tray_unattended

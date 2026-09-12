@@ -5,6 +5,10 @@
     python run.py --config config.yaml --annotate      # + preview window (tuning)
     python run.py --config config.yaml --dry-run       # local buffer only, no ERP
 
+Set `source.kind: webcam` in the config to sanity-check the whole pipeline against your
+own laptop/USB camera before you have NVR access — DEVELOPMENT ONLY, never point a real
+deployment at it.
+
 One process per camera. A crash on cam-03 must not stop cam-01 — supervise with systemd.
 """
 
@@ -19,7 +23,7 @@ import yaml
 
 from zync_vision.pipeline import CameraPipeline
 from zync_vision.sinks import ErpSink, EventBuffer
-from zync_vision.sources import rtsp_frames, video_frames
+from zync_vision.sources import rtsp_frames, video_frames, webcam_frames
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s %(message)s")
 log = logging.getLogger("zync-vision")
@@ -54,10 +58,13 @@ def main() -> int:
     pipeline = CameraPipeline(config, buffer=buffer, erp=erp, annotate=args.annotate)
 
     source = config.get("source", {})
-    frames = (
-        video_frames(source["path"]) if source.get("kind") == "video"
-        else rtsp_frames(source["url"])
-    )
+    kind = source.get("kind", "rtsp")
+    if kind == "video":
+        frames = video_frames(source["path"])
+    elif kind == "webcam":
+        frames = webcam_frames(source.get("device_index", 0))
+    else:
+        frames = rtsp_frames(source["url"])
 
     if args.annotate:
         import cv2

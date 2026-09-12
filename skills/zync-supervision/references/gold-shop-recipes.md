@@ -153,8 +153,29 @@ showcase than policy allows, and is any of it sitting there with nobody watching
 **Answers:** grab-and-run precursor. Standard practice in jewellery retail — the shop wants
 helmets removed before entry.
 
-- **Model:** **(custom)** classes `helmet`, `face_covered` — or an off-the-shelf helmet model
-  from Roboflow Universe fine-tuned on the door camera.
+- **Model:** classes `helmet`, `face_covered`. Two paths, in order of what actually works:
+
+  **Path A — off-the-shelf, evaluated critically (try first, expect to fail this).**
+  Roboflow Universe has many community `helmet` and `mask`/`face-mask` detection projects
+  (search `universe.roboflow.com` for "helmet" or "face mask"). Pull one locally with
+  `inference.get_model(model_id="<workspace>/<version>", api_key=...)` — a free Roboflow
+  account key works even for a public model run locally, no per-frame cloud call. **Before
+  trusting a single one**, run it against a real clip from THIS entrance for 10–20 minutes
+  and hand-count, exactly like step 3 of the main workflow — the same rule, not a
+  relaxation of it for a "free" model. Two things almost always go wrong: (1) most public
+  helmet datasets are **construction hard-hats on a job site**, not motorcycle
+  helmets/balaclavas at a shop door — different silhouette, different false-positive
+  profile (hoodies, umbrellas). (2) Most public "mask" datasets are **surgical/COVID
+  masks**, and were labelled to detect *compliance* (mask worn correctly), not
+  *concealment* (balaclava, scarf pulled up) — the opposite framing of what this recipe
+  needs. Expect to reject the first several candidates.
+
+  **Path B — custom, and usually the one you actually ship.** 200–500 labelled frames from
+  THIS door camera (helmet-on, helmet-removed, balaclava, ordinary customer) fine-tuned via
+  Roboflow. Slower to start, but the class boundary that matters here — "concealing" vs.
+  "ordinary headwear" — is exactly what a generic public dataset was never labelled to
+  draw, per Path A's failure above.
+
 - **Geometry:** entrance zone (recipe 1's camera).
 - **Rule:** `helmet` inside entrance zone for `min_duration=2 s` → `HELMET_AT_ENTRANCE`,
   severity high, silent alert to staff terminal (a loud alarm is the wrong response).
@@ -162,7 +183,10 @@ helmets removed before entry.
 - **Wrong when:** rider deliveries all day → whitelist the delivery window/door, or require
   `helmet AND crossing the inner line` so the pavement doesn't fire it. Never make this
   ethnic-, gender- or garment-based: religious head covering is **not** face covering and
-  must not be in the training set as a positive.
+  must not be in the training set as a positive — this is a discrimination risk, not a
+  model-accuracy footnote, and it applies to BOTH paths above: an off-the-shelf model
+  trained on someone else's data may already have this bias baked in, so check its false
+  positive rate on hijab/niqab/turban frames specifically before deploying either path.
 
 ---
 

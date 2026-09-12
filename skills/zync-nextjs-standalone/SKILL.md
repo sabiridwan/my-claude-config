@@ -9,11 +9,11 @@ description: Use when creating, scaffolding, or extending any zync-nextjs-standa
 
 A **zync-nextjs-standalone** project is a self-contained Next.js full-stack app: no separate backend service, database accessed directly from API routes via Typegoose + Mongoose.
 
-**Canonical reference:** [zyncws](/Users/sabiridwan/Projects/zyncws) — always read `src/backend/lib/base/` and `src/backend/modules/user/` before generating code.
+**Canonical pattern:** `zyncws`'s `src/frontend` + `src/backend` split, `src/backend/lib/base/`, and `src/backend/modules/user/`. Every rule below is copied from it, so this skill is self-contained — no external checkout needed. If a `zyncws` checkout happens to exist on this machine, reading it directly is a free freshness check, never a requirement.
 
 **Stack:** Next.js 16+ (App Router), TypeScript strict, Mongoose 9 + `@typegoose/typegoose` 13, `next-auth` v4 (JWT), Tailwind CSS 3 (brand token system), `react-select` 5, Formik 2 + Yup 1.
 
-**Auth pattern reference:** [zendocs-clone](/Users/sabiridwan/SamMedia/products/zendocs-clone) — Google OAuth via NextAuth, same `signIn` upsert + JWT stamp pattern.
+**Auth pattern:** Google OAuth via NextAuth — the `signIn` upsert + JWT stamp pattern below, sourced from `zendocs-clone`. Same rule: self-contained, external checkout optional.
 
 ---
 
@@ -299,7 +299,7 @@ export const authOptions = {
 }
 ```
 
-Login page: centered card, "Continue with Google" button, `signIn('google', { callbackUrl })`. Mirror [zendocs-clone login page](/Users/sabiridwan/SamMedia/products/zendocs-clone/src/app/login/page.tsx).
+Login page: centered card, "Continue with Google" button, `signIn('google', { callbackUrl })`, mirroring `zendocs-clone`'s login page.
 
 ---
 
@@ -371,7 +371,10 @@ All live in `src/frontend/components/ap/`, `'use client'`, wired to Formik via `
 
 ## Canonical References
 
-- **Structure:** [zyncws/src/](/Users/sabiridwan/Projects/zyncws/src) — `frontend/` + `backend/` split
-- **Base abstractions:** [zyncws/src/backend/lib/base/](/Users/sabiridwan/Projects/zyncws/src/backend/lib/base/)
-- **Auth (Google OAuth):** [zendocs-clone/src/lib/auth.ts](/Users/sabiridwan/SamMedia/products/zendocs-clone/src/lib/auth.ts) + [login page](/Users/sabiridwan/SamMedia/products/zendocs-clone/src/app/login/page.tsx)
-- **Example module:** [zyncws/src/backend/modules/task/](/Users/sabiridwan/Projects/zyncws/src/backend/modules/task/)
+Everything above is vendored from these repos — treat them as a freshness check, not a
+dependency. This skill works with none of them present.
+
+- **Structure:** `zyncws/src/` — `frontend/` + `backend/` split
+- **Base abstractions:** `zyncws/src/backend/lib/base/`
+- **Auth (Google OAuth):** `zendocs-clone/src/lib/auth.ts` + its login page
+- **Example module:** `zyncws/src/backend/modules/task/`

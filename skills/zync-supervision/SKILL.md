@@ -1,6 +1,6 @@
 ---
 name: zync-supervision
-description: Use when building, deploying, tuning or debugging CCTV / camera video analytics for a ZyncGold gold-and-jewellery shop with the Roboflow supervision library — RTSP feeds, footfall and door counting, showcase dwell time, queue and wait time, heatmaps, zone occupancy, tray-out and unattended-counter alerts, strongroom two-person rule, after-hours intrusion, helmet-in-store alerts, staff coverage, or piping any of those events into zyncg-server. Trigger on "supervision", "sv.Detections", "ByteTrack", "PolygonZone", "LineZone", "RTSP", "NVR", "CCTV analytics", "people counting", "dwell time", "heatmap", "footfall", "camera analytics", "video analytics", "YOLO/RF-DETR on our cameras", or any request to turn shop camera feeds into numbers, alerts or ERP data.
+description: Use when building, deploying, tuning or debugging CCTV / camera video analytics for a ZyncGold gold-and-jewellery shop with the Roboflow supervision library — RTSP feeds, footfall and door counting, showcase dwell time, queue and wait time, heatmaps, zone occupancy, tray-out and unattended-counter alerts, strongroom two-person rule, after-hours intrusion, helmet-in-store alerts, face-covering/facemask detection at the entrance, staff coverage, or piping any of those events into zyncg-server. Trigger on "supervision", "sv.Detections", "ByteTrack", "PolygonZone", "LineZone", "RTSP", "NVR", "CCTV analytics", "people counting", "dwell time", "heatmap", "footfall", "camera analytics", "video analytics", "YOLO/RF-DETR on our cameras", "helmet detection", "face mask detection", "detect people wearing a helmet/mask", or any request to turn shop camera feeds into numbers, alerts or ERP data.
 ---
 
 # zync-supervision — CCTV analytics for a gold shop
@@ -43,6 +43,10 @@ counting, no de-duplicated alerts.** Every metric below depends on stable IDs.
    Hand actual module scaffolding to the `zync-be-standard` skill.
 8. **Verify with the business, not the logs.** Footfall vs invoice count for the same hour.
    If conversion comes out at 300%, the line is in the wrong place.
+
+**No camera or NVR access yet?** `source.kind: webcam` in `assets/edge/config.example.yaml`
+runs the whole pipeline against a laptop/USB camera — proves zones, rules and events work
+before step 3. Dev only; thresholds tuned on it mean nothing for a real shop counter.
 
 ## Version reality (verified against supervision 0.30.0)
 

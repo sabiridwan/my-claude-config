@@ -169,6 +169,23 @@ per customer/supplier/karigar/branch. Absent → **BLIND-SPOT**.
 **5.4 Dead metal fields.** A declared-but-unreferenced field (`amount2`, `weight2`) is
 either an abandoned metal ledger or a trap for the next developer. Report it.
 
+**5.5 Written fields exist on the schema.** Mongoose's default strict mode silently drops
+any field a write passes that the schema does not declare — no error, no warning, the
+write succeeds and the value is gone. A GL-posting call site that writes `weight`/`grams`/
+`purity` onto a schema lacking that field reads correctly in review and passes tests that
+don't assert the persisted document, while the gram figure it was supposed to carry is
+quietly lost. Checking the call site under active change is not enough: this recurred
+three times inside one metal-ledger redesign (two posting call sites fixed together, a
+third `METAL_IN` path with the identical mismatch found separately days later) because
+each site was checked as it was touched, never swept as a set.
+
+```bash
+sed -n '1,80p' <target>.schema.ts   # confirm every field a posting call site writes is declared here
+```
+
+Sweep every metal-bearing write path in the module, not only the one being changed. Absent
+→ **BOOKS-WRONG**.
+
 ---
 
 ## 6. Rate & valuation

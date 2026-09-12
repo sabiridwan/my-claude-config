@@ -1,6 +1,6 @@
 ---
 name: zync-sync-repo
-description: Use when the user wants to pull latest changes, push their work, or "sync" a repo (any zerp-* repo or any other git repo) without losing local uncommitted work or already-pushed commits. Triggers on "pull latest", "sync my branch", "git pull", "update my branch", "push my changes", "pull without losing my changes", or any git pull/push request in a repo that might have dirty local state or a rewritten remote history. Also use proactively before any pull/rebase if the user's working tree is dirty or the remote branch may have been force-pushed.
+description: Use when the user wants to pull latest changes, push their work, or "sync" a repo (any zerp-* repo or any other git repo) without losing local uncommitted work or already-pushed commits. Triggers on "pull latest", "sync my branch", "git pull", "update my branch", "push my changes", "pull without losing my changes", or any git pull/push request in a repo that might have dirty local state or a rewritten remote history. Standing reflex, not just on-demand: apply the safe push workflow's fetch-first step before EVERY commit-then-push you do in ANY repo, not only when the user explicitly asks to sync or the tree is visibly dirty — a stale local view of the remote is the failure mode, and you can't tell it's stale without fetching first.
 ---
 
 # Zync — Sync Repo Safely
@@ -13,6 +13,8 @@ Two ways to lose work during a routine pull/push, and both have already happened
 2. **`git pull --rebase` silently drops already-pushed commits** after a teammate force-pushes the remote branch — git's fork-point heuristic treats your commits as "already merged" because they were once part of the now-rewritten upstream, and prints a cheerful "Successfully rebased" while your work vanishes. This has hit `origin/development` in both zerp-be and zerp-admin multiple times.
 
 This skill's job is to make every pull/push round-trip provably lossless — diagnose before integrating, never assume, never force.
+
+**This applies by default, not only when explicitly invoked.** Before committing and pushing in any repo — this one included — fetch first (Safe push workflow, step 1) even if nothing about the session suggests the remote moved. "I haven't seen a reason to check" is exactly the state that makes a stale push possible; the only way to know the remote hasn't moved is to fetch and look.
 
 ## Before touching anything
 

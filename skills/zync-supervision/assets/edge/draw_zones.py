@@ -3,6 +3,7 @@
 
     python draw_zones.py --source footage/peak-hour.mp4 --out zones.json
     python draw_zones.py --source frame.jpg --out zones.json
+    python draw_zones.py --source 0 --out zones.json   # webcam device index, DEV ONLY
 
 Click to add points · ENTER closes the polygon · s saves · q quits.
 The saved JSON is a list of polygons; paste them under `zones:` in the camera config with a
@@ -29,6 +30,17 @@ cursor: tuple[int, int] | None = None
 
 
 def load_frame(source: str) -> np.ndarray:
+    if source.isdigit():
+        capture = cv2.VideoCapture(int(source))
+        try:
+            if not capture.isOpened():
+                raise SystemExit(f"could not open webcam at device index {source}")
+            ret, frame = capture.read()
+        finally:
+            capture.release()
+        if not ret:
+            raise SystemExit(f"could not read a frame from webcam at device index {source}")
+        return frame
     if not os.path.exists(source):
         raise SystemExit(f"no such file: {source}")
     image = cv2.imread(source)
@@ -63,7 +75,10 @@ def render(base: np.ndarray) -> np.ndarray:
 
 def main() -> None:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--source", required=True, help="video or image from THIS camera")
+    parser.add_argument(
+        "--source", required=True,
+        help="video/image path from THIS camera, or a webcam device index (e.g. 0) for dev",
+    )
     parser.add_argument("--out", default="zones.json")
     args = parser.parse_args()
 
