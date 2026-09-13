@@ -1,0 +1,14 @@
+{
+  "name": "tts-open-platform-glossary",
+  "source": {
+    "type": "bundled",
+    "name": "tts-open-platform-glossary"
+  },
+  "target": {
+    "agent": "cc"
+  },
+  "version": 1,
+  "tool": "tts_open_toolkit",
+  "installedAt": "2026-09-13T01:21:12.433Z",
+  "installedHash": "699bebcd107776ba19b6b8f07f02dc17ce1cd336df1f6ac5e614b013b4737804"
+}

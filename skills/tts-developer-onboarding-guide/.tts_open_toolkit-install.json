@@ -1,0 +1,14 @@
+{
+  "name": "tts-developer-onboarding-guide",
+  "source": {
+    "type": "bundled",
+    "name": "tts-developer-onboarding-guide"
+  },
+  "target": {
+    "agent": "cc"
+  },
+  "version": 1,
+  "tool": "tts_open_toolkit",
+  "installedAt": "2026-09-13T01:21:12.431Z",
+  "installedHash": "b17d4dd4dc35591503ca727b3abe44c703869cb25aa97d6a54248129c6d2e968"
+}
