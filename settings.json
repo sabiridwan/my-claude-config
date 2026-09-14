@@ -202,7 +202,7 @@
     ],
     "PreToolUse": [
       {
-        "matcher": "Bash",
+        "matcher": "Bash|Read|Write|Edit|MultiEdit|NotebookEdit|Glob|Grep",
         "hooks": [
           {
             "type": "command",
