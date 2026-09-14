@@ -56,6 +56,9 @@ whole conversation.
 | Long job (train/build/serve) | `zrun --bg <name> '<cmd>'` — tmux-backed, survives disconnect |
 | Watch it | `zrun --tail <name> [lines]` / `zrun --jobs` / `zrun --kill <name>` |
 | GPU state | `zrun --gpu` |
+| Land a pasted/dropped file on the server | `~/.claude/server-mode/zput <local-file>` → prints remote path |
+| Land pasted bytes (image, PDF) | `printf %s "<base64>" \| ~/.claude/server-mode/zput --b64 <name.png>` |
+| Inspect the remote inbox | `zput --ls` / `zput --path` (`~/.zync-inbox`) |
 | Mac → server | `~/.claude/server-mode/zsync push <local> [remote]` |
 | Server → Mac | `~/.claude/server-mode/zsync pull <remote> [local]` |
 
@@ -77,26 +80,52 @@ Full path is `~/.claude/server-mode/zrun`; it is not on `$PATH`.
 
 ### Enforcement (not advisory)
 
-`~/.claude/server-mode/guard.sh` runs as a `PreToolUse` hook on every Bash call,
-main thread and subagents alike. It does two things and fails **open** on any
-internal error:
+`~/.claude/server-mode/guard.sh` → `guard.py` runs as a `PreToolUse` hook on
+`Bash`, `Read`, `Write`, `Edit`, `MultiEdit`, `NotebookEdit`, `Glob` and `Grep`,
+for the main thread **and for subagents**. It fails **open** on any internal
+error. Escape hatches: `ZYNC_GUARD_OFF=1` for a single call, or
+`activate.sh off` to leave server mode properly.
 
-1. **Routing.** While server mode is active, a heavy local toolchain command
-   (`next build`, `nest build`, `jest`, `tsc`, `eslint`, `expo`, `npm|pnpm|yarn
-   run build|test|install`, `make`, `cargo`, `docker build`, …) is **denied**
-   with instructions to re-run it through `zrun`. Anything already written as
-   `zrun`/`zsync` passes through, as do cheap commands (`cat`, `grep`, `git`).
-   The calling session is resolved by `session_id` first, then by the working
-   directory pointer — which is how a subagent resolves to its parent's state.
+**While server mode is active, the Mac is off-limits.** Denied, each with the
+exact `zrun`/`zput` replacement in the message:
 
-2. **Local memory floor (always on, even with server mode off).** The same heavy
-   commands are denied when free RAM is below `ZYNC_GUARD_FREE_MIN_GB` (default
-   6 GB) or when more than `ZYNC_GUARD_MAX_HEAVY_NODE` (default 5) node
-   processes above 800 MB are already resident. This is the backstop against a
-   parallel fan-out of builds exhausting RAM and taking the Mac down.
+| Tool | Denied when | Use instead |
+|---|---|---|
+| `Bash` | it invokes a toolchain (`next build`, `jest`, `tsc`, `nest build`, `eslint`, `expo`, `npm/pnpm/yarn run …`, `make`, `cargo`, `pip install`, `docker build`), references a Mac path outside the local allowlist, or is anything beyond cheap introspection | `zrun '<cmd>'`, `zrun --bg <name> '<cmd>'` |
+| `Write` `Edit` `MultiEdit` `NotebookEdit` | `file_path` is outside the local allowlist | `zrun 'python3 - <<"PY" … PY'` |
+| `Read` | the file is outside the allowlist **and** is not media | `zrun 'sed -n "1,120p" <file>'` |
+| `Glob` `Grep` | `path` is outside the allowlist | `zrun 'grep -rn … '` / `zrun 'find … '` |
 
-Override per command with the env vars above; turn routing off properly with
-`activate.sh off` rather than working around the deny.
+**Still allowed locally**, because they are harness business rather than the
+task's work: anything under `~/.claude/`, the session scratchpad
+(`/private/tmp/claude-*`), `/var/folders`, `~/.ssh/config`; commands already
+written as `zrun`/`zsync`/`zput`; cheap introspection (`ps`, `df`, `vm_stat`,
+`uptime`, `echo`, `date`, `which`, …); and **reading an image or PDF** so the
+model can actually see what the user pasted.
+
+### Pasted, dropped and @-mentioned input
+
+Input the user hands over is still input — but the work on it happens on the
+server. `zput` lands it there and prints the absolute remote path:
+
+```bash
+~/.claude/server-mode/zput ~/Desktop/mockup.png          # -> /home/<user>/.zync-inbox/mockup.png
+printf %s "<base64>" | ~/.claude/server-mode/zput --b64 shot.png
+echo "<log text>"    | ~/.claude/server-mode/zput --stdin build.log
+~/.claude/server-mode/zput --ls                          # what is in the inbox
+```
+
+Feed the printed path straight into `zrun`. Read the image locally first if you
+need to see it; do not process it locally.
+
+### Local memory floor (always on, even with server mode off)
+
+The same guard denies a heavy build/test command whenever free RAM is below
+`ZYNC_GUARD_FREE_MIN_GB` (default 6) or more than `ZYNC_GUARD_MAX_HEAVY_NODE`
+(default 5) node processes above `ZYNC_GUARD_HEAVY_NODE_MB` (default 800 MB)
+are already resident. This is the backstop against a parallel fan-out of builds
+exhausting RAM and shutting the Mac down — it applies whether or not a server is
+in play.
 
 ## Target facts
 
