@@ -70,6 +70,33 @@ Full path is `~/.claude/server-mode/zrun`; it is not on `$PATH`.
 - Long-running work goes through `zrun --bg`, not a foreground `zrun` that blocks.
 - Repos: clone directly on the server (`zrun 'git clone …'`) rather than rsyncing
   a local checkout — unless the local tree has uncommitted work, then `zsync push`.
+- **Subagents inherit server mode.** A subagent's Bash calls are routed the same
+  way — spell out in the subagent's prompt that it must run builds and tests with
+  `~/.claude/server-mode/zrun`, because the per-turn directive is injected into
+  the main thread only.
+
+### Enforcement (not advisory)
+
+`~/.claude/server-mode/guard.sh` runs as a `PreToolUse` hook on every Bash call,
+main thread and subagents alike. It does two things and fails **open** on any
+internal error:
+
+1. **Routing.** While server mode is active, a heavy local toolchain command
+   (`next build`, `nest build`, `jest`, `tsc`, `eslint`, `expo`, `npm|pnpm|yarn
+   run build|test|install`, `make`, `cargo`, `docker build`, …) is **denied**
+   with instructions to re-run it through `zrun`. Anything already written as
+   `zrun`/`zsync` passes through, as do cheap commands (`cat`, `grep`, `git`).
+   The calling session is resolved by `session_id` first, then by the working
+   directory pointer — which is how a subagent resolves to its parent's state.
+
+2. **Local memory floor (always on, even with server mode off).** The same heavy
+   commands are denied when free RAM is below `ZYNC_GUARD_FREE_MIN_GB` (default
+   6 GB) or when more than `ZYNC_GUARD_MAX_HEAVY_NODE` (default 5) node
+   processes above 800 MB are already resident. This is the backstop against a
+   parallel fan-out of builds exhausting RAM and taking the Mac down.
+
+Override per command with the env vars above; turn routing off properly with
+`activate.sh off` rather than working around the deny.
 
 ## Target facts
 
