@@ -331,16 +331,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "/Users/sabiridwan/.claude/server-mode/inject.sh",
-            "timeout": 5,
-            "statusMessage": "Checking server mode..."
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "/Users/sabiridwan/.claude/hooks/model-orch.sh",
             "timeout": 5
           }
