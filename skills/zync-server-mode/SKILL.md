@@ -56,6 +56,9 @@ whole conversation.
 | Long job (train/build/serve) | `zrun --bg <name> '<cmd>'` — tmux-backed, survives disconnect |
 | Watch it | `zrun --tail <name> [lines]` / `zrun --jobs` / `zrun --kill <name>` |
 | GPU state | `zrun --gpu` |
+| Free VRAM an idle ComfyUI is parking | `zrun --vram` |
+| Remote dev servers | `zdev list` / `zdev start <name\|all>` / `zdev stop` / `zdev logs <name>` |
+| Forward remote dev ports to the Mac | `zdev tunnel` / `zdev status` / `zdev tunnel-stop` |
 | Land a pasted/dropped file on the server | `~/.claude/server-mode/zput <local-file>` → prints remote path |
 | Land pasted bytes (image, PDF) | `printf %s "<base64>" \| ~/.claude/server-mode/zput --b64 <name.png>` |
 | Inspect the remote inbox | `zput --ls` / `zput --path` (`~/.zync-inbox`) |
@@ -126,6 +129,84 @@ The same guard denies a heavy build/test command whenever free RAM is below
 are already resident. This is the backstop against a parallel fan-out of builds
 exhausting RAM and shutting the Mac down — it applies whether or not a server is
 in play.
+
+## Auto-activation per project
+
+`~/.claude/server-mode/projects.json` maps a local directory tree to a target.
+A `SessionStart` hook (`autostart.sh`) activates server mode automatically when
+a session opens at or under one of those roots — longest prefix wins — and sets
+the remote working directory from the entry's `remote` field. Trees not listed
+stay local, so light work is unaffected.
+
+Currently mapped, all to `gpu`:
+
+| Mac | Server |
+|---|---|
+| `~/Projects/MalikStreams/msgold` | `/workspace/development/msgold` |
+| `~/Projects/MalikStreams/msbullion` | `/workspace/development/msbullion` |
+| `~/Projects/zyncgold` | `/workspace/development/zyncgold` |
+| `~/Projects/zerp` | `/workspace/development/zerp` |
+| `~/Projects/zyncws` | `/workspace/development/zyncws` |
+
+If the server is unreachable the hook says so and leaves the session local
+rather than failing it. `ZYNC_AUTOSTART_OFF=1` disables it; `activate.sh off`
+exits for the current session.
+
+Only add a tree once its repo actually exists on the server. Routing without
+provisioning is the original failure: the model is denied the Mac, finds nothing
+on the server, and stalls.
+
+## What already exists on the GPU box
+
+`/workspace` (symlink to `/nvme0n1-disk/workspace`, 1.7 T, 1.6 T free) holds a
+full `development/` checkout — msgold, msbullion, zerp, zyncgold, zyncws,
+zync-comfy, ~30 repos — with node 22, pnpm 11, corepack, mongod 8 and redis 8
+running. **Do not clone these repos again into `~/Projects`.** Work in
+`/workspace/development/<org>/<repo>`.
+
+Caveat: the server has only branches that were **pushed**. A Mac-local feature
+branch is not there — push it, or `zsync push` the tree, before expecting a
+build to reproduce what the Mac has.
+
+## Dev servers (PM2 on the server, ports forwarded to the Mac)
+
+Ten services already run under PM2 on the box. `zdev` drives them and forwards
+their ports, so `http://localhost:<port>` on the Mac reaches the server copy:
+
+| Port | Service | Repo |
+|---|---|---|
+| 7100 / 7110 / 7120 | zyncgold be / admin / web | `zyncgold/zyncg-*` |
+| 7200 / 7210 | zerp be / admin | `zerp/zerp-*` |
+| 7300 | mfv-studio | `mfvstudio/app` |
+| 7400 / 7410 / 7420 | msgold be / admin / fe | `msgold/msgd-*` |
+| 7600 | zyncws | `zyncws` |
+
+```bash
+zdev list                 # PM2 processes + the port map
+zdev tunnel               # forward every port to this Mac
+zdev status               # tunnel state + per-port reachability
+zdev restart dev-msgold-be\(7400\)
+zdev logs "dev-msgold-be(7400)" 80
+zdev local                # what is still listening on the Mac
+```
+
+`zdev tunnel` skips a port the Mac is already listening on and names the local
+process to stop — the local copy is what the server copy replaces. The tunnel
+runs with `ControlPath=none`, so killing it never disturbs `zrun`'s shared
+connection.
+
+Note the msgold port scheme differs between machines: the Mac ran it on
+5310/5315, the server runs it on 7400/7410/7420. Use the server ports.
+
+## GPU / VRAM
+
+`zrun --vram` frees VRAM that an idle ComfyUI is parking. ComfyUI keeps models
+resident long after a run; its `/free` endpoint unloads them progressively, so
+the command calls it twice with a pause and reports before/after. It is
+non-destructive — queued and in-flight ComfyUI work is unaffected. Measured:
+42.4 GB → 387 MiB, i.e. the full 48 GB card comes back.
+
+Run `zrun --vram` before any heavy GPU work, and `zrun --gpu` to confirm.
 
 ## Target facts
 
