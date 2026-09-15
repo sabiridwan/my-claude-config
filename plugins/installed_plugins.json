@@ -4,10 +4,10 @@
     "playwright@claude-plugins-official": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/022b3c274938",
-        "version": "022b3c274938",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/playwright/da823e86c8fe",
+        "version": "da823e86c8fe",
         "installedAt": "2026-04-09T08:31:07.870Z",
-        "lastUpdated": "2026-09-14T02:59:08.075Z",
+        "lastUpdated": "2026-09-15T08:11:57.352Z",
         "gitCommitSha": "7e8f5f81cc74956a5c8384d40a3e1f502c24a748"
       }
     ],
