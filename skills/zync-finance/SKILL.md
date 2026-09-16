@@ -146,6 +146,57 @@ Then, per BOOKS-WRONG and CONTROL-GAP finding, a short block:
 
 End with **Deltas since last run** when a prior report exists, and **Assumptions** last.
 
+## Hand-off — how a finding becomes work
+
+**The report is not the deliverable.** An audit that ends in the chat log has
+delivered nothing: the findings die with the conversation, and the next run
+re-derives them from scratch. Every run above DEBT severity ends with the steps
+below, and the run is not finished until it does.
+
+**1. Write the findings into the audited repo, as a checklist.**
+
+Grep first, and extend rather than fragment:
+
+```bash
+ls docs/superpowers/specs/ | grep -i finance
+```
+
+Extend the newest finance-audit doc if one covers this ground; otherwise create
+`docs/superpowers/specs/<YYYY-MM-DD>-finance-audit-<scope>-design.md`. One
+`- [ ]` per finding, ordered by severity, each carrying what the fixer needs so
+they never have to re-audit:
+
+```markdown
+- [ ] **BOOKS-WRONG · D1 double-entry** — melt lot leaves branch, balance sheet never moves
+      - Evidence: `src/modules/melt/melt.service.ts:214` — no ledger write on MELT_OUT
+      - Treatment: Dr Metal-in-process / Cr Metal-inventory at lot weight × rate
+      - Cost: M, needs a backfill for lots since 2026-07
+```
+
+It goes in the **audited** repo, not in zyncai — that is where whoever fixes it
+is already working, and where the checkbox state stays true.
+
+**2. Route it by severity.** A checklist nobody is assigned is still not work:
+
+| Severity | Route |
+|---|---|
+| BOOKS-WRONG | Open a ticket now — the ledger is wrong today and every day it runs. `zyncai` (or `zyncai-pipeline` for Fix → Verify → PR) |
+| CONTROL-GAP | Ticket, same cycle |
+| BLIND-SPOT | Checklist item; schedule with the owner — it needs a decision, not just code |
+| DEBT | Checklist item only. Do not open tickets for debt; it buries the two above |
+
+Implementation is **`zync-be-standard`**, never this skill — it audits and does
+not edit. For a multi-file build, `superpowers:writing-plans` turns the
+checklist into a plan and `zyncai:plan-handoff` executes it.
+
+**3. Rewrite `references/baseline-findings.md`** with the new sha, date and
+state, so the next run reports deltas instead of re-listing everything.
+
+**4. Report back the artefacts, not the prose** — the doc path, the ticket ids,
+and what is still unassigned. "Audit complete" with no path and no id means the
+feedback never reached development, which is the failure this section exists to
+prevent.
+
 ## Recurring / deployed runs
 
 This skill is built to be run repeatedly, not once.
