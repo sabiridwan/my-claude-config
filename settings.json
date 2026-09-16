@@ -272,15 +272,6 @@
         "hooks": [
           {
             "type": "command",
-            "command": "\"$HOME/.claude/server-mode/autostart.sh\"",
-            "timeout": 30
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "/Users/sabiridwan/.claude/scripts/ensure-mcp-servers.sh",
             "timeout": 10,
             "statusMessage": "Checking MCP server entries..."
