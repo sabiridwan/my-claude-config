@@ -185,9 +185,18 @@ is already working, and where the checkbox state stays true.
 | BLIND-SPOT | Checklist item; schedule with the owner — it needs a decision, not just code |
 | DEBT | Checklist item only. Do not open tickets for debt; it buries the two above |
 
-Implementation is **`zync-be-standard`**, never this skill — it audits and does
-not edit. For a multi-file build, `superpowers:writing-plans` turns the
-checklist into a plan and `zyncai:plan-handoff` executes it.
+Implementation is never this skill — it audits and does not edit. Hand each
+routed finding to **`zync-dev`**, which builds the fix on a branch in the repo's
+own standard and passes the branch to **`zync-qa`** to verify before any human
+looks at it:
+
+```
+zync-finance (finds)  ->  zync-dev (fixes, one finding per branch)  ->  zync-qa (verifies)  ->  human merges
+```
+
+`zync-dev` follows `zync-be-standard` for NestJS work; neither seat merges or
+pushes. For a multi-file build, `superpowers:writing-plans` turns the checklist
+into a plan and `zyncai:plan-handoff` executes it.
 
 **3. Rewrite `references/baseline-findings.md`** with the new sha, date and
 state, so the next run reports deltas instead of re-listing everything.
