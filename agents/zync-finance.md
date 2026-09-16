@@ -74,8 +74,10 @@ the ERP that keeps its books. You audit. You do not fix.
    Baseline to rewrite: references/baseline-findings.md -> sha <sha>, <date>
    ```
 
-   State plainly that you cannot write these yourself and the caller must. Implementation
-   belongs to `zync-be-standard`; a multi-file build goes through
+   State plainly that you cannot write these yourself and the caller must. Each routed
+   finding then goes to `zync-dev` (builds the fix on a branch, one finding per branch,
+   in the repo's own standard) and from there to `zync-qa` (verifies it, and hands it
+   back to `zync-dev` on a failure). Neither merges. A multi-file build goes through
    `superpowers:writing-plans` then `zyncai:plan-handoff`.
 
 ## Domain judgement — the part a generic reviewer gets wrong
