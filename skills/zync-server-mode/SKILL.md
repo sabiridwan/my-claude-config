@@ -130,15 +130,26 @@ are already resident. This is the backstop against a parallel fan-out of builds
 exhausting RAM and shutting the Mac down — it applies whether or not a server is
 in play.
 
-## Auto-activation per project
+## A session is local until you activate it
 
-`~/.claude/server-mode/projects.json` maps a local directory tree to a target.
-A `SessionStart` hook (`autostart.sh`) activates server mode automatically when
-a session opens at or under one of those roots — longest prefix wins — and sets
-the remote working directory from the entry's `remote` field. Trees not listed
-stay local, so light work is unaffected.
+**Nothing turns server mode on by itself.** Opening a session in any directory
+leaves the work on this Mac until `activate.sh on` is run for that session.
 
-Currently mapped, all to `gpu`:
+A `SessionStart` hook (`autostart.sh`) used to auto-activate from
+`projects.json`, so sessions under six project roots came up remote on their
+own. It was removed on 2026-09-16: the mapping covered most real work, so it
+read as "every session is remote now", and nothing in the session said which
+directory had decided that. The hook is unregistered and the script deleted.
+
+`projects.json` survives as a typing shortcut only:
+
+```bash
+activate.sh on gpu   # explicit
+activate.sh on       # target + remote cwd taken from projects.json for $PWD
+```
+
+Currently mapped, all to `gpu` — consulted only when you run `activate.sh on`
+with no target:
 
 | Mac | Server |
 |---|---|
@@ -147,10 +158,7 @@ Currently mapped, all to `gpu`:
 | `~/Projects/zyncgold` | `/workspace/development/zyncgold` |
 | `~/Projects/zerp` | `/workspace/development/zerp` |
 | `~/Projects/zyncws` | `/workspace/development/zyncws` |
-
-If the server is unreachable the hook says so and leaves the session local
-rather than failing it. `ZYNC_AUTOSTART_OFF=1` disables it; `activate.sh off`
-exits for the current session.
+| `~/Projects/wazobia` | `/workspace/development/wazobia` |
 
 Only add a tree once its repo actually exists on the server. Routing without
 provisioning is the original failure: the model is denied the Mac, finds nothing
