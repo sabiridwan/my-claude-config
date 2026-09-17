@@ -41,16 +41,6 @@
         "gitCommitSha": "87b6931acdaa1e0b5a023119b8a3c86b8fee42ac"
       }
     ],
-    "notion@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/notion/0.1.0",
-        "version": "0.1.0",
-        "installedAt": "2026-04-09T08:35:15.825Z",
-        "lastUpdated": "2026-05-04T18:15:07.085Z",
-        "gitCommitSha": "9847f2aa1a15f25df35ed1fb7b4557dbb60cd651"
-      }
-    ],
     "skill-creator@claude-plugins-official": [
       {
         "scope": "user",
@@ -67,16 +57,6 @@
         "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/feature-dev/76c85b7366c8",
         "version": "76c85b7366c8",
         "installedAt": "2026-04-09T18:21:20.506Z",
-        "lastUpdated": "2026-09-16T02:37:40.809Z",
-        "gitCommitSha": "7e8f5f81cc74956a5c8384d40a3e1f502c24a748"
-      }
-    ],
-    "commit-commands@claude-plugins-official": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/claude-plugins-official/commit-commands/76c85b7366c8",
-        "version": "76c85b7366c8",
-        "installedAt": "2026-04-15T10:22:48.184Z",
         "lastUpdated": "2026-09-16T02:37:40.809Z",
         "gitCommitSha": "7e8f5f81cc74956a5c8384d40a3e1f502c24a748"
       }
