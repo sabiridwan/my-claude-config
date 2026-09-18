@@ -282,6 +282,16 @@
         "hooks": [
           {
             "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/session-switch-root.sh",
+            "timeout": 8,
+            "statusMessage": "Prompting to switch root..."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
             "command": "/Users/sabiridwan/.config/iterm2/cc-status"
           }
         ]
