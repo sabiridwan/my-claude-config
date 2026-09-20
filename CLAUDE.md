@@ -490,6 +490,31 @@ fragmenting into duplicates.
 Why: told directly — want a durable per-project record of what was asked
 and what remains undone, not just chat history that scrolls away.
 
+# Autonomy hooks v2 (effective 2026-09-20)
+
+Five new hooks wired into `~/.claude/settings.json` to widen the auto-allow
+net beyond verify-step, so I can carry more of the standing zyncai workflow
+without prompting.
+
+| Hook | Event | Matcher | Purpose |
+|---|---|---|---|
+| `~/.claude/hooks/edit-classifier.mjs` | PreToolUse | `Edit\|Write\|MultiEdit\|NotebookEdit` | Allow writes under `~/Projects/`, `~/SamMedia/`, `~/Playground/`, `~/.claude/`, `~/Library/`, `~/Documents/`, `~/Desktop/`, `/tmp/`, `/private/tmp/`, `/private/var/folders/`. Hard-deny `~/.ssh/`, `~/.aws/`, `~/.gnupg/`, `~/.npmrc`, `~/.netrc`, `~/.gitconfig`, `/etc/`, `/usr/local/`, `/System/`, `~/.config/gh/hosts.yml`, `~/.docker/config.json`. Anything else falls through to the user prompt. |
+| `~/.claude/hooks/skill-classifier.mjs` | PreToolUse | `Skill` | Allow any skill except `brainstorm` and `plan-handoff` (case-insensitive contains). Those stay proactive-deny per the zync-autonomy rule — user must invoke by slash-command. |
+| `~/.claude/hooks/mcp-classifier.mjs` | PreToolUse | `mcp__chrome-devtools__*\|mcp__ouisys-panel__*\|mcp__Claude_Browser__*\|mcp__msgld__*` | Allow the trusted MCP namespaces outright. Other `mcp__*` (e.g. `mcp__plugin_*`) fall through. |
+| `~/.claude/hooks/bash-ambiguity-classifier.mjs` | PreToolUse | `Bash` | Wider Bash allow net beyond verify-step. Allow `mkdir -p`, `touch`, `mv`, `tar -x`, `git remote/reflog/stash list`, `node -e/--eval`, `gh api … --jq`, all `tools/zync-*` and `tools/{autonomy,shipped,plan-tick,skill-chain,discover,validate-,atomic-write}*`, `make zync-doctor`, `doctor --read-only`. Hard-deny `rm -rf` outside `/tmp`/`/Users`, `git push --force`, `pkill`, `kill -9`, `sudo`, `nohup`, `disown`, `screen -dm`. Anything else falls through. |
+| `~/.claude/hooks/self-improve.mjs` | Stop | (none — always runs) | After each zyncai session ends, scan the transcript JSONL for friction events (denied tool calls, repeated prompts, hook denials) and append a one-block summary to `~/.claude/projects/-Users-sabiridwan-Projects-zyncai/memory/project_autonomy_self_improve.md`. Skipped for non-zyncai cwd. 4 KiB per session block to bound the file. |
+
+The verify-step hook (`~/.claude/hooks/verify-step-autoaccept.mjs`) is still
+present and runs first for `Bash`. The four new PreToolUse hooks layer on top:
+verify-step handles the narrow verify-style allowlist, the new ones widen to
+edit/skill/mcp/bash. Together they cover the bulk of autonomous work without
+prompting.
+
+The self-improve loop is the feedback path: every session surfaces what still
+friction'd, the next planning pass promotes suggestions into actual allow
+additions or new hooks. Read `project_autonomy_self_improve.md` before opening
+a planning session.
+
 # graphify
 - **graphify** (`~/.claude/skills/graphify/SKILL.md`) - any input to knowledge graph. Trigger: `/graphify`
 When the user types `/graphify`, use the installed graphify skill or instructions before doing anything else.
