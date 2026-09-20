@@ -233,6 +233,46 @@
         ]
       },
       {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/edit-classifier.mjs",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/skill-classifier.mjs",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "mcp__chrome-devtools__*|mcp__ouisys-panel__*|mcp__Claude_Browser__*|mcp__msgld__*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/mcp-classifier.mjs",
+            "timeout": 5
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/bash-ambiguity-classifier.mjs",
+            "timeout": 5
+          }
+        ]
+      },
+      {
         "hooks": [
           {
             "type": "command",
@@ -298,6 +338,16 @@
       }
     ],
     "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/sabiridwan/.claude/hooks/self-improve.mjs",
+            "timeout": 8,
+            "statusMessage": "Scanning session for friction..."
+          }
+        ]
+      },
       {
         "hooks": [
           {
