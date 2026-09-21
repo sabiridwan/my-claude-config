@@ -65,7 +65,12 @@ function classify(toolName, filePath) {
   if (DENY_PATTERNS.some((re) => re.test(filePath))) {
     return 'deny';
   }
-  if (SAFE_PREFIXES.some((p) => filePath.startsWith(p))) {
+  // case-insensitive prefix match: macOS APFS is case-insensitive by
+  // default, so ~/projects and ~/Projects resolve to the same dir. A
+  // tool that reports the lowercase form would otherwise fall through
+  // and the user would see an unnecessary permission prompt.
+  const lowerPath = filePath.toLowerCase();
+  if (SAFE_PREFIXES.some((p) => lowerPath.startsWith(p.toLowerCase()))) {
     return 'allow';
   }
   return 'fallthrough';

@@ -29,6 +29,52 @@ import { homedir } from 'node:os';
 
 const HOME = homedir();
 
+const SAFE_PATH_PREFIXES = [
+  `${HOME}/Projects/`,
+  `${HOME}/SamMedia/`,
+  `${HOME}/Playground/`,
+  `${HOME}/.claude/`,
+  `${HOME}/Library/`,
+  `${HOME}/Documents/`,
+  `${HOME}/Desktop/`,
+  '/tmp/',
+  '/private/tmp/',
+  '/private/var/folders/',
+];
+
+function isSafePath(p) {
+  if (!p || typeof p !== 'string') return false;
+  // strip surrounding quotes a shell would have eaten
+  const cleaned = p.replace(/^['"]|['"]$/g, '');
+  if (!cleaned.startsWith('/') && !cleaned.startsWith('~')) return false;
+  const resolved = cleaned.startsWith('~')
+    ? cleaned.replace(/^~/, HOME)
+    : cleaned;
+  // case-insensitive prefix match: macOS APFS is case-insensitive by
+  // default, so ~/projects and ~/Projects resolve to the same dir. A
+  // tool that reports the lowercase form would otherwise fall through.
+  const lowerResolved = resolved.toLowerCase();
+  return SAFE_PATH_PREFIXES.some(
+    (prefix) => lowerResolved.startsWith(prefix.toLowerCase()),
+  );
+}
+
+function mvPathsSafe(cmd) {
+  // tokenise after the leading `mv`, skip flags, return true iff every
+  // remaining positional arg is a safe path
+  const tokens = cmd.split(/\s+/).slice(1).filter((t) => t && !t.startsWith('-'));
+  if (tokens.length < 2) return false;
+  return tokens.every(isSafePath);
+}
+
+function tryMv(cmd) {
+  // dedicated mv handler: must look like `mv <flags?> <paths...>` AND
+  // every positional arg must be under a safe path prefix. Returns
+  // true iff the command should be allowed.
+  if (!/^mv\s/.test(cmd)) return false;
+  return mvPathsSafe(cmd);
+}
+
 const ALLOW_PATTERNS = [
   // Reads / introspection
   /^defaults read\b/,
@@ -41,8 +87,6 @@ const ALLOW_PATTERNS = [
   // Idempotent / safe
   /^mkdir\s+-p\b/,
   /^touch\b/,
-  // In-repo file moves
-  /^mv\s+\S+\s+\S+/, // allow any mv; path-scoping is enforced via deny list
   /^tar\s+-[a-z]*x[a-z]*\s+/,
   // zyncai tool surface
   /^node\s+\S*tools\/zync-/,
@@ -111,6 +155,13 @@ function emit(decision, reason) {
       );
       return;
     }
+  }
+
+  // mv gets its own structured path-scope check (path-scoping via
+  // SAFE_PATH_PREFIXES, case-insensitive on macOS APFS).
+  if (tryMv(cmd)) {
+    emit('allow', `bash-ambiguity-classifier: mv all paths safe (${cmd.slice(0, 80)})`);
+    return;
   }
 
   // Allow: first leading-segment match
