@@ -9,8 +9,11 @@
 // ~/.claude/projects/-Users-sabiridwan-Projects-zyncai/memory/project_autonomy_self_improve.md
 // (or creates it). Idempotent. Stays under 4 KiB per session entry
 // to keep the memory file bounded.
+//
+// Always writes a heartbeat line so the feedback loop is observable;
+// friction-suggestions are appended below it when detected.
 
-import { readFileSync, writeFileSync, existsSync, appendFileSync } from 'node:fs';
+import { readFileSync, writeFileSync, existsSync, appendFileSync, mkdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { homedir } from 'node:os';
 
@@ -24,6 +27,9 @@ const MEMORY_FILE = join(
   'project_autonomy_self_improve.md',
 );
 const MAX_PER_SESSION_BYTES = 4096;
+// Friction threshold: a Bash command issued >=N times in one session is
+// almost certainly a denied/repeated-prompt pattern, not normal reuse.
+const REPEAT_THRESHOLD = 2;
 
 async function readStdin() {
   return new Promise((resolve, reject) => {
@@ -39,28 +45,94 @@ function nowIso() {
   return new Date().toISOString().replace(/\.\d+Z$/, 'Z');
 }
 
-function classifyFriction(event) {
-  // Returns a one-line suggestion if this event signals friction, else null.
-  const tool = event.tool || event.tool_name || '';
-  const cmd = event.command || event.tool_input?.command || '';
-  const path = event.file_path || event.tool_input?.file_path || '';
-
-  // Hook denied a Bash command -> suggest a wider allowlist entry
-  if (event.hook_decision === 'deny' && tool === 'Bash' && cmd) {
-    const trimmed = cmd.replace(/\s+/g, ' ').slice(0, 80);
-    return `add to ALLOW in bash-ambiguity-classifier.mjs: \`${trimmed}\``;
-  }
-  // User declined the prompt twice (same command) -> suggest permission rule
-  if (event.user_declined_count && event.user_declined_count >= 2 && cmd) {
-    return `add Bash(${cmd.split(' ')[0]}*) to permissions.allow in settings.json`;
-  }
-  // Edit/Write prompt on a safe path -> path missing from edit-classifier
-  if (event.permission_decision === 'ask' && (tool === 'Edit' || tool === 'Write') && path) {
-    if (path.startsWith('/Users/sabiridwan/') && !path.startsWith('/Users/sabiridwan/.claude/')) {
-      return `add path root to edit-classifier.mjs SAFE_PREFIXES: ${path.split('/').slice(0, 5).join('/')}/`;
+// Extract tool_use entries from an assistant turn. Returns
+// [{ name, input }] for each tool_use block in message.content.
+function extractToolUses(entry) {
+  if (entry?.type !== 'assistant') return [];
+  const content = entry?.message?.content;
+  if (!Array.isArray(content)) return [];
+  const out = [];
+  for (const c of content) {
+    if (c?.type === 'tool_use' && c?.name) {
+      out.push({ name: c.name, input: c.input || {} });
     }
   }
-  return null;
+  return out;
+}
+
+// Pull every string-ish content out of a tool_result block so we can
+// scan for hook-deny signatures and permission reasons.
+function extractToolResultText(entry) {
+  if (entry?.type !== 'user') return '';
+  const content = entry?.message?.content;
+  if (!Array.isArray(content)) return '';
+  const parts = [];
+  for (const c of content) {
+    if (c?.type === 'tool_result') {
+      const body = c?.content;
+      if (typeof body === 'string') parts.push(body);
+      else if (Array.isArray(body)) {
+        for (const b of body) {
+          if (typeof b === 'string') parts.push(b);
+          else if (b?.text) parts.push(b.text);
+        }
+      }
+    }
+  }
+  return parts.join('\n');
+}
+
+// Build the set of friction signals from the full transcript.
+function collectFriction(lines) {
+  const suggestions = new Set();
+  const bashCounts = new Map(); // cmd -> count
+  let toolUses = 0;
+  let toolResults = 0;
+  let eventsScanned = 0;
+
+  for (const line of lines) {
+    let entry;
+    try { entry = JSON.parse(line); } catch { continue; }
+    if (!entry || typeof entry !== 'object') continue;
+    eventsScanned++;
+
+    for (const tu of extractToolUses(entry)) {
+      toolUses++;
+      if (tu.name === 'Bash' && typeof tu.input?.command === 'string') {
+        const cmd = tu.input.command.replace(/\s+/g, ' ').trim();
+        // Skip trivial commands that always fire (read-only introspection).
+        if (cmd.length < 5) continue;
+        bashCounts.set(cmd, (bashCounts.get(cmd) || 0) + 1);
+      }
+    }
+
+    const resultText = extractToolResultText(entry);
+    if (resultText) toolResults++;
+
+    // Hook-deny signatures: server-mode guard, edit-classifier, skill-classifier
+    if (resultText.includes('permissionDecision') && resultText.includes('"deny"')) {
+      suggestions.add('hook denied a tool call this session — review the reason in the transcript and widen the relevant classifier');
+    }
+    if (resultText.includes('ZYNC SERVER MODE is ACTIVE')) {
+      suggestions.add('session was in server mode — verify no local Mac-path command was needed');
+    }
+    if (resultText.includes('evolve self-tripwire')) {
+      suggestions.add('evolve-self-tripwire blocked a write under skills/zyncai-evolve/ — confirm intentional');
+    }
+    if (resultText.includes('agent concurrency limit') || resultText.includes('Agent concurrency cap')) {
+      suggestions.add('Agent concurrency cap hit — review whether fan-out should be batched smaller');
+    }
+  }
+
+  // Repeated Bash commands => suggest adding to allowlist.
+  for (const [cmd, count] of bashCounts.entries()) {
+    if (count >= REPEAT_THRESHOLD) {
+      const trimmed = cmd.slice(0, 80);
+      suggestions.add(`Bash retried ${count}x — add Bash(${cmd.split(' ')[0]}*) to permissions.allow in ~/.claude/settings.json, OR widen bash-ambiguity-classifier.mjs ALLOW: \`${trimmed}\``);
+    }
+  }
+
+  return { suggestions, eventsScanned, toolUses, toolResults };
 }
 
 (async () => {
@@ -85,7 +157,6 @@ function classifyFriction(event) {
     process.exit(0);
   }
 
-  // Parse transcript for friction events. Transcript is JSONL.
   let transcript;
   try {
     transcript = readFileSync(transcriptPath, 'utf8');
@@ -94,50 +165,38 @@ function classifyFriction(event) {
   }
 
   const lines = transcript.split('\n').filter(Boolean);
-  const suggestions = new Set();
-  let eventsScanned = 0;
-  for (const line of lines) {
-    let entry;
-    try {
-      entry = JSON.parse(line);
-    } catch {
-      continue;
-    }
-    if (!entry || typeof entry !== 'object') continue;
-    eventsScanned++;
-    const sug = classifyFriction(entry);
-    if (sug) suggestions.add(sug);
-  }
+  const { suggestions, eventsScanned, toolUses, toolResults } = collectFriction(lines);
 
-  if (suggestions.size === 0) {
-    process.exit(0);
-  }
+  // Heartbeat first — the loop is observable even when nothing fired.
+  const heartbeat = `## ${nowIso()} session=${sessionId.slice(0, 8)} — ${eventsScanned} events, ${toolUses} tool_use, ${toolResults} tool_result`;
 
-  const block = [
-    ``,
-    `## ${nowIso()} session=${sessionId.slice(0, 8)}`,
-    `cwd: ${cwd}`,
-    `scanned ${eventsScanned} transcript events`,
-    ``,
-    `Friction surfaced:`,
-    ...[...suggestions].slice(0, 20).map((s) => `- ${s}`),
-    ``,
-  ].join('\n');
+  const body = suggestions.size > 0
+    ? [
+        heartbeat,
+        `cwd: ${cwd}`,
+        ``,
+        `Friction surfaced:`,
+        ...[...suggestions].slice(0, 12).map((s) => `- ${s}`),
+        ``,
+      ].join('\n')
+    : [heartbeat, `cwd: ${cwd}`, `(no friction signals)`, ``].join('\n');
 
+  const block = `\n${body}`;
   const trimmed = block.length > MAX_PER_SESSION_BYTES ? block.slice(0, MAX_PER_SESSION_BYTES) + '\n[...truncated]\n' : block;
 
   if (!existsSync(MEMORY_FILE)) {
+    mkdirSync(join(MEMORY_FILE, '..'), { recursive: true });
     const header = [
       `---`,
       `name: zyncai-autonomy-self-improve`,
-      `description: Auto-generated suggestions from self-improve.mjs Stop hook. Each session appends friction events + proposed allow / hook additions.`,
+      `description: Auto-generated heartbeat + friction suggestions from self-improve.mjs Stop hook. Each session appends one block. Promote concrete suggestions into actual allow / hook edits.`,
       `metadata:`,
       `  type: project`,
       `---`,
       ``,
       `# Autonomy self-improve log`,
       ``,
-      `Each entry below was generated by ~/.claude/hooks/self-improve.mjs at session stop. Skim before next planning session; promote any suggestion into an actual allow / hook edit.`,
+      `Each block below was generated by ~/.claude/hooks/self-improve.mjs at session stop. The heartbeat line proves the loop ran; the friction lines are concrete allow / hook edit candidates.`,
       ``,
     ].join('\n');
     writeFileSync(MEMORY_FILE, header + trimmed, 'utf8');
