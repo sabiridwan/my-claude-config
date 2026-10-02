@@ -198,6 +198,16 @@
             "command": "/Users/sabiridwan/.config/iterm2/cc-status"
           }
         ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|Bash|ExitPlanMode",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/sabiridwan/Projects/zyncai/hooks/plan-handoff-guard.py\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreToolUse": [
@@ -277,6 +287,16 @@
           {
             "type": "command",
             "command": "/Users/sabiridwan/.config/iterm2/cc-status"
+          }
+        ]
+      },
+      {
+        "matcher": "Skill",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/sabiridwan/Projects/zyncai/hooks/plan-handoff-guard.py\"",
+            "timeout": 5
           }
         ]
       }
@@ -372,6 +392,15 @@
             "type": "command",
             "command": "/Users/sabiridwan/Projects/zyncai/tools/voice-out/speak-last-reply",
             "statusMessage": "Speaking reply"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/sabiridwan/Projects/zyncai/hooks/plan-handoff-guard.py\"",
+            "timeout": 15
           }
         ]
       }
