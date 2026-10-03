@@ -502,6 +502,7 @@
   "skipWorkflowUsageWarning": true,
   "theme": "auto",
   "autoCompactEnabled": true,
+  "autoCompactWindow": 200000,
   "switchModelsOnFlag": true,
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
