@@ -208,6 +208,16 @@
             "timeout": 5
           }
         ]
+      },
+      {
+        "matcher": "Read|Grep|Glob|Agent|Task|WebFetch|WebSearch|mcp__.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"/Users/sabiridwan/Projects/zyncai/hooks/plan-handoff-guard.py\"",
+            "timeout": 5
+          }
+        ]
       }
     ],
     "PreToolUse": [
