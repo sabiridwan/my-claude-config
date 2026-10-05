@@ -80,15 +80,6 @@
         "lastUpdated": "2026-10-05T06:38:31.084Z"
       }
     ],
-    "notion-tickets@sabir-local": [
-      {
-        "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/sabir-local/notion-tickets/0.3.2",
-        "version": "0.3.2",
-        "installedAt": "2026-10-05T06:38:31.808Z",
-        "lastUpdated": "2026-10-05T07:03:17.789Z"
-      }
-    ],
     "session-pin@sabir-local": [
       {
         "scope": "user",
