@@ -70,6 +70,24 @@
         "lastUpdated": "2026-09-15T04:29:29.005Z",
         "gitCommitSha": "4df4b03ba538751131d24415c59a1fad0d8c2c18"
       }
+    ],
+    "usage-band@sabir-local": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/sabir-local/usage-band/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-10-05T06:38:31.084Z",
+        "lastUpdated": "2026-10-05T06:38:31.084Z"
+      }
+    ],
+    "notion-tickets@sabir-local": [
+      {
+        "scope": "user",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/sabir-local/notion-tickets/0.1.0",
+        "version": "0.1.0",
+        "installedAt": "2026-10-05T06:38:31.808Z",
+        "lastUpdated": "2026-10-05T06:38:31.808Z"
+      }
     ]
   }
 }

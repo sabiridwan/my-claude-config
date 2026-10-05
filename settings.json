@@ -2,8 +2,7 @@
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1",
     "CLAUDE_CODE_MAX_OUTPUT_TOKENS": "64000",
-    "OUISYS_PANEL_TOKEN": "osp_e51f1c586e0b46d72f869ededc24cc0ca9a3901b",
-    "CLAUDE_CODE_PLUGIN_DIRS": "~/.claude/local-plugins/usage-band:~/.claude/local-plugins/notion-tickets"
+    "OUISYS_PANEL_TOKEN": "osp_e51f1c586e0b46d72f869ededc24cc0ca9a3901b"
   },
   "permissions": {
     "allow": [
@@ -483,7 +482,9 @@
     "frontend-design@claude-plugins-official": true,
     "playwright@claude-plugins-official": false,
     "skill-creator@claude-plugins-official": true,
-    "superpowers@claude-plugins-official": true
+    "superpowers@claude-plugins-official": true,
+    "usage-band@sabir-local": true,
+    "notion-tickets@sabir-local": true
   },
   "extraKnownMarketplaces": {
     "caveman": {
@@ -491,8 +492,15 @@
         "source": "github",
         "repo": "JuliusBrussee/caveman"
       }
+    },
+    "sabir-local": {
+      "source": {
+        "source": "directory",
+        "path": "/Users/sabiridwan/.claude/local-plugins"
+      }
     }
   },
+  "autoCompactWindow": 200000,
   "tui": "fullscreen",
   "voice": {
     "enabled": false,
@@ -503,7 +511,6 @@
   "skipWorkflowUsageWarning": true,
   "theme": "auto",
   "autoCompactEnabled": true,
-  "autoCompactWindow": 200000,
   "switchModelsOnFlag": true,
   "remoteControlAtStartup": true,
   "inputNeededNotifEnabled": true,
