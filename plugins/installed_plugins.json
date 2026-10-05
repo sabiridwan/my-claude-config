@@ -92,10 +92,10 @@
     "session-pin@sabir-local": [
       {
         "scope": "user",
-        "installPath": "/Users/sabiridwan/.claude/plugins/cache/sabir-local/session-pin/0.1.0",
-        "version": "0.1.0",
+        "installPath": "/Users/sabiridwan/.claude/plugins/cache/sabir-local/session-pin/0.2.0",
+        "version": "0.2.0",
         "installedAt": "2026-10-05T06:48:53.643Z",
-        "lastUpdated": "2026-10-05T06:48:53.643Z"
+        "lastUpdated": "2026-10-05T06:50:45.354Z"
       }
     ]
   }
