@@ -417,10 +417,13 @@ after this default caught itself contradicting its own git rule the first
 time it committed anything (see below — that inconsistency is exactly the
 kind of thing to fix on sight, not carry forward silently):
 - Never ask a question mid-execution. Resolve it and log the decision instead.
-- Local commits on a branch are normal, expected autonomous work — commit as
-  the task naturally calls for it (a working branch with real commit history
-  is more useful to review than one giant uncommitted diff, especially for
-  multi-step work). The actual boundary is **never merge to main/shared
+- Commit discipline (effective 2026-10-05): ONE commit per COMPLETED task,
+  never per edit or checkpoint — no WIP/save/progress commits. A reviewer
+  must be able to retrace history (a BE repo hit ~500 commits/day). Finish
+  and verify the task, then commit once with a conventional message; for
+  multi-step work, one commit per finished step. Never push to
+  development/main/master directly — push a feature branch and open a PR.
+  `hooks/commit-discipline-guard.py` enforces this. The actual boundary is **never merge to main/shared
   branches and never push, without asking first** — that's the irreversible,
   shared-state step, not the local commit. A repo whose own established
   workflow already gates merge/push behind a quick confirmation (branch →
