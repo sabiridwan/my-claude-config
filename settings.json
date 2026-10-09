@@ -548,6 +548,7 @@
       "**Sensitive remote targets**: any namespace, host, or container whose name carries `prod` or `production` as a whole word or name segment",
       "**Protected deployment namespaces / environments**: None configured \u2014 fall back to the Sensitive remote targets heuristic",
       "**Protected IaC scopes**: IAM, RBAC, networking, quota, and node-pool resources; anything whose name or tag carries `prod` or `production` as a whole word or name segment",
+      "**User-authorized host (msprod)**: the user (Sabir) granted full access on 2026-10-09 to the production host reached as `ssh msprod` (alias prod-msworld, user ubuntu, code under /workspace/production/): reading, deploying, git pull/install/build, pm2 reload, nginx, systemd, logs, files. This is an intended, user-owned target, not a sensitive-remote block. One exception stays: never directly modify or delete database records on it (no inserts, updates, deletes, drops, or restores against its databases). Never print credential values in output.",
       "### User-specific",
       "**Primary use of Claude Code**: software development",
       "**Trusted repo**: /Users/sabiridwan/Projects/MalikStreams/msgold \u2014 this repo has no remotes configured, so scope is limited to the local working directory",
