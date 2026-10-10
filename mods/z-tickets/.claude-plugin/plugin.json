@@ -1,0 +1,14 @@
+{
+  "name": "z-tickets",
+  "version": "0.1.0",
+  "description": "Side panel listing open zyncai (zai-NNNN) tickets, refreshed from ~/.zyncai/tickets.",
+  "types": "./types/index.d.ts",
+  "userConfig": {
+    "storeRoot": {
+      "type": "string",
+      "title": "Ticket store",
+      "description": "Absolute path of the zyncai ticket store",
+      "default": "/Users/sabiridwan/.zyncai/tickets"
+    }
+  }
+}
